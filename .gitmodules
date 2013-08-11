@@ -1,0 +1,3 @@
+[submodule "libtrack"]
+	path = libtrack
+	url = git://github.com/freescale-cup-simulator/libtrack.git
