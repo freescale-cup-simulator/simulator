@@ -1,0 +1,8 @@
+# Hashes of file build rules.
+80e6066b10072ba8791b4ddfa422a58a CMakeFiles/camera-simulator_automoc
+1d50a6470a635f4d6482c7a44de4a265 libtrack/CMakeFiles/track_automoc
+9745d4b05a8a92b3c3bcd179f1db242d libtrack/tinyxml2/CMakeFiles/DATA_COPY
+f91033a22580168086af9e21ea844839 libtrack/tinyxml2/CMakeFiles/test_automoc
+ac9f94be1a641050af95cdeaf14df012 libtrack/tinyxml2/CMakeFiles/tinyxml2_automoc
+925b47b8227559fff2553884dbb44ef3 libtrack/tinyxml2/CMakeFiles/tinyxml2static_automoc
+538f218c167e67e01d49d8dc7d18e4c2 ui_mainwindow.h
