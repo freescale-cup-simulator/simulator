@@ -10,6 +10,10 @@
 qbytearray.h
 /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qbytearray.h
 
+/home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QDebug
+qdebug.h
+/home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qdebug.h
+
 /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QList
 qlist.h
 /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qlist.h
@@ -29,6 +33,10 @@ qsize.h
 /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QString
 qstring.h
 /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qstring.h
+
+/home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QStringList
+qstringlist.h
+/home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qstringlist.h
 
 /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QTimerEvent
 qcoreevent.h
@@ -1069,6 +1077,8 @@ QObject
 -
 QSize
 -
+QStringList
+-
 QByteArray
 -
 QList
@@ -1081,17 +1091,13 @@ QImage
 -
 QString
 -
-track_io.h
+QDebug
 -
 track_model.h
 -
 irrlicht/irrlicht.h
 -
-
-libtrack/track_io.h
-string
--
-track_model.h
+math.h
 -
 
 libtrack/track_model.h

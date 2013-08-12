@@ -92,12 +92,12 @@ void CameraSimulator::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
     if (_c == QMetaObject::InvokeMetaMethod) {
         CameraSimulator *_t = static_cast<CameraSimulator *>(_o);
         switch (_id) {
-        case 0: _t->cameraResponse((*reinterpret_cast< QMap<QString,QVariant>(*)>(_a[1]))); break;
+        case 0: _t->cameraResponse((*reinterpret_cast< const QMap<QString,QVariant>(*)>(_a[1]))); break;
         case 1: _t->repaint((*reinterpret_cast< IrrlichtDevice*(*)>(_a[1]))); break;
         case 2: _t->unloaded(); break;
         case 3: _t->init(); break;
         case 4: _t->onUnload(); break;
-        case 5: _t->onSimulatorResponse((*reinterpret_cast< QMap<QString,QVariant>(*)>(_a[1]))); break;
+        case 5: _t->onSimulatorResponse((*reinterpret_cast< const QMap<QString,QVariant>(*)>(_a[1]))); break;
         case 6: _t->autoUpdateIrrlicht((*reinterpret_cast< IrrlichtDevice*(*)>(_a[1]))); break;
         default: ;
         }
@@ -105,7 +105,7 @@ void CameraSimulator::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
         int *result = reinterpret_cast<int *>(_a[0]);
         void **func = reinterpret_cast<void **>(_a[1]);
         {
-            typedef void (CameraSimulator::*_t)(QMap<QString,QVariant> );
+            typedef void (CameraSimulator::*_t)(const QMap<QString,QVariant> );
             if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&CameraSimulator::cameraResponse)) {
                 *result = 0;
             }
@@ -162,7 +162,7 @@ int CameraSimulator::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void CameraSimulator::cameraResponse(QMap<QString,QVariant> _t1)
+void CameraSimulator::cameraResponse(const QMap<QString,QVariant> _t1)
 {
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);

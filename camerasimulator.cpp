@@ -1,45 +1,22 @@
 #include "camerasimulator.h"
-
-CameraSimulator::CameraSimulator(QString trackFile,QSize deviceSize,QObject *parent) :
+#define PI 3.14159265
+CameraSimulator::CameraSimulator(const TrackModel &track, QSize deviceSize, QObject *parent) :
     QObject(parent)
 {
     m_size=deviceSize;
-    Q_ASSERT(track_library::io::populateTrackFromFile(m_track,trackFile.toStdString()));
+    m_track=track;
+    m_radius=1;
+    m_supported_params<<"camX"<<"camY"<<"camZ"<<"rotateX"<<"rotateY"<<"rotateZ";
+}
+
+const QList<scene::IAnimatedMeshSceneNode *> *CameraSimulator::tiles3d()
+{
+    return &m_tiles3d;
 }
 
 CameraSimulator::~CameraSimulator()
 {
 
-}
-core::vector3df Rotation;
-// this one will rotate node around absolute X and Y axis
-// if you try to rotate around Z (Q,W keys) strange things will happen
-void rotateAround1B(scene::ISceneNode *node, const core::vector3df &origin,
-   const core::vector3df &angle)
-{
-   // current relative position of node against origin
-   core::vector3df pos = node->getPosition() - origin;
-
-   // new rotation of node
-   Rotation += angle;
-
-   // position were node is when unrotated
-   f32 distance = pos.getLength();
-   core::vector3df newPos(0,0,distance); // this assumes Z axis points "forward"
-
-   // now rotate position vector with new rotation
-   // to find out new position of node
-   core::matrix4 m;
-   m.setRotationDegrees(Rotation);
-   m.rotateVect(newPos);
-   // get it absolute
-   newPos += origin;
-
-   // position node
-   node->setPosition(newPos);
-
-   //cout << "X: " << Rotation.X << ", Y: " << Rotation.Y << ", Z: " << Rotation.Z
-   //   <<endl;
 }
 
 void CameraSimulator::init()
@@ -56,10 +33,10 @@ void CameraSimulator::init()
     m_driver=m_device->getVideoDriver();
     m_camera=m_manager->addCameraSceneNode();
 
-    m_camera->setPosition(core::vector3df(0, 2, -2));
+    m_camera->setPosition(core::vector3df(0, 4, -2));
     m_camera->setRotation(core::vector3df(0,0,0));
     m_camera->setTarget(core::vector3df(0,0,-2));
-    m_camera->setUpVector(core::vector3df(0,0,1));
+    m_camera->setUpVector(core::vector3df(0,1,0));
     m_camera->updateAbsolutePosition();
 
     video::ITexture *front=m_driver->getTexture("images/skyrender0001.bmp");
@@ -86,40 +63,51 @@ void CameraSimulator::init()
     QList<Tile> tiles=QList<Tile>::fromStdList(m_track.tiles());
     foreach (Tile tile, tiles) {
         QString modelName;
+        QString textureName;
         switch(tile.type())
         {
         case Tile::Line:
             modelName="models/line.dae";
+            textureName="images/line.jpg";
             break;
         case Tile::Crossing:
             modelName="models/crossing.dae";
+            textureName="images/crossing.png";
             break;
         case Tile::Start:
             modelName="models/start.dae";
+            textureName="images/start.png";
             break;
         case Tile::Saw:
             modelName="models/saw.dae";
+            textureName="images/saw.png";
             break;
         case Tile::Turn:
             modelName="models/turn.dae";
+            textureName="images/turn.png";
             break;
         default:
             modelName="models/empty.dae";
+            textureName="images/empty.png";
         }
-        auto tileMesh=m_manager->getMesh(modelName.toStdString().c_str());/*m_manager->addHillPlaneMesh("", core::dimension2d<f32>(1, 1),
+        //auto tileMesh=m_manager->getMesh(modelName.toStdString().c_str());
+        auto tileMesh=m_manager->addHillPlaneMesh("", core::dimension2d<f32>(1, 1),
                                                   core::dimension2d<u32>(1, 1),
-                                                  0, 0, core::dimension2d<f32>(0, 0),core::dimension2d<f32>(1, 1));*/
+                                                  0, 0, core::dimension2d<f32>(0, 0),core::dimension2d<f32>(1, 1));
         auto tilePlane=m_manager->addAnimatedMeshSceneNode(tileMesh);
-        tilePlane->setScale(core::vector3df(0.5,0.5,0.5));
+        tilePlane->setMaterialTexture(0,m_driver->getTexture(textureName.toStdString().c_str()));
+        //tilePlane->setScale(core::vector3df(0.5,0.5,0.5));
         tilePlane->setMaterialFlag(video::EMF_LIGHTING, false);
-        //rotateAround1B(tilePlane,core::vector3df(tile.x()+offsetX+0.5f,0.04f,tile.y()+offsetZ-0.5f),core::vector3df(0,-tile.rotation(),0));
         tilePlane->setRotation(core::vector3df(0,tile.rotation(),0));
-        tilePlane->setPosition(core::vector3df(tile.x()+offsetX,0.04f,-tile.y()+offsetZ));
-        //tilePlane->setMaterialTexture(0, m_driver->getTexture(textureName.toStdString().c_str()));
+        tilePlane->setPosition(core::vector3df(tile.x()+offsetX,0.01f,-tile.y()+offsetZ));
+        m_tiles3d<<tilePlane;
     }
-
+    m_target=m_manager->addBillboardSceneNode(0,core::dimension2df(0.1,0.1),core::vector3df(0,0,0));
+    m_target->setMaterialFlag(video::EMF_LIGHTING, false);
+    m_target->setMaterialType( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
+    m_target->setMaterialTexture(0,m_driver->getTexture("images/target.png"));
     m_texture=m_driver->addRenderTargetTexture(core::dimension2d<u32>(m_size.width(),m_size.height()), "frame",video::ECF_R8G8B8);
-
+    //m_capture=true;
     m_timerid=startTimer(0);
 }
 
@@ -130,9 +118,34 @@ void CameraSimulator::onUnload()
     emit unloaded();
 }
 
-void CameraSimulator::onSimulatorResponse(QMap<QString, QVariant> params)
+void CameraSimulator::onSimulatorResponse(const QMap<QString, QVariant> params)
 {
-
+    int i=0;
+    foreach (QString key, m_supported_params) {
+        QVariant param=params[key];
+        if(param.canConvert(QMetaType::Float))
+            m_position[i]=param.toFloat();
+        else
+        {
+            m_position[i]=0;
+            qDebug()<<"CameraSimulator: Can't convert "<<key<<" to Float";
+        }
+        //qDebug()<<params[key];
+        i++;
+    }
+    m_camera->setPosition(core::vector3df(m_position[0],m_position[1],m_position[2]));
+    core::vector3df targetPos(
+                m_radius*cos(m_position[5]*PI/180)*cos(m_position[4]*PI/180)+m_position[0],
+                m_radius*cos(m_position[5]*PI/180)*sin(m_position[4]*PI/180)+m_position[1],
+                m_radius*sin(m_position[5]*PI/180)+m_position[2]
+            );
+    //qDebug()<<M_PI_2;
+    qDebug()<<targetPos.X<<targetPos.Y<<targetPos.Z;
+    m_camera->setTarget(targetPos);
+    m_target->setPosition(targetPos);
+    m_target->updateAbsolutePosition();
+    m_camera->updateAbsolutePosition();
+    m_capture=true;
 }
 
 

@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[4];
-    char stringdata[37];
+    QByteArrayData data[6];
+    char stringdata[77];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -30,11 +30,14 @@ struct qt_meta_stringdata_MainWindow_t {
 static const qt_meta_stringdata_MainWindow_t qt_meta_stringdata_MainWindow = {
     {
 QT_MOC_LITERAL(0, 0, 10),
-QT_MOC_LITERAL(1, 11, 16),
-QT_MOC_LITERAL(2, 28, 0),
-QT_MOC_LITERAL(3, 29, 6)
+QT_MOC_LITERAL(1, 11, 17),
+QT_MOC_LITERAL(2, 29, 0),
+QT_MOC_LITERAL(3, 30, 6),
+QT_MOC_LITERAL(4, 37, 16),
+QT_MOC_LITERAL(5, 54, 21)
     },
-    "MainWindow\0onCameraResponse\0\0params\0"
+    "MainWindow\0simulatorResponse\0\0params\0"
+    "onCameraResponse\0onCameraParamsChanged\0"
 };
 #undef QT_MOC_LITERAL
 
@@ -44,18 +47,26 @@ static const uint qt_meta_data_MainWindow[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       1,   14, // methods
+       3,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       0,       // signalCount
+       1,       // signalCount
+
+ // signals: name, argc, parameters, tag, flags
+       1,    1,   29,    2, 0x05,
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,   19,    2, 0x0a,
+       4,    1,   32,    2, 0x0a,
+       5,    0,   35,    2, 0x0a,
+
+ // signals: parameters
+    QMetaType::Void, QMetaType::QVariantMap,    3,
 
  // slots: parameters
     QMetaType::Void, QMetaType::QVariantMap,    3,
+    QMetaType::Void,
 
        0        // eod
 };
@@ -65,8 +76,19 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
     if (_c == QMetaObject::InvokeMetaMethod) {
         MainWindow *_t = static_cast<MainWindow *>(_o);
         switch (_id) {
-        case 0: _t->onCameraResponse((*reinterpret_cast< QMap<QString,QVariant>(*)>(_a[1]))); break;
+        case 0: _t->simulatorResponse((*reinterpret_cast< const QMap<QString,QVariant>(*)>(_a[1]))); break;
+        case 1: _t->onCameraResponse((*reinterpret_cast< QMap<QString,QVariant>(*)>(_a[1]))); break;
+        case 2: _t->onCameraParamsChanged(); break;
         default: ;
+        }
+    } else if (_c == QMetaObject::IndexOfMethod) {
+        int *result = reinterpret_cast<int *>(_a[0]);
+        void **func = reinterpret_cast<void **>(_a[1]);
+        {
+            typedef void (MainWindow::*_t)(const QMap<QString,QVariant> );
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&MainWindow::simulatorResponse)) {
+                *result = 0;
+            }
         }
     }
 }
@@ -96,14 +118,21 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 1)
+        if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
+        _id -= 3;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 1)
+        if (_id < 3)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 1;
+        _id -= 3;
     }
     return _id;
+}
+
+// SIGNAL 0
+void MainWindow::simulatorResponse(const QMap<QString,QVariant> _t1)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 QT_END_MOC_NAMESPACE

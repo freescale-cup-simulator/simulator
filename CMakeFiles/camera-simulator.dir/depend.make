@@ -8,6 +8,7 @@ CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QObject
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QSize
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QString
+CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QStringList
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QThread
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QTimerEvent
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QVariant
@@ -76,6 +77,7 @@ CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qrect.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qrefcount.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qregexp.h
+CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qregularexpression.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qscopedpointer.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qset.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qshareddata.h
@@ -121,15 +123,19 @@ CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qrgb.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qtouchdevice.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qtransform.h
+CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qvalidator.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qvector2d.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qwindowdefs.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qwindowdefs_win.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QApplication
+CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QDoubleSpinBox
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QMainWindow
+CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qabstractspinbox.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qapplication.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qdesktopwidget.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qmainwindow.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qsizepolicy.h
+CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qspinbox.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qtabwidget.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qwidget.h
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: camera-simulator_automoc.cpp
@@ -141,11 +147,13 @@ CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: libtrack/track_i
 CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o: libtrack/track_model.h
 
 CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QByteArray
+CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QDebug
 CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QList
 CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QMap
 CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QObject
 CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QSize
 CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QString
+CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QStringList
 CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QTimerEvent
 CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QVariant
 CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qalgorithms.h
@@ -265,7 +273,6 @@ CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: /home/gleab/Qt/5.1.0/gcc_
 CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qwidget.h
 CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: camerasimulator.cpp
 CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: camerasimulator.h
-CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: libtrack/track_io.h
 CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o: libtrack/track_model.h
 
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QByteArray
@@ -275,6 +282,7 @@ CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QObject
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QSize
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QString
+CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QStringList
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QThread
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QTimerEvent
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QVariant
@@ -343,6 +351,7 @@ CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qrect.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qrefcount.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qregexp.h
+CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qregularexpression.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qscopedpointer.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qset.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qshareddata.h
@@ -388,15 +397,19 @@ CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qrgb.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qtouchdevice.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qtransform.h
+CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qvalidator.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qvector2d.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qwindowdefs.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qwindowdefs_win.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QApplication
+CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QDoubleSpinBox
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QMainWindow
+CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qabstractspinbox.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qapplication.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qdesktopwidget.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qmainwindow.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qsizepolicy.h
+CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qspinbox.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qtabwidget.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qwidget.h
 CMakeFiles/camera-simulator.dir/main.cpp.o: main.cpp
@@ -412,6 +425,7 @@ CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/in
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QObject
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QSize
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QString
+CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QStringList
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QThread
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QTimerEvent
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QVariant
@@ -535,7 +549,12 @@ CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/in
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QAction
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QApplication
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QButtonGroup
+CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QDoubleSpinBox
+CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QFormLayout
+CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QGroupBox
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QHeaderView
+CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QLabel
+CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QLayout
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QMainWindow
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QWidget
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qabstractitemdelegate.h
@@ -546,14 +565,22 @@ CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/in
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qaction.h
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qactiongroup.h
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qapplication.h
+CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qboxlayout.h
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qbuttongroup.h
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qdesktopwidget.h
+CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qformlayout.h
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qframe.h
+CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qgridlayout.h
+CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qgroupbox.h
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qheaderview.h
+CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qlabel.h
+CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qlayout.h
+CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qlayoutitem.h
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qmainwindow.h
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qrubberband.h
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qsizepolicy.h
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qslider.h
+CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qspinbox.h
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qstyle.h
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qstyleoption.h
 CMakeFiles/camera-simulator.dir/mainwindow.cpp.o: /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qtabbar.h

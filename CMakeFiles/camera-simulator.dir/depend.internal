@@ -9,6 +9,7 @@ CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QObject
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QSize
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QString
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QStringList
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QThread
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QTimerEvent
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QVariant
@@ -77,6 +78,7 @@ CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qrect.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qrefcount.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qregexp.h
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qregularexpression.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qscopedpointer.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qset.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qshareddata.h
@@ -122,15 +124,19 @@ CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o
  /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qrgb.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qtouchdevice.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qtransform.h
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qvalidator.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qvector2d.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qwindowdefs.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qwindowdefs_win.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QApplication
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QDoubleSpinBox
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QMainWindow
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qabstractspinbox.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qapplication.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qdesktopwidget.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qmainwindow.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qsizepolicy.h
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qspinbox.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qtabwidget.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qwidget.h
  /home/gleab/Work/freescale-simulator/camera-simulator/camera-simulator_automoc.cpp
@@ -142,11 +148,13 @@ CMakeFiles/camera-simulator.dir/camera-simulator_automoc.cpp.o
  libtrack/track_model.h
 CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QByteArray
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QDebug
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QList
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QMap
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QObject
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QSize
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QString
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QStringList
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QTimerEvent
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QVariant
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qalgorithms.h
@@ -266,7 +274,6 @@ CMakeFiles/camera-simulator.dir/camerasimulator.cpp.o
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qwidget.h
  /home/gleab/Work/freescale-simulator/camera-simulator/camerasimulator.cpp
  /home/gleab/Work/freescale-simulator/camera-simulator/camerasimulator.h
- libtrack/track_io.h
  libtrack/track_model.h
 CMakeFiles/camera-simulator.dir/main.cpp.o
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QByteArray
@@ -276,6 +283,7 @@ CMakeFiles/camera-simulator.dir/main.cpp.o
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QObject
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QSize
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QString
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QStringList
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QThread
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QTimerEvent
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QVariant
@@ -344,6 +352,7 @@ CMakeFiles/camera-simulator.dir/main.cpp.o
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qrect.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qrefcount.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qregexp.h
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qregularexpression.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qscopedpointer.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qset.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/qshareddata.h
@@ -389,15 +398,19 @@ CMakeFiles/camera-simulator.dir/main.cpp.o
  /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qrgb.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qtouchdevice.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qtransform.h
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qvalidator.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qvector2d.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qwindowdefs.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtGui/qwindowdefs_win.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QApplication
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QDoubleSpinBox
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QMainWindow
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qabstractspinbox.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qapplication.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qdesktopwidget.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qmainwindow.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qsizepolicy.h
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qspinbox.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qtabwidget.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qwidget.h
  /home/gleab/Work/freescale-simulator/camera-simulator/main.cpp
@@ -413,6 +426,7 @@ CMakeFiles/camera-simulator.dir/mainwindow.cpp.o
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QObject
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QSize
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QString
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QStringList
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QThread
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QTimerEvent
  /home/gleab/Qt/5.1.0/gcc_64/include/QtCore/QVariant
@@ -536,7 +550,12 @@ CMakeFiles/camera-simulator.dir/mainwindow.cpp.o
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QAction
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QApplication
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QButtonGroup
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QDoubleSpinBox
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QFormLayout
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QGroupBox
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QHeaderView
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QLabel
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QLayout
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QMainWindow
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/QWidget
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qabstractitemdelegate.h
@@ -547,14 +566,22 @@ CMakeFiles/camera-simulator.dir/mainwindow.cpp.o
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qaction.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qactiongroup.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qapplication.h
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qboxlayout.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qbuttongroup.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qdesktopwidget.h
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qformlayout.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qframe.h
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qgridlayout.h
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qgroupbox.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qheaderview.h
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qlabel.h
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qlayout.h
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qlayoutitem.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qmainwindow.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qrubberband.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qsizepolicy.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qslider.h
+ /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qspinbox.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qstyle.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qstyleoption.h
  /home/gleab/Qt/5.1.0/gcc_64/include/QtWidgets/qtabbar.h
