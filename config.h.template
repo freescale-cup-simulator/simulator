@@ -1,0 +1,8 @@
+#ifndef CONFIG_H_INCLUDED
+#define CONFIG_H_INCLUDED
+
+// automatically inserted by CMake
+#define RESOURCE_DIRECTORY "@RESOURCE_DIR@"
+#define LUA_DIRECTORY "@LUA_SCRIPT_DIR@"
+
+#endif
