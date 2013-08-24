@@ -6,9 +6,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    m_velocity.setX(0);
+    m_velocity.setX(1);
     m_velocity.setY(0);
-    m_velocity.setZ(1);
+    m_velocity.setZ(0);
     m_thread_cam=new QThread();
     m_thread_algo=new QThread();
     TrackModel model;
@@ -74,17 +74,17 @@ MainWindow::MainWindow(QWidget *parent) :
     btRigidBody * ground =new btRigidBody(ground_ci);
     m_world->addRigidBody(ground);
 
-    btSphereShape * sphere_shape =new btSphereShape(5);
+    btBoxShape * box_shape =new btBoxShape(btVector3(3,3,3));
     btScalar mass = 1;
     btVector3 inertia (0, 0, 0);
 
-    btDefaultMotionState * sphere_motion_state=new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1),
+    btDefaultMotionState * box_motion_state=new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1),
                                                           btVector3(0,2.5, 0)));
-    sphere_shape->calculateLocalInertia(mass, inertia);
-    btRigidBody::btRigidBodyConstructionInfo sphere_ci (mass, sphere_motion_state,
-                                                        sphere_shape, inertia);
+    box_shape->calculateLocalInertia(mass, inertia);
+    btRigidBody::btRigidBodyConstructionInfo box_ci (mass, box_motion_state,
+                                                        box_shape, inertia);
 
-    m_object=new btRigidBody(sphere_ci);
+    m_object=new btRigidBody(box_ci);
     m_world->addRigidBody(m_object);
     ui->poseX->setValue(0.6);
     ui->poseY->setValue(0.6);
@@ -162,11 +162,10 @@ void MainWindow::onControlSignal(const DataSet &data)
         }
         else
             allowRotate=true;
-    }
-    if(allowRotate)
-        m_velocity=m_velocity.rotate(btVector3(0,1,0),data["angle"].toFloat()-90);
-*/
-    m_timer=startTimer(500);
+    }*/
+    //if(allowRotate)
+        m_velocity=m_velocity.rotate(btVector3(0,1,0),data["angle"].toFloat());
+    m_timer=startTimer(600);
 }
 
 void MainWindow::timerEvent(QTimerEvent *e)
@@ -182,7 +181,6 @@ void MainWindow::timerEvent(QTimerEvent *e)
     btVector3 p = t.getOrigin();
     btQuaternion r=t.getRotation();
     map.clear();
-    //qDebug()<<r.y();
     map["camX"]=p.getX();
     map["camY"]=ui->poseY->value();
     map["camZ"]=p.getZ();
@@ -196,20 +194,4 @@ void MainWindow::timerEvent(QTimerEvent *e)
 void MainWindow::on_pushButton_clicked()
 {
     startTimer(1000);
-    /*map.clear();
-    map["camX"]=QVariant(ui->poseX->value());
-    map["camY"]=QVariant(ui->poseY->value());
-    map["camZ"]=QVariant(ui->poseZ->value());
-    map["rotateX"]=QVariant(ui->rotX->value());
-    map["rotateY"]=QVariant(ui->rotY->value());
-    map["rotateZ"]=QVariant(ui->rotZ->value());*/
-    /*core::vector3df targetPos=m_camera->getTargetPosition();
-    targetPos.Y=0;
-    core::vector3df camPos(ui->poseX->value(),0,ui->poseZ->value());
-    core::vector3df targetVector(targetPos.X-camPos.X,0,targetPos.Z-camPos.Z);
-    qDebug()<<targetVector.getLength();
-    qDebug()<<targetVector.X<<targetVector.Y<<targetVector.Z;
-    targetVector.setLength(0.5);
-    qDebug()<<targetVector.X<<targetVector.Y<<targetVector.Z;*/
-    //emit simulatorResponse(map);
 }
