@@ -14,6 +14,11 @@ const QList<scene::IAnimatedMeshSceneNode *> *CameraSimulator::tiles3d()
     return &m_tiles3d;
 }
 
+core::vector3df CameraSimulator::getTargetPosition()
+{
+    return m_camera->getTarget();
+}
+
 CameraSimulator::~CameraSimulator()
 {
 
@@ -33,9 +38,9 @@ void CameraSimulator::init()
     m_driver=m_device->getVideoDriver();
     m_camera=m_manager->addCameraSceneNode();
 
-    m_camera->setPosition(core::vector3df(0, 4, -2));
+    m_camera->setPosition(core::vector3df(0, 4, 0));
     m_camera->setRotation(core::vector3df(0,0,0));
-    m_camera->setTarget(core::vector3df(0,0,-2));
+    //m_camera->setTarget(core::vector3df(0,0,-2));
     m_camera->setUpVector(core::vector3df(0,1,0));
     m_camera->updateAbsolutePosition();
 
@@ -50,17 +55,18 @@ void CameraSimulator::init()
     auto planeMesh = m_manager->addHillPlaneMesh("plane", core::dimension2d<f32>(1, 1),
                                         core::dimension2d<u32>(m_track.width(), m_track.height()),
                                         0, 0, core::dimension2d<f32>(0, 0),
-                                        core::dimension2d<f32>(4, 4));
+                                        core::dimension2d<f32>(m_track.width()/2, m_track.height()/2));
     auto plane = m_manager->addAnimatedMeshSceneNode(planeMesh);
     plane->setMaterialTexture(0, m_driver->getTexture("images/texture.jpg"));
     plane->setMaterialFlag(video::EMF_LIGHTING, false);
 
-    plane->setPosition(core::vector3df(0, 0, 0));
-    float offsetX,offsetZ;
-    offsetX=-m_track.width()/2+0.5f;
-    offsetZ=m_track.width()/2-0.5f;
+    plane->setPosition(core::vector3df(m_track.width()/2, 0, m_track.height()/2));
+    //float offsetX,offsetZ;
+    //offsetX=0.5;
+    //offsetZ=m_track.height()-0.5;
     plane->setRotation(core::vector3df(0, 0, 0));
     QList<Tile> tiles=QList<Tile>::fromStdList(m_track.tiles());
+    //int i=0;
     foreach (Tile tile, tiles) {
         QString modelName;
         QString textureName;
@@ -90,17 +96,20 @@ void CameraSimulator::init()
             modelName="models/empty.dae";
             textureName="images/empty.png";
         }
-        //auto tileMesh=m_manager->getMesh(modelName.toStdString().c_str());
-        auto tileMesh=m_manager->addHillPlaneMesh("", core::dimension2d<f32>(1, 1),
+        auto tileMesh=m_manager->getMesh(modelName.toStdString().c_str());
+        /*auto tileMesh=m_manager->addHillPlaneMesh("", core::dimension2d<f32>(1, 1),
                                                   core::dimension2d<u32>(1, 1),
-                                                  0, 0, core::dimension2d<f32>(0, 0),core::dimension2d<f32>(1, 1));
+                                                  0, 0, core::dimension2d<f32>(0, 0),core::dimension2d<f32>(1, 1));*/
         auto tilePlane=m_manager->addAnimatedMeshSceneNode(tileMesh);
-        tilePlane->setMaterialTexture(0,m_driver->getTexture(textureName.toStdString().c_str()));
-        //tilePlane->setScale(core::vector3df(0.5,0.5,0.5));
+        //tilePlane->setMaterialTexture(0,m_driver->getTexture(textureName.toStdString().c_str()));
+        tilePlane->setScale(core::vector3df(0.5,0,0.5));
         tilePlane->setMaterialFlag(video::EMF_LIGHTING, false);
-        tilePlane->setRotation(core::vector3df(0,tile.rotation(),0));
-        tilePlane->setPosition(core::vector3df(tile.x()+offsetX,0.01f,-tile.y()+offsetZ));
+        tilePlane->setRotation(core::vector3df(0,tile.rotation()-90,0));
+        tilePlane->setPosition(core::vector3df(tile.y()+0.5,0.01f,tile.x()+0.5));
         m_tiles3d<<tilePlane;
+        //i++;
+        //if(i==2)
+        //    break;
     }
     m_target=m_manager->addBillboardSceneNode(0,core::dimension2df(0.1,0.1),core::vector3df(0,0,0));
     m_target->setMaterialFlag(video::EMF_LIGHTING, false);
@@ -108,6 +117,7 @@ void CameraSimulator::init()
     m_target->setMaterialTexture(0,m_driver->getTexture("images/target.png"));
     m_texture=m_driver->addRenderTargetTexture(core::dimension2d<u32>(m_size.width(),m_size.height()), "frame",video::ECF_R8G8B8);
     //m_capture=true;
+    m_camera->bindTargetAndRotation(true);
     m_timerid=startTimer(0);
 }
 
@@ -134,17 +144,13 @@ void CameraSimulator::onSimulatorResponse(const QMap<QString, QVariant> params)
         i++;
     }
     m_camera->setPosition(core::vector3df(m_position[0],m_position[1],m_position[2]));
-    core::vector3df targetPos(
-                m_radius*cos(m_position[5]*PI/180)*cos(m_position[4]*PI/180)+m_position[0],
-                m_radius*cos(m_position[5]*PI/180)*sin(m_position[4]*PI/180)+m_position[1],
-                m_radius*sin(m_position[5]*PI/180)+m_position[2]
-            );
-    //qDebug()<<M_PI_2;
-    qDebug()<<targetPos.X<<targetPos.Y<<targetPos.Z;
-    m_camera->setTarget(targetPos);
-    m_target->setPosition(targetPos);
-    m_target->updateAbsolutePosition();
     m_camera->updateAbsolutePosition();
+    m_camera->setRotation(core::vector3df(m_position[3],m_position[4],m_position[5]));
+    m_camera->updateAbsolutePosition();
+    m_target->setPosition(m_camera->getTarget());
+    m_target->updateAbsolutePosition();
+
+    qDebug()<<m_camera->getUpVector().X<<m_camera->getUpVector().Y<<m_camera->getUpVector().Z;
     m_capture=true;
 }
 
@@ -166,12 +172,12 @@ void CameraSimulator::autoUpdateIrrlicht(IrrlichtDevice *device)
         QImage qimg((uchar*)imageData, m_size.width(),m_size.height(),QImage::Format_RGB32);
         QRgb * line=(QRgb *)qimg.scanLine(m_size.height()/2);
         for(int i=0;i<m_size.width();i++)
-            m_frame.append(qGray(line[i]));
+            m_frame.append(qRed(line[i]));
         m_texture->unlock();
         m_capture=false;
-        QMap<QString,QVariant> params;
-        params["frame"]=QVariant(m_frame);
-        emit cameraResponse(params);
+        //QMap<QString,QVariant> params;
+        //params["frame"]=QVariant(m_frame);
+        emit cameraResponse(m_frame);
     }
     device->getSceneManager()->drawAll();
     device->getVideoDriver()->endScene();

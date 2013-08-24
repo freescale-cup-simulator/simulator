@@ -8,6 +8,10 @@
     mainwindow.cpp
     mainwindow.h
     main.cpp
+    IControlAlgorithm.h
+    LuaControlAlgorithm.h
+    LuaControlAlgorithm.cpp
+    Common.h
     mainwindow.ui
 )
 
@@ -26,6 +30,8 @@
   find_package(Qt5Widgets REQUIRED)
   
   include(FindIrrlicht.cmake)
+  find_package(Bullet REQUIRED)
+  find_package(Lua52 REQUIRED)
 
   if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS_DEBUG
@@ -38,6 +44,8 @@
   include_directories(
     libtrack
     ${IRRLICHT_INCLUDE_DIRS}
+    ${BULLET_INCLUDE_DIRS}
+    ${LUA_INCLUDE_DIR}
   )
   
   message(STATUS "Build type is: ${CMAKE_BUILD_TYPE}")
@@ -48,4 +56,4 @@
   # Support UI files
   qt5_wrap_ui(ui_mainwindow.h mainwindow.ui)
   
-  target_link_libraries(camera-simulator track ${IRRLICHT_LIBRARIES})
+  target_link_libraries(camera-simulator track ${IRRLICHT_LIBRARIES} ${BULLET_LIBRARIES} ${LUA_LIBRARIES} )

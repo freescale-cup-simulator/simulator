@@ -285,6 +285,30 @@ tinyxml2static_automoc/fast:
 	$(MAKE) -f libtrack/tinyxml2/CMakeFiles/tinyxml2static_automoc.dir/build.make libtrack/tinyxml2/CMakeFiles/tinyxml2static_automoc.dir/build
 .PHONY : tinyxml2static_automoc/fast
 
+LuaControlAlgorithm.o: LuaControlAlgorithm.cpp.o
+.PHONY : LuaControlAlgorithm.o
+
+# target to build an object file
+LuaControlAlgorithm.cpp.o:
+	$(MAKE) -f CMakeFiles/camera-simulator.dir/build.make CMakeFiles/camera-simulator.dir/LuaControlAlgorithm.cpp.o
+.PHONY : LuaControlAlgorithm.cpp.o
+
+LuaControlAlgorithm.i: LuaControlAlgorithm.cpp.i
+.PHONY : LuaControlAlgorithm.i
+
+# target to preprocess a source file
+LuaControlAlgorithm.cpp.i:
+	$(MAKE) -f CMakeFiles/camera-simulator.dir/build.make CMakeFiles/camera-simulator.dir/LuaControlAlgorithm.cpp.i
+.PHONY : LuaControlAlgorithm.cpp.i
+
+LuaControlAlgorithm.s: LuaControlAlgorithm.cpp.s
+.PHONY : LuaControlAlgorithm.s
+
+# target to generate assembly for a file
+LuaControlAlgorithm.cpp.s:
+	$(MAKE) -f CMakeFiles/camera-simulator.dir/build.make CMakeFiles/camera-simulator.dir/LuaControlAlgorithm.cpp.s
+.PHONY : LuaControlAlgorithm.cpp.s
+
 camera-simulator_automoc.o: camera-simulator_automoc.cpp.o
 .PHONY : camera-simulator_automoc.o
 
@@ -404,6 +428,9 @@ help:
 	@echo "... tinyxml2_automoc"
 	@echo "... tinyxml2static"
 	@echo "... tinyxml2static_automoc"
+	@echo "... LuaControlAlgorithm.o"
+	@echo "... LuaControlAlgorithm.i"
+	@echo "... LuaControlAlgorithm.s"
 	@echo "... camera-simulator_automoc.o"
 	@echo "... camera-simulator_automoc.i"
 	@echo "... camera-simulator_automoc.s"

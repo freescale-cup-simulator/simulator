@@ -28,11 +28,12 @@ class CameraSimulator : public QObject
 public:
     explicit CameraSimulator(const TrackModel &track,QSize deviceSize=QSize(128,128),QObject *parent = 0);
     const QList<scene::IAnimatedMeshSceneNode *> * tiles3d();
+    core::vector3df getTargetPosition();
     ~CameraSimulator();
     
 signals:
 
-    void cameraResponse(const QMap<QString,QVariant> params);
+    void cameraResponse(const QByteArray & frame);
     void repaint(IrrlichtDevice * device);
     void unloaded();
 public slots:

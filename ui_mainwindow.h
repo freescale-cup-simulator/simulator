@@ -19,6 +19,7 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -46,6 +47,8 @@ public:
     QDoubleSpinBox *poseZ;
     QGroupBox *groupBox_2;
     QLabel *picture;
+    QPushButton *pushButton;
+    QLabel *lineWidth;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -157,6 +160,12 @@ public:
         picture = new QLabel(groupBox_2);
         picture->setObjectName(QStringLiteral("picture"));
         picture->setGeometry(QRect(10, 30, 141, 20));
+        pushButton = new QPushButton(groupBox);
+        pushButton->setObjectName(QStringLiteral("pushButton"));
+        pushButton->setGeometry(QRect(170, 60, 81, 22));
+        lineWidth = new QLabel(groupBox);
+        lineWidth->setObjectName(QStringLiteral("lineWidth"));
+        lineWidth->setGeometry(QRect(140, 190, 57, 14));
         MainWindow->setCentralWidget(centralWidget);
 
         retranslateUi(MainWindow);
@@ -176,6 +185,8 @@ public:
         label_3->setText(QApplication::translate("MainWindow", "Z:", 0));
         groupBox_2->setTitle(QApplication::translate("MainWindow", "Camera frame", 0));
         picture->setText(QString());
+        pushButton->setText(QApplication::translate("MainWindow", "Go", 0));
+        lineWidth->setText(QString());
     } // retranslateUi
 
 };

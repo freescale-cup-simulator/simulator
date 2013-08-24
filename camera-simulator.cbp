@@ -38,9 +38,11 @@
             <Add directory="/home/gleab/Work/freescale-simulator/camera-simulator" />
             <Add directory="/home/gleab/Work/freescale-simulator/camera-simulator/libtrack" />
             <Add directory="/usr/include" />
+            <Add directory="/usr/include/bullet" />
             <Add directory="/usr/include/c++/4.7" />
             <Add directory="/usr/include/c++/4.7/backward" />
             <Add directory="/usr/include/irrlicht" />
+            <Add directory="/usr/include/lua5.2" />
             <Add directory="/usr/include/x86_64-linux-gnu" />
             <Add directory="/usr/include/x86_64-linux-gnu/c++/4.7/." />
             <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.7/include" />
@@ -75,9 +77,11 @@
             <Add directory="/home/gleab/Work/freescale-simulator/camera-simulator" />
             <Add directory="/home/gleab/Work/freescale-simulator/camera-simulator/libtrack" />
             <Add directory="/usr/include" />
+            <Add directory="/usr/include/bullet" />
             <Add directory="/usr/include/c++/4.7" />
             <Add directory="/usr/include/c++/4.7/backward" />
             <Add directory="/usr/include/irrlicht" />
+            <Add directory="/usr/include/lua5.2" />
             <Add directory="/usr/include/x86_64-linux-gnu" />
             <Add directory="/usr/include/x86_64-linux-gnu/c++/4.7/." />
             <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.7/include" />
@@ -412,6 +416,8 @@
          </MakeCommands>
       </Target>
       </Build>
+      <Unit filename="/home/gleab/Work/freescale-simulator/camera-simulator/LuaControlAlgorithm.cpp">
+      </Unit>
       <Unit filename="/home/gleab/Work/freescale-simulator/camera-simulator/camerasimulator.cpp">
       </Unit>
       <Unit filename="/home/gleab/Work/freescale-simulator/camera-simulator/libtrack/tinyxml2/tinyxml2.cpp">
@@ -425,6 +431,12 @@
       <Unit filename="/home/gleab/Work/freescale-simulator/camera-simulator/main.cpp">
       </Unit>
       <Unit filename="/home/gleab/Work/freescale-simulator/camera-simulator/mainwindow.cpp">
+      </Unit>
+      <Unit filename="/home/gleab/Work/freescale-simulator/camera-simulator/Common.h">
+      </Unit>
+      <Unit filename="/home/gleab/Work/freescale-simulator/camera-simulator/IControlAlgorithm.h">
+      </Unit>
+      <Unit filename="/home/gleab/Work/freescale-simulator/camera-simulator/LuaControlAlgorithm.h">
       </Unit>
       <Unit filename="/home/gleab/Work/freescale-simulator/camera-simulator/camerasimulator.h">
       </Unit>

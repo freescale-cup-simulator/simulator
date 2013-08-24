@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_CameraSimulator_t {
-    QByteArrayData data[12];
-    char stringdata[133];
+    QByteArrayData data[13];
+    char stringdata[139];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -32,20 +32,21 @@ static const qt_meta_stringdata_CameraSimulator_t qt_meta_stringdata_CameraSimul
 QT_MOC_LITERAL(0, 0, 15),
 QT_MOC_LITERAL(1, 16, 14),
 QT_MOC_LITERAL(2, 31, 0),
-QT_MOC_LITERAL(3, 32, 6),
-QT_MOC_LITERAL(4, 39, 7),
-QT_MOC_LITERAL(5, 47, 15),
-QT_MOC_LITERAL(6, 63, 6),
-QT_MOC_LITERAL(7, 70, 8),
-QT_MOC_LITERAL(8, 79, 4),
-QT_MOC_LITERAL(9, 84, 8),
-QT_MOC_LITERAL(10, 93, 19),
-QT_MOC_LITERAL(11, 113, 18)
+QT_MOC_LITERAL(3, 32, 5),
+QT_MOC_LITERAL(4, 38, 7),
+QT_MOC_LITERAL(5, 46, 15),
+QT_MOC_LITERAL(6, 62, 6),
+QT_MOC_LITERAL(7, 69, 8),
+QT_MOC_LITERAL(8, 78, 4),
+QT_MOC_LITERAL(9, 83, 8),
+QT_MOC_LITERAL(10, 92, 19),
+QT_MOC_LITERAL(11, 112, 6),
+QT_MOC_LITERAL(12, 119, 18)
     },
-    "CameraSimulator\0cameraResponse\0\0params\0"
+    "CameraSimulator\0cameraResponse\0\0frame\0"
     "repaint\0IrrlichtDevice*\0device\0unloaded\0"
     "init\0onUnload\0onSimulatorResponse\0"
-    "autoUpdateIrrlicht\0"
+    "params\0autoUpdateIrrlicht\0"
 };
 #undef QT_MOC_LITERAL
 
@@ -71,17 +72,17 @@ static const uint qt_meta_data_CameraSimulator[] = {
        8,    0,   56,    2, 0x0a,
        9,    0,   57,    2, 0x0a,
       10,    1,   58,    2, 0x0a,
-      11,    1,   61,    2, 0x08,
+      12,    1,   61,    2, 0x08,
 
  // signals: parameters
-    QMetaType::Void, QMetaType::QVariantMap,    3,
+    QMetaType::Void, QMetaType::QByteArray,    3,
     QMetaType::Void, 0x80000000 | 5,    6,
     QMetaType::Void,
 
  // slots: parameters
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::QVariantMap,    3,
+    QMetaType::Void, QMetaType::QVariantMap,   11,
     QMetaType::Void, 0x80000000 | 5,    6,
 
        0        // eod
@@ -92,7 +93,7 @@ void CameraSimulator::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
     if (_c == QMetaObject::InvokeMetaMethod) {
         CameraSimulator *_t = static_cast<CameraSimulator *>(_o);
         switch (_id) {
-        case 0: _t->cameraResponse((*reinterpret_cast< const QMap<QString,QVariant>(*)>(_a[1]))); break;
+        case 0: _t->cameraResponse((*reinterpret_cast< const QByteArray(*)>(_a[1]))); break;
         case 1: _t->repaint((*reinterpret_cast< IrrlichtDevice*(*)>(_a[1]))); break;
         case 2: _t->unloaded(); break;
         case 3: _t->init(); break;
@@ -105,7 +106,7 @@ void CameraSimulator::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
         int *result = reinterpret_cast<int *>(_a[0]);
         void **func = reinterpret_cast<void **>(_a[1]);
         {
-            typedef void (CameraSimulator::*_t)(const QMap<QString,QVariant> );
+            typedef void (CameraSimulator::*_t)(const QByteArray & );
             if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&CameraSimulator::cameraResponse)) {
                 *result = 0;
             }
@@ -162,7 +163,7 @@ int CameraSimulator::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void CameraSimulator::cameraResponse(const QMap<QString,QVariant> _t1)
+void CameraSimulator::cameraResponse(const QByteArray & _t1)
 {
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);
