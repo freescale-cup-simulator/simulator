@@ -182,7 +182,7 @@ void MainWindow::timerEvent(QTimerEvent *e)
     btVector3 p = t.getOrigin();
     btQuaternion r=t.getRotation();
     map.clear();
-    qDebug()<<r.y();
+    //qDebug()<<r.y();
     map["camX"]=p.getX();
     map["camY"]=ui->poseY->value();
     map["camZ"]=p.getZ();
