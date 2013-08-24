@@ -150,7 +150,7 @@ void CameraSimulator::onSimulatorResponse(const QMap<QString, QVariant> params)
     m_target->setPosition(m_camera->getTarget());
     m_target->updateAbsolutePosition();
 
-    qDebug()<<m_camera->getUpVector().X<<m_camera->getUpVector().Y<<m_camera->getUpVector().Z;
+    //qDebug()<<m_camera->getUpVector().X<<m_camera->getUpVector().Y<<m_camera->getUpVector().Z;
     m_capture=true;
 }
 
