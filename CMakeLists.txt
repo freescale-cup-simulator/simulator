@@ -11,6 +11,7 @@ set(project_sources
     vehicle_model.cc
     simulation_runner.cc
     control_algorithm.cc
+    camera_simulator.cc
 )
 
 set(project_headers
@@ -20,6 +21,7 @@ set(project_headers
     simulation_runner.h
     control_algorithm.h
     common.h
+    camera_simulator.h
 )
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -33,19 +35,25 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -std=c++11 -O2")
 endif()
 
-find_package(Qt5Core REQUIRED)
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
+
+find_package(Irrlicht REQUIRED)
+include_directories(${IRRLICHT_INCLUDE_DIRS})
+
+find_package(Qt5 REQUIRED Core Gui)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LUA REQUIRED lua)
 
-find_package(Bullet REQUIRED)
+pkg_check_modules(BULLET REQUIRED bullet)
 include_directories(SYSTEM ${BULLET_INCLUDE_DIRS})
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${BULLET_CFLAGS_OTHER}")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${BULLET_CFLAGS_OTHER}")
 
 add_subdirectory(libtrack EXCLUDE_FROM_ALL)
 include_directories(libtrack)
 
 message(STATUS "Build type is: ${CMAKE_BUILD_TYPE}")
-
 
 qt5_wrap_cpp(moc_output ${project_headers})
 
@@ -65,7 +73,9 @@ target_link_libraries(freescale_simulator
 
                       track
                       Qt5::Core
+                      Qt5::Gui
                       ${LUA_LIBRARIES}
                       ${BULLET_LIBRARIES}
+                      ${IRRLICHT_LIBRARIES}
                       BulletWorldImporter
 )

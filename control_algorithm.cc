@@ -57,7 +57,7 @@ bool ControlAlgorithm::executeControlScript(const QByteArray & frame)
     for (int i = 0; i < frame.size(); i++)
     {
         lua_pushnumber(m_lua_state, i + 1);
-        lua_pushnumber(m_lua_state, static_cast<int>(frame.at(i)));
+        lua_pushnumber(m_lua_state, static_cast<unsigned char>(frame.at(i)));
         lua_settable(m_lua_state, -3);
     }
     lua_setglobal(m_lua_state, "g_camera_frame");
@@ -72,15 +72,15 @@ bool ControlAlgorithm::executeControlScript(const QByteArray & frame)
     DataSet control_data;
 
     lua_getfield(m_lua_state, -1, "angle");
-    control_data["angle"] = lua_tonumber(m_lua_state, -1);
+    control_data[MovementAngle] = lua_tonumber(m_lua_state, -1);
     lua_pop(m_lua_state, 1);
 
     lua_getfield(m_lua_state, -1, "lspeed");
-    control_data["lspeed"] = lua_tonumber(m_lua_state, -1);
+    control_data[WheelSpeedL] = lua_tonumber(m_lua_state, -1);
     lua_pop(m_lua_state, 1);
 
     lua_getfield(m_lua_state, -1, "rspeed");
-    control_data["rspeed"] = lua_tonumber(m_lua_state, -1);
+    control_data[WheelSpeedR] = lua_tonumber(m_lua_state, -1);
     lua_pop(m_lua_state, 1);
 
     lua_pop(m_lua_state, 1);

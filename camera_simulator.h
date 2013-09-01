@@ -1,21 +1,20 @@
 #ifndef CAMERASIMULATOR_H
 #define CAMERASIMULATOR_H
 
-#include <QApplication>
-#include <QTimerEvent>
-#include <QObject>
 #include <QSize>
-#include <QStringList>
 #include <QByteArray>
 #include <QList>
-#include <QMap>
-#include <QVariant>
 #include <QImage>
 #include <QString>
 #include <QDebug>
-#include <track_model.h>
+
 #include <irrlicht/irrlicht.h>
-#include <math.h>
+#include <cmath>
+
+#include <config.h>
+#include <common.h>
+#include <track_model.h>
+
 
 using namespace irr;
 using namespace track_library;
@@ -26,37 +25,28 @@ class CameraSimulator : public QObject
 {
     Q_OBJECT
 public:
-    explicit CameraSimulator(const TrackModel &track,QSize deviceSize=QSize(128,128),QObject *parent = 0);
+    explicit CameraSimulator(const TrackModel &track,
+                             QSize deviceSize = QSize(128, 128),
+                             QObject *parent = 0);
     const QList<scene::IAnimatedMeshSceneNode *> * tiles3d();
     core::vector3df getTargetPosition();
     ~CameraSimulator();
-    
 signals:
-
     void cameraResponse(const QByteArray & frame);
-    void repaint(IrrlichtDevice * device);
     void unloaded();
 public slots:
-    void init();
     void onUnload();
-    void onSimulatorResponse(const QMap<QString, QVariant> params);
-
-private slots:
-    void autoUpdateIrrlicht(IrrlichtDevice * device);
+    void onSimulatorResponse(const DataSet & params);
 
 private:
+    void init();
 
-    void timerEvent(QTimerEvent * event);
-
-    int m_timerid;
     QSize m_size;
     bool m_capture;
-    TrackModel m_track;
+    const TrackModel & m_track;
     QByteArray m_frame;
-    QStringList m_supported_params;
 
     float m_radius;
-    float m_position[6];
 
     IrrlichtDevice * m_device;
 

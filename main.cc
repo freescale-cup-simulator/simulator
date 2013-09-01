@@ -1,9 +1,11 @@
 #include <QCoreApplication>
 #include <QtDebug>
 #include <QTime>
+#include <QByteArray>
 
 #include <control_algorithm.h>
 #include <physics_simulation.h>
+#include <camera_simulator.h>
 #include <track_io.h>
 #include <config.h>
 
@@ -27,15 +29,44 @@ QByteArray generateFrame(int lp)
     return f;
 }
 
-int main()
+int main(int argc, char * argv[])
 {
+    QCoreApplication application (argc, argv);
+
     track_library::TrackModel m;
-    track_library::io::populateTrackFromFile(m, RESOURCE_DIRECTORY "/tracks/drop-test.xml");
+    track_library::io::populateTrackFromFile(m, RESOURCE_DIRECTORY "/tracks/simple-circle.xml");
 
     DataSet empty;
     PhysicsSimulation s(m);
-    for (int i = 0; i < 300; i++)
-        s.onModelResponse(empty);
+    CameraSimulator cs(m);
+    ControlAlgorithm ca;
+
+
+    qRegisterMetaType<DataSet>();
+    ca.loadFile(LUA_DIRECTORY "/simple_algorithm.lua");
+
+    QObject::connect(&s, &PhysicsSimulation::simulationResponse,
+                     &cs, &CameraSimulator::onSimulatorResponse,
+                     Qt::QueuedConnection);
+
+    QObject::connect(&cs, &CameraSimulator::cameraResponse,
+                     &ca, &ControlAlgorithm::onCameraResponse,
+                     Qt::QueuedConnection);
+
+    QObject::connect(&ca, &ControlAlgorithm::controlSignal,
+                     &s, &PhysicsSimulation::onModelResponse,
+                     Qt::QueuedConnection);
+
+//    QObject::connect(&cs, &CameraSimulator::cameraResponse, [](const QByteArray & f)
+//    {
+//        qDebug() << "got frame\n";
+
+//    });
+
+    s.initiateSimulation();
+
+//    for (int i = 0; i < 400; i++)
+//    s.onModelResponse(empty);
 
 //    ControlAlgorithm l;
 
@@ -52,5 +83,5 @@ int main()
 //    for (int i = 0; i < 32; i++)
 //        l.onCameraResponse(generateFrame(i * 4));
 
-    return 0;
+    return application.exec();
 }

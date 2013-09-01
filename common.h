@@ -6,6 +6,24 @@
 #include <QVariant>
 #include <QtDebug>
 
-typedef QMap<QString, QVariant> DataSet;
+//namespace parameters {
+
+enum ParameterType {
+    CameraPositionX,
+    CameraPositionY,
+    CameraPositionZ,
+    CameraRotationX,
+    CameraRotationY,
+    CameraRotationZ,
+    MovementAngle,
+    WheelSpeedR,
+    WheelSpeedL
+};
+
+//}
+
+typedef QMap<ParameterType, QVariant> DataSet;
+
+Q_DECLARE_METATYPE(DataSet)
 
 #endif // COMMON_H
