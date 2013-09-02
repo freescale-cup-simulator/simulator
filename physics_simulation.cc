@@ -111,9 +111,11 @@ PhysicsSimulation::onModelResponse(const DataSet & control)
 
 #if 0
     static int i = 0;
+    btScalar x = wt.getOrigin().getX(), y = wt.getOrigin().getY(),
+            z = wt.getOrigin().getZ();
+    btScalar v = getAbsoluteVelocity(m_vehicle->getRigidBody());
     if (i++ % 5 == 0)
-        qDebug("%.2f %.2f %.2f at %.2f, z rot %.2f rad", x, y, z, v,
-               wt.getRotation().getZ());
+        qDebug("%.2f %.2f %.2f at %.2f", x, y, z, v);
 #endif
 }
 
