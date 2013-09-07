@@ -42,13 +42,18 @@ include_directories(${IRRLICHT_INCLUDE_DIRS})
 
 find_package(Qt5 REQUIRED Core Gui)
 
+find_package(Assimp REQUIRED)
+include_directories(SYSTEM ${ASSIMP_INCLUDE_DIRS})
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${ASSIMP_CXX_FLAGS}")
+#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${ASSIMP_CXX_FLAGS}")
+
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LUA REQUIRED lua)
 
-pkg_check_modules(BULLET REQUIRED bullet)
-include_directories(SYSTEM ${BULLET_INCLUDE_DIRS})
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${BULLET_CFLAGS_OTHER}")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${BULLET_CFLAGS_OTHER}")
+pkg_check_modules(ODE REQUIRED ode)
+include_directories(SYSTEM ${ODE_INCLUDE_DIRS})
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${ODE_CFLAGS_OTHER}")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${ODE_CFLAGS_OTHER}")
 
 add_subdirectory(libtrack EXCLUDE_FROM_ALL)
 include_directories(libtrack)
@@ -75,7 +80,7 @@ target_link_libraries(freescale_simulator
                       Qt5::Core
                       Qt5::Gui
                       ${LUA_LIBRARIES}
-                      ${BULLET_LIBRARIES}
+                      ${ODE_LIBRARIES}
                       ${IRRLICHT_LIBRARIES}
-                      BulletWorldImporter
+                      ${ASSIMP_LIBRARIES}
 )

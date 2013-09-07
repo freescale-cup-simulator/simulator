@@ -1,10 +1,11 @@
 #include <camera_simulator.h>
 
-CameraSimulator::CameraSimulator(const TrackModel &track, QSize deviceSize, QObject *parent)
+CameraSimulator::CameraSimulator(const TrackModel & track,
+                                 QSize deviceSize,
+                                 QObject *parent)
     : QObject(parent)
     , m_size(deviceSize)
     , m_track(track)
-    , m_radius(1)
 {
     init();
 }
@@ -105,7 +106,7 @@ void CameraSimulator::onUnload()
     emit unloaded();
 }
 
-void CameraSimulator::onSimulatorResponse(const DataSet &params)
+QByteArray CameraSimulator::onSimulatorResponse(const DataSet &params)
 {
     Q_ASSERT(params.contains(CameraPositionX));
     Q_ASSERT(params.contains(CameraRotationX));
@@ -135,7 +136,8 @@ void CameraSimulator::onSimulatorResponse(const DataSet &params)
     for(int i=0;i<m_size.width();i++)
         m_frame.append(qGray(line[i]));
     m_texture->unlock();
-    emit cameraResponse(m_frame);
     m_device->getSceneManager()->drawAll();
     m_device->getVideoDriver()->endScene();
+
+    return m_frame;
 }

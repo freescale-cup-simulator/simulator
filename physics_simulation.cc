@@ -1,253 +1,184 @@
 #include <physics_simulation.h>
 
-namespace {
-
-static inline QVector3D btv2qv (const btVector3 & v)
-{
-    return QVector3D (v.getX(), v.getY(), v.getZ());
-}
-
-}
-
 PhysicsSimulation::PhysicsSimulation(const track_library::TrackModel &model)
-    : m_start_direction(btVector3(0, 1, 0))
-    , m_track_model(model)
+    : m_track_model(model)
     , m_frame_duration(0.01)
-    , m_broadphase(new btDbvtBroadphase)
-    , m_collision_configuration(new btDefaultCollisionConfiguration)
-    , m_collision_dispatcher(new btCollisionDispatcher(m_collision_configuration))
-    , m_constraint_solver(new btSequentialImpulseConstraintSolver)
-    , m_world(new btDiscreteDynamicsWorld(m_collision_dispatcher, m_broadphase,
-                                          m_constraint_solver,
-                                          m_collision_configuration))
-    , m_world_importer(new btBulletWorldImporter)
+    , m_start_position(nullptr)
 {
-    QDir objects(QString(RESOURCE_DIRECTORY "bullet/"), "*.bullet", QDir::Name,
-                 QDir::Files | QDir::NoDotAndDotDot | QDir::Readable);
-    auto entries = objects.entryList();
-    Q_ASSERT(!entries.isEmpty());
-    for (QString file : entries)
-        importBulletFile(objects.path() + "/" + file);
+    dInitODE();
+    m_world = dWorldCreate();
+    m_space = dSimpleSpaceCreate(nullptr);
+    m_contact_group = dJointGroupCreate(0);
+    dWorldSetGravity(m_world, 0, 0, GRAVITY_CONSTANT);
 
-    m_collision_configuration->setConvexConvexMultipointIterations(4, 4);
-    m_world->setGravity(btVector3(0, 0, -9.81));
+    importModel(RESOURCE_DIRECTORY "physics_models/tile.dae", "tile");
     buildTrack();
-    createVehicle();
 
-    qDebug(" -- Physics simulation initialized with %d shapes",
-           m_construction_info.count());
-
-    m_v_chasis->translate(m_start_location);
+    dBodyID id = dBodyCreate(m_world);
+    m_sphere = dCreateSphere(m_space, 0.5);
+    static dMass m;
+    dMassSetSphereTotal(&m, 2, 0.5);
+    dBodySetMass(id, &m);
+    dGeomSetBody(m_sphere, id);
+    dBodySetPosition(id, m_start_position[0], m_start_position[1], 15.5);
 }
 
 PhysicsSimulation::~PhysicsSimulation()
 {
-    m_world_importer->deleteAllData();
-    delete m_world_importer;
-    delete m_world;
-    delete m_constraint_solver;
-    delete m_collision_dispatcher;
-    delete m_collision_configuration;
-    delete m_broadphase;
+    dJointGroupDestroy(m_contact_group);
+    dSpaceDestroy(m_space);
+    dWorldDestroy(m_world);
+    dCloseODE();
+    for (void * p : m_allocated_memory)
+        delete p;
 }
 
-btScalar
+dReal
 PhysicsSimulation::getFrameDuration()
 {
     return m_frame_duration;
 }
 
 void
-PhysicsSimulation::setFrameDuration(btScalar duration)
+PhysicsSimulation::setFrameDuration(dReal duration)
 {
     m_frame_duration = duration;
 }
 
-void PhysicsSimulation::initiateSimulation()
+DataSet
+PhysicsSimulation::onModelResponse(const DataSet & control)
 {
+    dSpaceCollide(m_space, this, &PhysicsSimulation::nearCallbackWrapper);
+    dWorldStep(m_world, 0.05);
+    dJointGroupEmpty(m_contact_group);
+    const dReal * p = dGeomGetPosition(m_sphere);
+    qDebug("%f,%f,%f", p[0], p[1], p[2]);
+
     DataSet s;
 
-    s[CameraPositionX] = m_start_location.getX();
-    s[CameraPositionY] = m_start_location.getY();
-    s[CameraPositionZ] = m_start_location.getZ();
-    s[CameraRotationX] = 75;
+    s[CameraPositionX] = p[0];
+    s[CameraPositionY] = p[1];
+    s[CameraPositionZ] = p[2] + 1;
+    s[CameraRotationX] = 90;
     s[CameraRotationY] = 0;
     s[CameraRotationZ] = 0;
 
-    simulationResponse(s);
+    return s;
 }
 
-void
-PhysicsSimulation::onModelResponse(const DataSet & control)
+void PhysicsSimulation::importModel(const QString &path, const QString & name)
 {
-    static btScalar speed_multiplier = 2;
+    const aiScene * s = m_importer.ReadFile(path.toLocal8Bit().data(),
+                                            aiProcess_JoinIdenticalVertices |
+                                            aiProcess_FixInfacingNormals);
+    if (!s)
+    {
+        qWarning(m_importer.GetErrorString());
+        return;
+    }
+    Q_ASSERT(s->HasMeshes());
+    qDebug("Imported %s with %d mesh(es)", path.toLocal8Bit().data(),
+           s->mNumMeshes);
+// FIXME: ASSIMP bug, mesh names not set
+//    for (int i = 0; i < s->mNumMeshes; i++)
+//    {
+//        qDebug("Mesh name: %s", s->mMeshes[i]->mName.C_Str());
+//    }
+    const aiMesh * m = s->mMeshes[0];
+    dVector3 * vertices = new dVector3[m->mNumVertices * 3];
+    m_allocated_memory.append(vertices);
+    qDebug("allocated %p", vertices);
+    for (unsigned int i = 0; i < m->mNumVertices; i++)
+    {
+        vertices[i][0] = m->mVertices[i].x;
+        vertices[i][1] = m->mVertices[i].y;
+        vertices[i][2] = m->mVertices[i].z;
+    }
 
-    m_vehicle->applyEngineForce(control[WheelSpeedL].toFloat() * speed_multiplier, 2);
-    m_vehicle->applyEngineForce(control[WheelSpeedR].toFloat() * speed_multiplier, 3);
-    m_vehicle->setBrake(0, 2);
-    m_vehicle->setBrake(0, 3);
-    m_vehicle->setSteeringValue(control[MovementAngle].toFloat(), 0);
-    m_vehicle->setSteeringValue(control[MovementAngle].toFloat(), 1);
+    unsigned int * indices = new unsigned int[m->mNumFaces * 3];
+    m_allocated_memory.append(indices);
+    qDebug("allocated %p", indices);
+    for (unsigned int i = 0; i < m->mNumFaces; i++)
+    {
+        indices[i * 3]     = m->mFaces[i].mIndices[0];
+        indices[i * 3 + 1] = m->mFaces[i].mIndices[1];
+        indices[i * 3 + 2] = m->mFaces[i].mIndices[2];
+    }
 
-    for (int i = 0; i < m_vehicle->getNumWheels(); i++)
-        m_vehicle->updateWheelTransform(i);
-    m_world->stepSimulation(m_frame_duration, m_frame_duration / SIMULATION_STEP,
-                            SIMULATION_STEP);
-
-    const btTransform & wt = m_v_chasis->getWorldTransform();
-    btVector3 camera_position = wt.getOrigin() + m_vehicle->getForwardVector();
-    btScalar ca = m_vehicle->getForwardVector().angle(btVector3(0, 1, 0))
-            * SIMD_DEGS_PER_RAD;
-    DataSet response;
-
-    response[CameraPositionX] = camera_position.getX();
-    response[CameraPositionY] = camera_position.getY();
-    response[CameraPositionZ] = camera_position.getZ() + 0.6;
-    response[CameraRotationX] = 65;
-    response[CameraRotationY] = ca;
-    response[CameraRotationZ] = 0;
-
-    simulationResponse(response);
-
-#if 0
-    static int i = 0;
-    btScalar x = wt.getOrigin().getX(), y = wt.getOrigin().getY(),
-            z = wt.getOrigin().getZ();
-    btScalar v = getAbsoluteVelocity(m_vehicle->getRigidBody());
-    if (i++ % 5 == 0)
-        qDebug("%.2f %.2f %.2f at %.2f", x, y, z, v);
-#endif
-}
-
-void
-PhysicsSimulation::importBulletFile(const QString &path)
-{
-    qDebug("Importing %s", path.toLocal8Bit().data());
-    m_world_importer->loadFile(path.toLocal8Bit().data());
-    int index = m_world_importer->getNumRigidBodies();
-    btCollisionObject * co = m_world_importer->getRigidBodyByIndex(index - 1);
-    btRigidBody * p = btRigidBody::upcast(co);
-
-    btRigidBody::btRigidBodyConstructionInfo info (p->getInvMass(), nullptr,
-                                                   p->getCollisionShape(),
-                                                   btVector3(0, 0, 0));
-    m_construction_info.insert(m_world_importer->getNameForPointer(co), info);
-}
-
-inline btRigidBody *
-PhysicsSimulation::createBodyByName(const QString &name)
-{
-    auto i = m_construction_info.find(name);
-    if (i == m_construction_info.end())
-        return nullptr;
-    btRigidBody * p = new btRigidBody (*i);
-    m_world->addRigidBody(p);
-    return p;
+    dTriMeshDataID id = dGeomTriMeshDataCreate();
+    dGeomTriMeshDataBuildDouble(id, vertices, sizeof(dVector3), m->mNumVertices,
+                                indices, m->mNumFaces * 3, sizeof(unsigned int));
+    m_trimesh_data.insert(name, id);
+    qDebug("Saved dTriMeshDataID = %p", static_cast<void *>(id));
 }
 
 void
 PhysicsSimulation::buildTrack()
 {
-    btRigidBody * p;
-    btQuaternion rq;
-    btMatrix3x3 rm;
-
-    for (const tl::Tile t : m_track_model.tiles())
+    for (const tl::Tile & tile : m_track_model.tiles())
     {
-        bool is_hill = t.type() == tl::Tile::Hill;
-        btVector3 location = btVector3(t.x() + 0.5, t.y() + 0.5, 0);
+        dGeomID id = dCreateTriMesh(m_space, m_trimesh_data["tile"], 0, 0, 0);
+        dGeomSetBody(id, 0);
+        dGeomSetPosition(id, tile.x() + 0.5, tile.y() + 0.5, 0);
 
-        p = createBodyByName(is_hill ? "hill" : "tile");
-        p->translate(location + btVector3(0, 0, is_hill ? -0.98 : -0.05));
-        rm.setEulerZYX(0, is_hill ? M_PI_2 : 0, t.rotation());
-        rm.getRotation(rq);
-        p->getWorldTransform().setRotation(rq);
+        dMatrix3 rm;
+        dRFromEulerAngles(rm, 0, 0,  (tile.rotation() / 180) * M_PI);
+        dGeomSetRotation(id, rm);
 
-        if (t.type() == tl::Tile::Start)
+        if (tile.type() == tl::Tile::Start)
         {
-            m_start_location = location + btVector3(0, 0, 1);
-            m_start_direction
-                    = m_start_direction.rotate(btVector3(0, 0, 0.2),
-                                               (t.rotation() / 180) * M_PI);
-
-            qDebug("start location: (%.2f,%.2f), direction: (%.0f,%.0f,%.0f)",
-                   location.getX(), location.getY(),
-                   m_start_direction.getX(),
-                   m_start_direction.getY(),
-                   m_start_direction.getZ());
+            m_start_position = dGeomGetPosition(id);
+            m_start_direction = dGeomGetRotation(id);
         }
     }
+
+    if (m_start_position == nullptr)
+        qFatal("Start tile not present, simulation will break");
+
+    /*
+     * NOTE: layout of dMatrix3:
+     * ux uy uz . <- x vector
+     * vx vy vz . <- y vector
+     * wx wy wz . <- z vector
+     * ( . is ignored, because dMatrix4 is of same size)
+     */
+
+    qDebug("Start location: (%.1f,%.1f,%.1f)", m_start_position[0],
+            m_start_position[1], m_start_position[2]);
+    qDebug("Start direction vector: (%.1f,%.1f,%.1f)", m_start_direction[4],
+            m_start_direction[5], m_start_direction[6]);
 }
 
 void PhysicsSimulation::createVehicle()
 {
-    static btRaycastVehicle::btVehicleTuning tuning;
+}
 
-    const btScalar vw = 0.08, vl = 0.12, vh = 0.05;
-    const btScalar wheel_radius = 4 * vh;
-    const btScalar connection_height = wheel_radius / 2;
-    const btScalar mass = 2;
+void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
+{
+    dBodyID a = dGeomGetBody(ga);
+    dBodyID b = dGeomGetBody(gb);
+    dContact contact;
 
-    btVector3 connection_point;
-    btVector3 wheel_direction(0, 0, -1);
-    btVector3 wheel_axis(1, 0, 0);
+    contact.surface.mode = dContactBounce;
+    // friction parameter
+    contact.surface.mu = dInfinity;
+    // bounce is the amount of "bouncyness".
+    contact.surface.bounce = 0.96;
+    // bounce_vel is the minimum incoming velocity to cause a bounce
+    contact.surface.bounce_vel = 0.01;
+    // constraint force mixing parameter
+    contact.surface.soft_cfm = 1;
 
-    btCollisionShape * s = new btBoxShape(btVector3(vw, vl, vh));
-    btCompoundShape * cs = new btCompoundShape;
-    btTransform lt;
-    btVector3 inertia;
-    cs->setMargin(0);
+    int nc = dCollide(ga, gb, 1, &contact.geom, sizeof(dContact));
 
-    lt.setIdentity();
-    lt.setOrigin(btVector3(0, 0, 1));
-    cs->addChildShape(lt, s);
-    cs->calculateLocalInertia(mass, inertia);
-
-    m_v_chasis = new btRigidBody(mass, new btDefaultMotionState, cs, inertia);
-    m_v_chasis->setActivationState(DISABLE_DEACTIVATION);
-    m_world->addRigidBody(m_v_chasis);
-
-    m_v_raycaster = new btDefaultVehicleRaycaster(m_world);
-    m_vehicle = new btRaycastVehicle(tuning, m_v_chasis, m_v_raycaster);
-
-    m_world->addVehicle(m_vehicle);
-    m_vehicle->setCoordinateSystem(0, 2, 1);
-
-    //front left
-    connection_point = btVector3(-vw - 0.05, vl, connection_height);
-    m_vehicle->addWheel(connection_point, wheel_direction, wheel_axis,
-                        connection_height, wheel_radius, tuning, true);
-
-    //front right
-    connection_point = btVector3(vw + 0.05, vl, connection_height);
-    m_vehicle->addWheel(connection_point, wheel_direction, wheel_axis,
-                        connection_height, wheel_radius, tuning, true);
-
-
-    //rear left
-    connection_point = btVector3(-vw - 0.05, -vl, connection_height);
-    m_vehicle->addWheel(connection_point, wheel_direction, wheel_axis,
-                        connection_height, wheel_radius, tuning, false);
-
-    //rear right
-    connection_point = btVector3(vw + 0.05, -vl, connection_height);
-    m_vehicle->addWheel(connection_point, wheel_direction, wheel_axis,
-                        connection_height, wheel_radius, tuning, false);
-
-    for (int i = 0; i < m_vehicle->getNumWheels(); i++)
+    if (nc)
     {
-        btWheelInfo & wheel = m_vehicle->getWheelInfo(i);
-        wheel.m_suspensionStiffness = 20.0;
-        wheel.m_wheelsDampingRelaxation = 2.3;
-        wheel.m_wheelsDampingCompression = 4.5;
-        wheel.m_frictionSlip = 1000;
-        wheel.m_rollInfluence = 0.1;
+        dJointID c = dJointCreateContact (m_world, m_contact_group, &contact);
+        dJointAttach (c, a, b);
     }
 }
 
-inline btScalar
-PhysicsSimulation::getAbsoluteVelocity(const btRigidBody *body)
+void PhysicsSimulation::nearCallbackWrapper(void * i, dGeomID a, dGeomID b)
 {
-    btVector3 vel = body->getVelocityInLocalPoint(btVector3(0, 0, 0));
-    return vel.length();
+    static_cast<PhysicsSimulation *>(i)->nearCallback(nullptr, a, b);
 }

@@ -1,9 +1,12 @@
 #ifndef PHYSICS_SIMULATION_H
 #define PHYSICS_SIMULATION_H
 
-#include <BulletWorldImporter/btBulletWorldImporter.h>
-#include <BulletCollision/btBulletCollisionCommon.h>
-#include <BulletDynamics/btBulletDynamicsCommon.h>
+#include <ode/ode.h>
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/mesh.h>
+#include <assimp/postprocess.h>
 
 #include <QObject>
 #include <QHash>
@@ -23,45 +26,32 @@ public:
     PhysicsSimulation(const track_library::TrackModel & model);
     ~PhysicsSimulation();
 
-    btScalar getFrameDuration();
-    void setFrameDuration(btScalar duration);
-    void initiateSimulation();
-public slots:
-    void onModelResponse(const DataSet & data);
-signals:
-    void simulationResponse(const DataSet & data);
+    dReal getFrameDuration();
+    void setFrameDuration(dReal duration);
+    DataSet onModelResponse(const DataSet & data);
 private:
-    void importBulletFile(const QString & path);
-    btRigidBody * createBodyByName(const QString & name);
+    void importModel(const QString & path, const QString & name);
     void buildTrack();
     void createVehicle();
+    void nearCallback(void *, dGeomID a, dGeomID b);
+    static void nearCallbackWrapper(void * i, dGeomID a, dGeomID b);
 
-    btScalar getAbsoluteVelocity(const btRigidBody * body);
-
-    static constexpr btScalar SIMULATION_STEP = 0.001;
-
-    /*
-     * potential design flaw: will not work for multi-element/multi-body
-     * .bullet files
-     */
-    QHash<QString, btRigidBody::btRigidBodyConstructionInfo> m_construction_info;
-
-    btRigidBody * m_v_chasis;
-    btRigidBody * m_v_wheel_shape;
-    btDefaultVehicleRaycaster * m_v_raycaster;
-    btRaycastVehicle * m_vehicle;
-
-    btVector3 m_start_location;
-    btVector3 m_start_direction;
+    static constexpr dReal GRAVITY_CONSTANT = -9.81;
 
     const track_library::TrackModel & m_track_model;
-    btScalar m_frame_duration;
-    btBroadphaseInterface * m_broadphase;
-    btDefaultCollisionConfiguration * m_collision_configuration;
-    btCollisionDispatcher * m_collision_dispatcher;
-    btConstraintSolver * m_constraint_solver;
-    btDiscreteDynamicsWorld * m_world;
-    btBulletWorldImporter * m_world_importer;
+    dReal m_frame_duration;
+    const dReal * m_start_position;
+    const dReal * m_start_direction;
+
+    dGeomID m_sphere;
+
+    dWorldID m_world;
+    dSpaceID m_space;
+    dJointGroupID m_contact_group;
+    QHash<QString, dTriMeshDataID> m_trimesh_data;
+    QVector<void *> m_allocated_memory;
+
+    Assimp::Importer m_importer;
 };
 
 #endif

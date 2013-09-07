@@ -1,8 +1,8 @@
 #include <control_algorithm.h>
-#include <QDebug>
 
 ControlAlgorithm::ControlAlgorithm(QObject *parent)
-    : m_lua_state(luaL_newstate())
+    : QObject(parent)
+    , m_lua_state(luaL_newstate())
     , m_lua_loaded(false)
     , m_interval(100)
 {
@@ -46,7 +46,7 @@ void ControlAlgorithm::setInterval(int msec)
     m_interval = msec;
 }
 
-bool ControlAlgorithm::executeControlScript(const QByteArray & frame)
+DataSet ControlAlgorithm::onCameraResponse(const QByteArray &frame)
 {
     Q_ASSERT(m_lua_loaded);
 
@@ -63,11 +63,7 @@ bool ControlAlgorithm::executeControlScript(const QByteArray & frame)
     lua_setglobal(m_lua_state, "g_camera_frame");
 
     if (lua_pcall(m_lua_state, 0, LUA_MULTRET, 0) != 0)
-    {
-        qDebug() << "Lua error: " << lua_tostring(m_lua_state, -1);
-        lua_pop(m_lua_state, 1);
-        return false;
-    }
+        qFatal("Lua error: %s", lua_tostring(m_lua_state, -1));
 
     DataSet control_data;
 
@@ -84,12 +80,6 @@ bool ControlAlgorithm::executeControlScript(const QByteArray & frame)
     lua_pop(m_lua_state, 1);
 
     lua_pop(m_lua_state, 1);
-    controlSignal(control_data);
 
-    return true;
-}
-
-void ControlAlgorithm::onCameraResponse(const QByteArray &data)
-{
-    Q_ASSERT(executeControlScript(data));
+    return control_data;
 }

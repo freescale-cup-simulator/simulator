@@ -2,6 +2,7 @@
 #define CONTROL_ALGORITHM_H
 
 #include <QObject>
+#include <QDebug>
 #include <lua.hpp>
 #include <common.h>
 
@@ -15,17 +16,12 @@ public:
     bool loadFile(const QString & file);
     QString getId();
     void setInterval(int msec);
+    DataSet onCameraResponse(const QByteArray & frame);
 private:
-    bool executeControlScript(const QByteArray & frame);
-
     lua_State * m_lua_state;
     QString m_current_file;
     bool m_lua_loaded;
     int m_interval;
-public slots:
-    void onCameraResponse(const QByteArray & data);
-signals:
-    void controlSignal(const DataSet & data);
 };
 
 #endif // CONTROL_ALGORITHM_H

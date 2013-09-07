@@ -28,15 +28,15 @@ public:
     explicit CameraSimulator(const TrackModel &track,
                              QSize deviceSize = QSize(128, 128),
                              QObject *parent = 0);
+    ~CameraSimulator();
     const QList<scene::IAnimatedMeshSceneNode *> * tiles3d();
     core::vector3df getTargetPosition();
-    ~CameraSimulator();
+    QByteArray onSimulatorResponse(const DataSet & params);
 signals:
     void cameraResponse(const QByteArray & frame);
     void unloaded();
 public slots:
     void onUnload();
-    void onSimulatorResponse(const DataSet & params);
 
 private:
     void init();
@@ -45,8 +45,6 @@ private:
     bool m_capture;
     const TrackModel & m_track;
     QByteArray m_frame;
-
-    float m_radius;
 
     IrrlichtDevice * m_device;
 
