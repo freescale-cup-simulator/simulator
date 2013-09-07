@@ -29,31 +29,21 @@ public:
                              QSize deviceSize = QSize(128, 128),
                              QObject *parent = 0);
     ~CameraSimulator();
-    const QList<scene::IAnimatedMeshSceneNode *> * tiles3d();
     core::vector3df getTargetPosition();
     QByteArray onSimulatorResponse(const DataSet & params);
-signals:
-    void cameraResponse(const QByteArray & frame);
-    void unloaded();
-public slots:
-    void onUnload();
-
 private:
     void init();
 
-    QSize m_size;
-    bool m_capture;
-    const TrackModel & m_track;
-    QByteArray m_frame;
+    core::dimension2du m_device_size;
+    const TrackModel & m_track_model;
 
     IrrlichtDevice * m_device;
-
-    scene::ISceneManager * m_manager;
-    video::IVideoDriver * m_driver;
+    scene::ISceneManager * m_scene_manager;
+    video::IVideoDriver * m_video_driver;
     scene::ICameraSceneNode * m_camera;
+
     scene::IBillboardSceneNode * m_target;
-    video::ITexture * m_texture;
-    QList<scene::IAnimatedMeshSceneNode *> m_tiles3d;
+    video::ITexture * m_frame_texture;
 };
 
 #endif // CAMERASIMULATOR_H

@@ -29,8 +29,11 @@ PhysicsSimulation::~PhysicsSimulation()
     dSpaceDestroy(m_space);
     dWorldDestroy(m_world);
     dCloseODE();
-    for (void * p : m_allocated_memory)
-        delete p;
+    for (QPair<dVector3 *, unsigned int *> p : m_allocated_memory)
+    {
+        delete p.first;
+        delete p.second;
+    }
 }
 
 dReal
@@ -86,8 +89,6 @@ void PhysicsSimulation::importModel(const QString &path, const QString & name)
 //    }
     const aiMesh * m = s->mMeshes[0];
     dVector3 * vertices = new dVector3[m->mNumVertices * 3];
-    m_allocated_memory.append(vertices);
-    qDebug("allocated %p", vertices);
     for (unsigned int i = 0; i < m->mNumVertices; i++)
     {
         vertices[i][0] = m->mVertices[i].x;
@@ -96,8 +97,6 @@ void PhysicsSimulation::importModel(const QString &path, const QString & name)
     }
 
     unsigned int * indices = new unsigned int[m->mNumFaces * 3];
-    m_allocated_memory.append(indices);
-    qDebug("allocated %p", indices);
     for (unsigned int i = 0; i < m->mNumFaces; i++)
     {
         indices[i * 3]     = m->mFaces[i].mIndices[0];
@@ -109,6 +108,7 @@ void PhysicsSimulation::importModel(const QString &path, const QString & name)
     dGeomTriMeshDataBuildDouble(id, vertices, sizeof(dVector3), m->mNumVertices,
                                 indices, m->mNumFaces * 3, sizeof(unsigned int));
     m_trimesh_data.insert(name, id);
+    m_allocated_memory.append({vertices, indices});
     qDebug("Saved dTriMeshDataID = %p", static_cast<void *>(id));
 }
 
@@ -159,15 +159,15 @@ void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
     dBodyID b = dGeomGetBody(gb);
     dContact contact;
 
-    contact.surface.mode = dContactBounce;
+    contact.surface.mode = dContactBounce | dContactSoftCFM;
     // friction parameter
     contact.surface.mu = dInfinity;
     // bounce is the amount of "bouncyness".
     contact.surface.bounce = 0.96;
     // bounce_vel is the minimum incoming velocity to cause a bounce
-    contact.surface.bounce_vel = 0.01;
+    contact.surface.bounce_vel = 0.1;
     // constraint force mixing parameter
-    contact.surface.soft_cfm = 1;
+    contact.surface.soft_cfm = 0.0001;
 
     int nc = dCollide(ga, gb, 1, &contact.geom, sizeof(dContact));
 

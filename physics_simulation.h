@@ -12,6 +12,7 @@
 #include <QHash>
 #include <QDir>
 #include <QVector3D>
+#include <QPair>
 
 #include <config.h>
 #include <common.h>
@@ -49,7 +50,7 @@ private:
     dSpaceID m_space;
     dJointGroupID m_contact_group;
     QHash<QString, dTriMeshDataID> m_trimesh_data;
-    QVector<void *> m_allocated_memory;
+    QVector<QPair<dVector3 *, unsigned int*>> m_allocated_memory;
 
     Assimp::Importer m_importer;
 };

@@ -33,11 +33,6 @@ bool SimulationRunner::loadTrack(const QString &track_path)
                  track_path.toLocal8Bit().data());
         return false;
     }
-
-    auto ps = new PhysicsSimulation(m_track_model);
-    auto cs = new CameraSimulator(m_track_model);
-    m_physics_simulation = QSharedPointer<PhysicsSimulation>(ps);
-    m_camera_simulator = QSharedPointer<CameraSimulator>(cs);
     return true;
 }
 
@@ -48,6 +43,12 @@ void SimulationRunner::run()
         qWarning("Control algorithm not loaded, will not run");
         return;
     }
+
+    auto cs = new CameraSimulator(m_track_model);
+    auto ps = new PhysicsSimulation(m_track_model);
+    m_camera_simulator = QSharedPointer<CameraSimulator>(cs);
+    m_physics_simulation = QSharedPointer<PhysicsSimulation>(ps);
+
     m_running = true;
     QByteArray line;
     DataSet dataset = m_control_algorithm->onCameraResponse(line);

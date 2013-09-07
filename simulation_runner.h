@@ -3,6 +3,7 @@
 
 #include <QSharedPointer>
 #include <QRunnable>
+#include <QThread>
 
 #include <control_algorithm.h>
 #include <physics_simulation.h>
