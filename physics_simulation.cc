@@ -1,5 +1,20 @@
 #include <physics_simulation.h>
 
+namespace {
+
+// compute angle between two vectors
+inline float va (dReal ax, dReal ay, dReal az,
+                 dReal bx, dReal by, dReal bz)
+{
+    float dot = ax*bx + ay*by + az*bz;
+    float ma = std::sqrt(ax*ax + ay*ay + az*az);
+    float mb = std::sqrt(bx*bx + by*by + bz*bz);
+    float c = dot / (ma * mb);
+    return (std::acos(c) / M_PI) * 180;
+}
+
+}
+
 PhysicsSimulation::PhysicsSimulation(const track_library::TrackModel &model)
     : m_track_model(model)
     , m_frame_duration(0.01)
@@ -13,14 +28,7 @@ PhysicsSimulation::PhysicsSimulation(const track_library::TrackModel &model)
 
     importModel(RESOURCE_DIRECTORY "physics_models/tile.dae", "tile");
     buildTrack();
-
-    dBodyID id = dBodyCreate(m_world);
-    m_sphere = dCreateSphere(m_space, 0.5);
-    static dMass m;
-    dMassSetSphereTotal(&m, 2, 0.5);
-    dBodySetMass(id, &m);
-    dGeomSetBody(m_sphere, id);
-    dBodySetPosition(id, m_start_position[0], m_start_position[1], 15.5);
+    createVehicle();
 }
 
 PhysicsSimulation::~PhysicsSimulation()
@@ -29,7 +37,7 @@ PhysicsSimulation::~PhysicsSimulation()
     dSpaceDestroy(m_space);
     dWorldDestroy(m_world);
     dCloseODE();
-    for (QPair<dVector3 *, unsigned int *> p : m_allocated_memory)
+    for (auto p : m_allocated_memory)
     {
         delete p.first;
         delete p.second;
@@ -51,20 +59,57 @@ PhysicsSimulation::setFrameDuration(dReal duration)
 DataSet
 PhysicsSimulation::onModelResponse(const DataSet & control)
 {
-    dSpaceCollide(m_space, this, &PhysicsSimulation::nearCallbackWrapper);
-    dWorldStep(m_world, 0.05);
-    dJointGroupEmpty(m_contact_group);
-    const dReal * p = dGeomGetPosition(m_sphere);
-    qDebug("%f,%f,%f", p[0], p[1], p[2]);
+    // stepping with smaller step yields more precision, and yet
+    // our control algorithm will have to run with longer intervals;
+    // so we do multiple steps to achieve desired interval
+    for (int i = 0; i < m_frame_duration / WORLD_STEP; i++)
+    {
+        dSpaceCollide(m_space, this, &PhysicsSimulation::nearCallbackWrapper);
+        dWorldQuickStep(m_world, WORLD_STEP);
+        dJointGroupEmpty(m_contact_group);
+        for (int i = 2; i < 4; i++)
+        {
+            dJointSetHinge2Param(m_wheels[i], dParamVel2, 40);
+            dJointSetHinge2Param(m_wheels[i], dParamFMax2, 16e1);
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            dReal a = dJointGetHinge2Angle1(m_wheels[i]);
+//            qDebug("%.2f %.2f", a, control[MovementAngle].toFloat());
+            a = -a;
+//            a = control[MovementAngle].toFloat() - a;
+//            if (a > .1) a = .1;
+//            if (a < -.1) a = -.1;
+            a *= 10.0;
+            dJointSetHinge2Param(m_wheels[i], dParamVel, a);
+            dJointSetHinge2Param(m_wheels[i], dParamFMax, 16e1);
+            dJointSetHinge2Param(m_wheels[i], dParamLoStop, -1);
+            dJointSetHinge2Param(m_wheels[i], dParamHiStop, 1);
+            dJointSetHinge2Param(m_wheels[i], dParamFudgeFactor, 0.01);
+        }
+    }
+
+    const dReal * p = dBodyGetPosition(m_vehicle_body);
+    const dReal * r = dBodyGetRotation(m_vehicle_body);
+    const dReal * v = dBodyGetLinearVel(m_vehicle_body);
+    const float vel = std::sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+    const float a = va(0, 1, 0, r[4], r[5], r[6]);
+//    qDebug("%.2f %.2f %.2f", r[4], r[5], r[6]);
+    qDebug("position %.3f, %.3f, %.3f; rotation %.2f, linear velocity mag. %.3f",
+           p[0], p[1], p[2], a, vel);
 
     DataSet s;
 
-    s[CameraPositionX] = p[0];
-    s[CameraPositionY] = p[1];
-    s[CameraPositionZ] = p[2] + 1;
-    s[CameraRotationX] = 90;
-    s[CameraRotationY] = 0;
+    s[CameraPositionX] = p[0] + r[4] * .3;
+    s[CameraPositionY] = p[1] + r[5] * .3;
+    s[CameraPositionZ] = p[2] + .75;
+    s[CameraRotationX] = 60;
+    s[CameraRotationY] = a;
     s[CameraRotationZ] = 0;
+
+//    qDebug("camera %.3f, %.3f", s[CameraPositionX].toFloat(),
+//           s[CameraPositionY].toFloat());
 
     return s;
 }
@@ -82,31 +127,27 @@ void PhysicsSimulation::importModel(const QString &path, const QString & name)
     Q_ASSERT(s->HasMeshes());
     qDebug("Imported %s with %d mesh(es)", path.toLocal8Bit().data(),
            s->mNumMeshes);
-// FIXME: ASSIMP bug, mesh names not set
-//    for (int i = 0; i < s->mNumMeshes; i++)
-//    {
-//        qDebug("Mesh name: %s", s->mMeshes[i]->mName.C_Str());
-//    }
+
     const aiMesh * m = s->mMeshes[0];
-    dVector3 * vertices = new dVector3[m->mNumVertices * 3];
+
+    float * vertices = new float[m->mNumVertices * 3];
     for (unsigned int i = 0; i < m->mNumVertices; i++)
     {
-        vertices[i][0] = m->mVertices[i].x;
-        vertices[i][1] = m->mVertices[i].y;
-        vertices[i][2] = m->mVertices[i].z;
+        vertices[i * 3]     = m->mVertices[i].x;
+        vertices[i * 3 + 1] = m->mVertices[i].y;
+        vertices[i * 3 + 2] = m->mVertices[i].z;
     }
 
-    unsigned int * indices = new unsigned int[m->mNumFaces * 3];
+    int * indices = new int[m->mNumFaces * 3];
     for (unsigned int i = 0; i < m->mNumFaces; i++)
     {
         indices[i * 3]     = m->mFaces[i].mIndices[0];
         indices[i * 3 + 1] = m->mFaces[i].mIndices[1];
         indices[i * 3 + 2] = m->mFaces[i].mIndices[2];
     }
-
     dTriMeshDataID id = dGeomTriMeshDataCreate();
-    dGeomTriMeshDataBuildDouble(id, vertices, sizeof(dVector3), m->mNumVertices,
-                                indices, m->mNumFaces * 3, sizeof(unsigned int));
+    dGeomTriMeshDataBuildSingle(id, vertices, sizeof(float) * 3, m->mNumVertices,
+                                indices, m->mNumFaces * 3, sizeof(int) * 3);
     m_trimesh_data.insert(name, id);
     m_allocated_memory.append({vertices, indices});
     qDebug("Saved dTriMeshDataID = %p", static_cast<void *>(id));
@@ -119,10 +160,12 @@ PhysicsSimulation::buildTrack()
     {
         dGeomID id = dCreateTriMesh(m_space, m_trimesh_data["tile"], 0, 0, 0);
         dGeomSetBody(id, 0);
+        // shifting top face of tile to z=0 in blender works, don't have to
+        // adjust height here
         dGeomSetPosition(id, tile.x() + 0.5, tile.y() + 0.5, 0);
 
         dMatrix3 rm;
-        dRFromEulerAngles(rm, 0, 0,  (tile.rotation() / 180) * M_PI);
+        dRFromEulerAngles(rm, 0, 0, (tile.rotation() / 180) * M_PI);
         dGeomSetRotation(id, rm);
 
         if (tile.type() == tl::Tile::Start)
@@ -130,6 +173,7 @@ PhysicsSimulation::buildTrack()
             m_start_position = dGeomGetPosition(id);
             m_start_direction = dGeomGetRotation(id);
         }
+        m_track_geoms.append(id);
     }
 
     if (m_start_position == nullptr)
@@ -151,30 +195,88 @@ PhysicsSimulation::buildTrack()
 
 void PhysicsSimulation::createVehicle()
 {
+    const dVector3 d = {.16, .25, .1};
+    const dReal * sp = m_start_position;
+    const dReal spawn_height = .08;
+    const dReal radius = .02;
+    const dReal a[4][3] =
+    {
+        { sp[0] - d[0] / 2, sp[1] + d[1] / 2, spawn_height - d[2] / 2 },
+        { sp[0] + d[0] / 2, sp[1] + d[1] / 2, spawn_height - d[2] / 2 },
+        { sp[0] - d[0] / 2, sp[1] - d[1] / 2, spawn_height - d[2] / 2 },
+        { sp[0] + d[0] / 2, sp[1] - d[1] / 2, spawn_height - d[2] / 2 },
+    };
+
+    dBodyID id = dBodyCreate(m_world);
+    dGeomID gid = dCreateBox(m_space, d[0], d[1], d[2]);
+    dMass mass;
+    dJointID jid;
+
+    dMassSetBoxTotal(&mass, 1.27, d[0], d[1], d[2]);
+    dBodySetMass(id, &mass);
+    dGeomSetBody(gid, id);
+    dBodySetPosition(id, sp[0], sp[1], spawn_height);
+    m_vehicle_geom = gid;
+    m_vehicle_body = id;
+
+    for (int i = 0; i < 4; i++)
+    {
+        id = dBodyCreate(m_world);
+        gid = dCreateCylinder(m_space, radius, radius * 2);
+        dMassSetCylinderTotal(&mass, 0.2, 1, radius, radius * 2);
+        dBodySetMass(id, &mass);
+        dBodySetPosition(id, a[i][0], a[i][1], a[i][2]);
+        dGeomSetBody(gid, id);
+        dMatrix3 r;
+        dRFromEulerAngles(r, 0, M_PI_2, 0);
+        dBodySetRotation(id, r);
+
+        jid = dJointCreateHinge2(m_world, 0);
+        dJointAttach(jid, m_vehicle_body, id);
+        dJointSetHinge2Anchor(jid, a[i][0], a[i][1], a[i][2]);
+        dJointSetHinge2Axis1(jid, 0, 0, 1);
+        dJointSetHinge2Axis2(jid, 1, 0, 0);
+        dJointSetHinge2Param(jid, dParamSuspensionERP, 0.6);
+        dJointSetHinge2Param(jid, dParamSuspensionCFM, 0.2);
+        m_wheels[i] = jid;
+    }
+
+    dJointSetHinge2Param(m_wheels[2], dParamLoStop, 0);
+    dJointSetHinge2Param(m_wheels[3], dParamHiStop, 0);
 }
 
 void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
 {
+    // we only want vehicle-track collisions
+    bool is_ground_collision = m_track_geoms.contains(ga)
+            || m_track_geoms.contains(gb);
+    if (!is_ground_collision)
+        return;
+
     dBodyID a = dGeomGetBody(ga);
     dBodyID b = dGeomGetBody(gb);
-    dContact contact;
+    dContact contacts[MAX_CONTACTS];
 
-    contact.surface.mode = dContactBounce | dContactSoftCFM;
-    // friction parameter
-    contact.surface.mu = dInfinity;
-    // bounce is the amount of "bouncyness".
-    contact.surface.bounce = 0.96;
-    // bounce_vel is the minimum incoming velocity to cause a bounce
-    contact.surface.bounce_vel = 0.1;
-    // constraint force mixing parameter
-    contact.surface.soft_cfm = 0.0001;
+    for (int i = 0; i < MAX_CONTACTS; i++)
+    {
+        contacts[i].surface.mode = dContactSoftERP | dContactSoftCFM
+                 | dContactSlip1 | dContactSlip2;
+        contacts[i].surface.mu = dInfinity;
+        contacts[i].surface.soft_erp = 0.6;
+        contacts[i].surface.soft_cfm = 1e-3;
+        contacts[i].surface.slip1 = .01;
+        contacts[i].surface.slip2 = .01;
+    }
 
-    int nc = dCollide(ga, gb, 1, &contact.geom, sizeof(dContact));
-
+    int nc = dCollide(ga, gb, MAX_CONTACTS, &contacts[0].geom, sizeof(dContact));
     if (nc)
     {
-        dJointID c = dJointCreateContact (m_world, m_contact_group, &contact);
-        dJointAttach (c, a, b);
+        for (int i = 0; i < nc; i++)
+        {
+            dJointID c = dJointCreateContact (m_world, m_contact_group,
+                                              &contacts[i]);
+            dJointAttach (c, a, b);
+        }
     }
 }
 

@@ -22,7 +22,13 @@ CameraSimulator::~CameraSimulator()
 
 void CameraSimulator::init()
 {
-    m_device = createDevice(video::EDT_OPENGL, m_device_size);
+    SIrrlichtCreationParameters p;
+    p.AntiAlias = 8;
+    p.DriverType = video::EDT_OPENGL;
+    p.WindowSize = m_device_size;
+    p.LoggingLevel = ELL_INFORMATION;
+
+    m_device = createDeviceEx(p);
     Q_ASSERT(m_device);
 
     m_scene_manager = m_device->getSceneManager();
@@ -30,17 +36,17 @@ void CameraSimulator::init()
     m_camera = m_scene_manager->addCameraSceneNode();
     m_camera->setUpVector(core::vector3df(0,1,0));
 
-#if 0
-    int w = m_track.width() * 2;
-    int h = m_track.height() * 2;
-    auto pm = m_manager->addHillPlaneMesh("ground", core::dimension2df(w, h),
+#if 1
+    int w = m_track_model.width() * 2;
+    int h = m_track_model.height() * 2;
+    auto pm = m_scene_manager->addHillPlaneMesh("ground", core::dimension2df(w, h),
                                           core::dimension2du(1, 1));
-    auto plane = m_manager->addAnimatedMeshSceneNode(pm);
-    plane->setMaterialTexture(0,m_driver->getTexture(RESOURCE_DIRECTORY
+    auto plane = m_scene_manager->addAnimatedMeshSceneNode(pm);
+    plane->setMaterialTexture(0,m_video_driver->getTexture(RESOURCE_DIRECTORY
                                                      "images/texture.jpg"));
     plane->setMaterialFlag(video::EMF_LIGHTING, false);
-    plane->setPosition(core::vector3df(m_track.width() / 2, -0.1,
-                                       m_track.height() / 2));
+    plane->setPosition(core::vector3df(m_track_model.width() / 2, -0.1,
+                                       m_track_model.height() / 2));
 #endif
 
     QString modelName;

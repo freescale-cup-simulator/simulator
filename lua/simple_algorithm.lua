@@ -39,12 +39,12 @@ function run()
 
 	local m = (ls + le) / 2 - 64
 	local a = (m / 128)
-	if (math.abs(a) <= 0.05) then
-		a = last_turn_angle
-	else
-		last_turn_angle = a
-	end
-	print("[Lua] Turn angle is " .. a)
+	-- if (math.abs(a) <= 0.05) then
+	-- 	a = last_turn_angle
+	-- else
+	-- 	last_turn_angle = a
+	-- end
+	-- print("[Lua] Turn angle is " .. a)
 
 	local signals = {}
 	signals["angle"] = a

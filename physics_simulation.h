@@ -1,8 +1,9 @@
 #ifndef PHYSICS_SIMULATION_H
 #define PHYSICS_SIMULATION_H
 
-#include <ode/ode.h>
+#include <cmath>
 
+#include <ode/ode.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/mesh.h>
@@ -38,19 +39,26 @@ private:
     static void nearCallbackWrapper(void * i, dGeomID a, dGeomID b);
 
     static constexpr dReal GRAVITY_CONSTANT = -9.81;
+    static constexpr dReal WORLD_STEP = 1e-3;
+    static constexpr int MAX_CONTACTS = 32;
 
     const track_library::TrackModel & m_track_model;
     dReal m_frame_duration;
     const dReal * m_start_position;
     const dReal * m_start_direction;
 
-    dGeomID m_sphere;
+    dGeomID m_vehicle_geom;
+    dBodyID m_vehicle_body;
+    // front left, front right, rear left, rear right
+    dJointID m_wheels[4];
+    QVector<dGeomID> m_track_geoms;
 
     dWorldID m_world;
     dSpaceID m_space;
     dJointGroupID m_contact_group;
     QHash<QString, dTriMeshDataID> m_trimesh_data;
-    QVector<QPair<dVector3 *, unsigned int*>> m_allocated_memory;
+
+    QVector<QPair<float *, int *>> m_allocated_memory;
 
     Assimp::Importer m_importer;
 };
