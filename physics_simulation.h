@@ -39,7 +39,7 @@ private:
     static void nearCallbackWrapper(void * i, dGeomID a, dGeomID b);
 
     static constexpr dReal GRAVITY_CONSTANT = -9.81;
-    static constexpr dReal WORLD_STEP = 1e-3;
+    static constexpr dReal WORLD_STEP = 8e-3;
     static constexpr int MAX_CONTACTS = 32;
 
     const track_library::TrackModel & m_track_model;
@@ -51,6 +51,7 @@ private:
     dBodyID m_vehicle_body;
     // front left, front right, rear left, rear right
     dJointID m_wheels[4];
+    dBodyID m_wheel_bodies[4];
     QVector<dGeomID> m_track_geoms;
 
     dWorldID m_world;
