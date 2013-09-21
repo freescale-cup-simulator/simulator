@@ -49,31 +49,16 @@ DataSet PhysicsSimulation::onModelResponse(const DataSet & control)
         for (int i = 2; i < 4; i++)
         {
             dJointSetHinge2Param(m_wheels[i], dParamVel2, 15);
-            dJointSetHinge2Param(m_wheels[i], dParamFMax2, .2);
+            dJointSetHinge2Param(m_wheels[i], dParamFMax2, .1);
         }
 
         for (int i = 0; i < 2; i++)
-        {
-#if 1
-            dReal a = dJointGetHinge2Angle1(m_wheels[i]);
-            qDebug("%.2f %.2f", a, control[MovementAngle].toFloat());
-            a = control[MovementAngle].toFloat() - a;
-            if (a > 0.1)
-                a = 0.1;
-            if (a < -0.1)
-                a = -0.1;
-            a *= 10.0;
-
-            dJointSetHinge2Param(m_wheels[i], dParamVel, a);
-            dJointSetHinge2Param(m_wheels[i], dParamFMax, .1);
-            dJointSetHinge2Param(m_wheels[i], dParamLoStop, -.75);
-            dJointSetHinge2Param(m_wheels[i], dParamHiStop, .75);
-#else
-            dJointSetHinge2Param(m_wheels[i], dParamFudgeFactor, .0001);
-            dJointSetHinge2Param(m_wheels[i], dParamLoStop, -.2);
-            dJointSetHinge2Param(m_wheels[i], dParamHiStop, -.2);
-#endif
-        }
+          {
+            dJointSetHinge2Param(m_wheels[i], dParamLoStop,
+                                 -control[MovementAngle].toFloat() * 2);
+            dJointSetHinge2Param(m_wheels[i], dParamHiStop,
+                                 -control[MovementAngle].toFloat() * 2);
+          }
 
         dSpaceCollide(m_space, this, &PhysicsSimulation::nearCallbackWrapper);
         dWorldStep(m_world, WORLD_STEP);
@@ -87,16 +72,14 @@ DataSet PhysicsSimulation::onModelResponse(const DataSet & control)
     const float velocity = std::sqrt(velocity_v[0]*velocity_v[0]
             + velocity_v[1]*velocity_v[1]
             + velocity_v[2]*velocity_v[2]);
-    const float chasis_angle = ((std::asin(rotation_q[3]) * 2) / M_PI) * 180.0;
 
-    static float vel_ = 0;
-    static float maxdv = 0;
-    if (velocity - vel_ > maxdv)
-        maxdv = velocity - vel_;
-    vel_ = velocity;
 
-    qDebug("position %.3f, %.3f, %.3f; rotation %.2f, l.v.m. %.3f, dv %.2f",
-           position_v[0], position_v[1], position_v[2], chasis_angle, velocity, maxdv);
+    const float w = rotation_q[0], x = rotation_q[1],
+        y = rotation_q[2], z = rotation_q[3];
+    float chasis_angle = -(std::atan2(2 * (w*z + x*y),
+                                      1 - 2 * (y*y + z*z)) / M_PI) * 180.0;
+    qDebug("position %.3f, %.3f, %.3f; rotation %.4f, l.v.m. %.3f",
+           position_v[0], position_v[1], position_v[2], chasis_angle, velocity);
 
     DataSet s;
 
@@ -190,16 +173,16 @@ void PhysicsSimulation::buildTrack()
 
 void PhysicsSimulation::createVehicle()
 {
-    const dVector3 d = {.16, .25, .03};
+    const dVector3 d = {.16, .25, .01};
     const dReal * sp = m_start_position;
     const dReal spawn_height = .08;
     const dReal radius = .025;
-    const dReal a[4][3] =
+    const dReal anchor_points[4][3] =
     {
         { sp[0] - d[0] / 2, sp[1] + d[1] / 2, spawn_height - d[2] / 2 },
         { sp[0] + d[0] / 2, sp[1] + d[1] / 2, spawn_height - d[2] / 2 },
         { sp[0] - d[0] / 2, sp[1] - d[1] / 2, spawn_height - d[2] / 2 },
-        { sp[0] + d[0] / 2, sp[1] - d[1] / 2, spawn_height - d[2] / 2 },
+        { sp[0] + d[0] / 2, sp[1] - d[1] / 2, spawn_height - d[2] / 2 }
     };
 
     dBodyID id = dBodyCreate(m_world);
@@ -220,12 +203,14 @@ void PhysicsSimulation::createVehicle()
         gid = dCreateSphere(m_space, radius);
         dMassSetSphereTotal(&mass, 0.1, radius);
         dBodySetMass(id, &mass);
-        dBodySetPosition(id, a[i][0], a[i][1], a[i][2]);
+        dBodySetPosition(id, anchor_points[i][0], anchor_points[i][1],
+            anchor_points[i][2]);
         dGeomSetBody(gid, id);
 
         jid = dJointCreateHinge2(m_world, 0);
         dJointAttach(jid, m_vehicle_body, id);
-        dJointSetHinge2Anchor(jid, a[i][0], a[i][1], a[i][2]);
+        dJointSetHinge2Anchor(jid, anchor_points[i][0], anchor_points[i][1],
+            anchor_points[i][2]);
         dJointSetHinge2Axis1(jid, 0, 0, 1);
         dJointSetHinge2Axis2(jid, 1, 0, 0);
         dJointSetHinge2Param(jid, dParamSuspensionERP, 0.4);
@@ -248,8 +233,6 @@ void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
     if (!is_ground_collision)
         return;
 
-    dBodyID a = dGeomGetBody(ga);
-    dBodyID b = dGeomGetBody(gb);
     dContact contacts[MAX_CONTACTS];
 
     for (int i = 0; i < MAX_CONTACTS; i++)
@@ -259,8 +242,8 @@ void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
         contacts[i].surface.mu = dInfinity;
         contacts[i].surface.soft_erp = 0.5;
         contacts[i].surface.soft_cfm = .001;
-        contacts[i].surface.slip1 = .01;
-        contacts[i].surface.slip2 = .01;
+        contacts[i].surface.slip1 = .1;
+        contacts[i].surface.slip2 = .1;
     }
 
     int nc = dCollide(ga, gb, MAX_CONTACTS, &contacts[0].geom, sizeof(dContact));
@@ -270,7 +253,7 @@ void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
         {
             dJointID c = dJointCreateContact (m_world, m_contact_group,
                                               &contacts[i]);
-            dJointAttach (c, a, b);
+            dJointAttach (c, dGeomGetBody(ga), dGeomGetBody(gb));
         }
     }
 }
