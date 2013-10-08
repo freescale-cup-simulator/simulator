@@ -141,9 +141,8 @@ void PhysicsSimulation::buildTrack()
         // shifting top face of tile to z=0 in blender works, don't have to
         // adjust height here
         dGeomSetPosition(id, tile.x() + 0.5, tile.y() + 0.5, 0);
-
         dMatrix3 rm;
-        dRFromEulerAngles(rm, 0, 0, (tile.rotation() / 180) * M_PI);
+        dRFromEulerAngles(rm, 0, 0, (tile.rotation() / 180.0) * M_PI);
         dGeomSetRotation(id, rm);
 
         if (tile.type() == tl::Tile::Start)
@@ -167,8 +166,15 @@ void PhysicsSimulation::buildTrack()
 
     qDebug("Start location: (%.1f,%.1f,%.1f)", m_start_position[0],
             m_start_position[1], m_start_position[2]);
-    qDebug("Start direction vector: (%.1f,%.1f,%.1f)", m_start_direction[4],
-            m_start_direction[5], m_start_direction[6]);
+    qDebug("Start direction vector: (%.1f,%.1f)", -m_start_direction[4],
+            m_start_direction[5]);
+#if 0
+    // can be useful for debugging
+    qDebug("%f %f %f\n%f %f %f\n%f %f %f", m_start_direction[0],
+        m_start_direction[1], m_start_direction[2], m_start_direction[4],
+        m_start_direction[5], m_start_direction[6], m_start_direction[8],
+        m_start_direction[9], m_start_direction[10]);
+#endif
 }
 
 void PhysicsSimulation::createVehicle()
@@ -177,19 +183,46 @@ void PhysicsSimulation::createVehicle()
     const dReal * sp = m_start_position;
     const dReal spawn_height = .08;
     const dReal radius = .025;
-    const dReal anchor_points[4][3] =
-    {
-        { sp[0] - d[0] / 2, sp[1] + d[1] / 2, spawn_height - d[2] / 2 },
-        { sp[0] + d[0] / 2, sp[1] + d[1] / 2, spawn_height - d[2] / 2 },
-        { sp[0] - d[0] / 2, sp[1] - d[1] / 2, spawn_height - d[2] / 2 },
-        { sp[0] + d[0] / 2, sp[1] - d[1] / 2, spawn_height - d[2] / 2 }
-    };
+
+    int inv = m_start_direction[5] ? 1 : m_start_direction[5];
+    int shift = -m_start_direction[4];
+    QVector<QVector<dReal>> anchor_points(4);
+    QVector<int> indices;
+    const dReal anchor_z = spawn_height - d[2] / 2;
+
+    switch (shift)
+      {
+      case 1:
+        indices = {2, 0, 3, 1};
+        break;
+      case -1:
+        indices = {1, 3, 0, 2};
+        break;
+      default:
+      case 0:
+        indices = {0, 1, 2, 3};
+        break;
+      }
+
+    // front left
+    anchor_points[indices[0]] = {sp[0] - d[0] / 2 * inv, sp[1] + d[1] / 2 * inv,
+                                 anchor_z};
+    // front right
+    anchor_points[indices[1]] = {sp[0] + d[0] / 2 * inv, sp[1] + d[1] / 2 * inv,
+                                 anchor_z};
+    // rear left
+    anchor_points[indices[2]] = {sp[0] - d[0] / 2 * inv, sp[1] - d[1] / 2 * inv,
+                                 anchor_z};
+    // rear right
+    anchor_points[indices[3]] = {sp[0] + d[0] / 2 * inv, sp[1] - d[1] / 2 * inv,
+                                 anchor_z};
 
     dBodyID id = dBodyCreate(m_world);
     dGeomID gid = dCreateBox(m_space, d[0], d[1], d[2]);
     dMass mass;
     dJointID jid;
 
+    dBodySetRotation(id, m_start_direction);
     dMassSetBoxTotal(&mass, 1, d[0], d[1], d[2]);
     dBodySetMass(id, &mass);
     dGeomSetBody(gid, id);
@@ -212,7 +245,7 @@ void PhysicsSimulation::createVehicle()
         dJointSetHinge2Anchor(jid, anchor_points[i][0], anchor_points[i][1],
             anchor_points[i][2]);
         dJointSetHinge2Axis1(jid, 0, 0, 1);
-        dJointSetHinge2Axis2(jid, 1, 0, 0);
+        dJointSetHinge2Axis2(jid, m_start_direction[5], m_start_direction[4], 0);
         dJointSetHinge2Param(jid, dParamSuspensionERP, 0.4);
         dJointSetHinge2Param(jid, dParamSuspensionCFM, 0.1);
         m_wheels[i] = jid;
