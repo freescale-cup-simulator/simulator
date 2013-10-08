@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.11 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.9 FATAL_ERROR)
 
 project(freescale_simulator CXX)
 
@@ -40,27 +40,30 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 find_package(Irrlicht REQUIRED)
 include_directories(${IRRLICHT_INCLUDE_DIRS})
 
-find_package(Qt5 REQUIRED Core Gui)
-
-find_package(Assimp REQUIRED)
-include_directories(SYSTEM ${ASSIMP_INCLUDE_DIRS})
-#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${ASSIMP_CXX_FLAGS}")
-#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${ASSIMP_CXX_FLAGS}")
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LUA REQUIRED lua)
-
 pkg_check_modules(ODE REQUIRED ode)
-include_directories(SYSTEM ${ODE_INCLUDE_DIRS})
+pkg_check_modules(ASSIMP REQUIRED assimp)
+
+include_directories(SYSTEM
+                    ${ODE_INCLUDE_DIRS}
+                    ${ASSIMP_INCLUDE_DIRS}
+                    ${LUA_INCLUDE_DIRS}
+)
+
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${ODE_CFLAGS_OTHER}")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${ODE_CFLAGS_OTHER}")
 
 add_subdirectory(libtrack EXCLUDE_FROM_ALL)
-include_directories(libtrack)
+include_directories(libtrack
+                    ${CMAKE_BINARY_DIR}/libtrack/)
 
 message(STATUS "Build type is: ${CMAKE_BUILD_TYPE}")
 
-qt5_wrap_cpp(moc_output ${project_headers})
+#qt5_wrap_cpp(moc_output ${project_headers})
 
 set(RESOURCE_DIR ${CMAKE_SOURCE_DIR}/resources/)
 set(LUA_SCRIPT_DIR ${CMAKE_SOURCE_DIR}/lua/)
@@ -71,14 +74,13 @@ add_executable(freescale_simulator
 
                ${project_sources}
                ${project_headers}
-               ${moc_output}
 )
 
+set_target_properties(freescale_simulator PROPERTIES AUTOMOC TRUE)
+qt5_use_modules(freescale_simulator Core Gui)
 target_link_libraries(freescale_simulator
 
                       track
-                      Qt5::Core
-                      Qt5::Gui
                       ${LUA_LIBRARIES}
                       ${ODE_LIBRARIES}
                       ${IRRLICHT_LIBRARIES}
