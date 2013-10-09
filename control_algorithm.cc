@@ -4,7 +4,6 @@ ControlAlgorithm::ControlAlgorithm(QObject *parent)
     : QObject(parent)
     , m_lua_state(luaL_newstate())
     , m_lua_loaded(false)
-    , m_interval(100)
 {
     luaL_openlibs(m_lua_state);
 }
@@ -41,12 +40,7 @@ QString ControlAlgorithm::getId()
     return "Lua Control algoritgm (file: " + m_current_file + ")";
 }
 
-void ControlAlgorithm::setInterval(int msec)
-{
-    m_interval = msec;
-}
-
-DataSet ControlAlgorithm::onCameraResponse(const QByteArray &frame)
+void ControlAlgorithm::process(DataSet & data)
 {
     Q_ASSERT(m_lua_loaded);
 
@@ -54,10 +48,11 @@ DataSet ControlAlgorithm::onCameraResponse(const QByteArray &frame)
     lua_pushvalue(m_lua_state, -1);
 
     lua_newtable(m_lua_state);
-    for (int i = 0; i < frame.size(); i++)
+    for (int i = 0; i < data.camera_pixels.size(); i++)
     {
         lua_pushnumber(m_lua_state, i + 1);
-        lua_pushnumber(m_lua_state, static_cast<unsigned char>(frame.at(i)));
+        lua_pushnumber(m_lua_state,
+                       static_cast<unsigned char>(data.camera_pixels.at(i)));
         lua_settable(m_lua_state, -3);
     }
     lua_setglobal(m_lua_state, "g_camera_frame");
@@ -65,21 +60,17 @@ DataSet ControlAlgorithm::onCameraResponse(const QByteArray &frame)
     if (lua_pcall(m_lua_state, 0, LUA_MULTRET, 0) != 0)
         qFatal("Lua error: %s", lua_tostring(m_lua_state, -1));
 
-    DataSet control_data;
-
     lua_getfield(m_lua_state, -1, "angle");
-    control_data[MovementAngle] = lua_tonumber(m_lua_state, -1);
+    data.wheel_angle = lua_tonumber(m_lua_state, -1);
     lua_pop(m_lua_state, 1);
 
     lua_getfield(m_lua_state, -1, "lspeed");
-    control_data[WheelSpeedL] = lua_tonumber(m_lua_state, -1);
+    data.wheel_power_r = lua_tonumber(m_lua_state, -1);
     lua_pop(m_lua_state, 1);
 
     lua_getfield(m_lua_state, -1, "rspeed");
-    control_data[WheelSpeedR] = lua_tonumber(m_lua_state, -1);
+    data.wheel_power_l = lua_tonumber(m_lua_state, -1);
     lua_pop(m_lua_state, 1);
 
     lua_pop(m_lua_state, 1);
-
-    return control_data;
 }

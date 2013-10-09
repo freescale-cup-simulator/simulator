@@ -103,18 +103,15 @@ void CameraSimulator::init()
     m_camera->bindTargetAndRotation(true);
 }
 
-QByteArray CameraSimulator::onSimulatorResponse(const DataSet &params)
+void CameraSimulator::process(DataSet & data)
 {
-    Q_ASSERT(params.contains(CameraPositionX));
-    Q_ASSERT(params.contains(CameraRotationX));
+    m_camera->setPosition(core::vector3df(data.camera_position.x(),
+                                          data.camera_position.z(),
+                                          data.camera_position.y()));
 
-    m_camera->setPosition(core::vector3df(params[CameraPositionX].toFloat(),
-                                          params[CameraPositionZ].toFloat(),
-                                          params[CameraPositionY].toFloat()));
-
-    m_camera->setRotation(core::vector3df(params[CameraRotationX].toFloat(),
-                                          params[CameraRotationY].toFloat(),
-                                          params[CameraRotationZ].toFloat()));
+    m_camera->setRotation(core::vector3df(data.camera_rotation.x(),
+                                          data.camera_rotation.y(),
+                                          data.camera_rotation.z()));
     m_camera->updateAbsolutePosition();
     m_target->setPosition(m_camera->getTarget());
     m_target->updateAbsolutePosition();
@@ -141,5 +138,5 @@ QByteArray CameraSimulator::onSimulatorResponse(const DataSet &params)
     m_device->getSceneManager()->drawAll();
     m_device->getVideoDriver()->endScene();
 
-    return frame;
+    data.camera_pixels = frame;
 }

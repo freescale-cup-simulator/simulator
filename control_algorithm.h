@@ -15,8 +15,7 @@ public:
 
     bool loadFile(const QString & file);
     QString getId();
-    void setInterval(int msec);
-    DataSet onCameraResponse(const QByteArray & frame);
+    void process(DataSet & data);
 private:
     lua_State * m_lua_state;
     QString m_current_file;

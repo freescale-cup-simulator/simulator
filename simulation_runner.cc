@@ -3,6 +3,8 @@
 SimulationRunner::SimulationRunner(QObject *parent)
     : QObject(parent)
     , m_running(false)
+    , m_control_interval(0.1)
+    , m_physics_timestep(8e-3)
 {
     setAutoDelete(false);
 }
@@ -13,10 +15,10 @@ bool SimulationRunner::loadAlgorithmFile(const QString &file)
         return false;
     auto ca = new ControlAlgorithm (this);
     if (!ca->loadFile(file))
-      {
+    {
         delete ca;
         return false;
-      }
+    }
     m_control_algorithm = QSharedPointer<ControlAlgorithm>(ca);
     return true;
 }
@@ -49,20 +51,31 @@ void SimulationRunner::run()
         return;
     }
 
-    auto cs = new CameraSimulator(m_track_model);
+    auto cs = new CameraSimulator(m_track_model, QSize(128, 128));
     auto ps = new PhysicsSimulation(m_track_model);
     m_camera_simulator = QSharedPointer<CameraSimulator>(cs);
     m_physics_simulation = QSharedPointer<PhysicsSimulation>(ps);
 
     m_running = true;
-    QByteArray line;
-    DataSet dataset = m_control_algorithm->onCameraResponse(line);
+    DataSet dataset;
+    float physics_runtime;
+
+    dataset.physics_timestep = m_physics_timestep;
+    dataset.control_interval = m_control_interval;
+    m_control_algorithm->process(dataset);
 
     while (m_running)
     {
-        dataset = m_physics_simulation->onModelResponse(dataset);
-        line = m_camera_simulator->onSimulatorResponse(dataset);
-        dataset = m_control_algorithm->onCameraResponse(line);
+        physics_runtime = 0;
+        while (physics_runtime < m_control_interval)
+        {
+            m_physics_simulation->process(dataset);
+            // run vehicle model code here
+
+            physics_runtime += m_physics_timestep;
+        }
+        m_camera_simulator->process(dataset);
+        m_control_algorithm->process(dataset);
     }
     qDebug("Simulation done!");
 }

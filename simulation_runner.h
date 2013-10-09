@@ -14,14 +14,41 @@
 class SimulationRunner : public QObject, public QRunnable
 {
     Q_OBJECT
+    Q_PROPERTY(float controlInterval READ controlInterval
+               WRITE setControlInterval
+               NOTIFY controlIntervalChanged)
+    Q_PROPERTY(float physicsTimeStep READ physicsTimeStep
+               WRITE setPhysicsTimeStep
+               NOTIFY physicsTimeStepChanged)
 public:
     explicit SimulationRunner(QObject * parent = nullptr);
     bool loadAlgorithmFile(const QString & file);
     bool loadTrack(const QString & track_path);
     void run();
     void stop();
+
+    inline float controlInterval() { return m_control_interval; }
+    inline float physicsTimeStep() { return m_physics_timestep; }
+
+    inline void setControlInterval(float v)
+    {
+        m_control_interval = v;
+        controlIntervalChanged();
+    }
+
+    inline void setPhysicsTimeStep(float v)
+    {
+        m_physics_timestep = v;
+        physicsTimeStepChanged();
+    }
+
+signals:
+    void controlIntervalChanged();
+    void physicsTimeStepChanged();
 private:
     bool m_running;
+    float m_control_interval;
+    float m_physics_timestep;
 
     track_library::TrackModel m_track_model;
     QSharedPointer<PhysicsSimulation> m_physics_simulation;

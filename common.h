@@ -1,28 +1,22 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <QMap>
+#include <QByteArray>
 #include <QString>
-#include <QVariant>
+#include <QVector3D>
 #include <QtDebug>
 
-//namespace parameters {
-
-enum ParameterType {
-    CameraPositionX,
-    CameraPositionY,
-    CameraPositionZ,
-    CameraRotationX,
-    CameraRotationY,
-    CameraRotationZ,
-    MovementAngle,
-    WheelSpeedR,
-    WheelSpeedL
-};
-
-//}
-
-typedef QMap<ParameterType, QVariant> DataSet;
+typedef struct
+{
+    QVector3D camera_position;
+    QVector3D camera_rotation;
+    QByteArray camera_pixels;
+    float wheel_angle;
+    float wheel_power_r;
+    float wheel_power_l;
+    float physics_timestep;
+    float control_interval;
+} DataSet;
 
 Q_DECLARE_METATYPE(DataSet)
 

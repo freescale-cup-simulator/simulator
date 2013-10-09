@@ -15,7 +15,6 @@
 #include <common.h>
 #include <track_model.h>
 
-
 using namespace irr;
 using namespace track_library;
 
@@ -30,7 +29,7 @@ public:
                              QObject *parent = 0);
     ~CameraSimulator();
     core::vector3df getTargetPosition();
-    QByteArray onSimulatorResponse(const DataSet & params);
+    void process(DataSet & data);
 private:
     void init();
 

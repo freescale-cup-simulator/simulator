@@ -25,12 +25,11 @@ class PhysicsSimulation : public QObject
 {
     Q_OBJECT
 public:
-    PhysicsSimulation(const track_library::TrackModel & model);
+    PhysicsSimulation(const track_library::TrackModel & model,
+                      QObject * parent = nullptr);
     ~PhysicsSimulation();
 
-    dReal getFrameDuration();
-    void setFrameDuration(dReal duration);
-    DataSet onModelResponse(const DataSet & data);
+    void process(DataSet & data);
 private:
     void importModel(const QString & path, const QString & name);
     void buildTrack();
@@ -39,11 +38,9 @@ private:
     static void nearCallbackWrapper(void * i, dGeomID a, dGeomID b);
 
     static constexpr dReal GRAVITY_CONSTANT = -9.81;
-    static constexpr dReal WORLD_STEP = 8e-3;
     static constexpr int MAX_CONTACTS = 32;
 
     const track_library::TrackModel & m_track_model;
-    dReal m_frame_duration;
     const dReal * m_start_position;
     const dReal * m_start_direction;
 

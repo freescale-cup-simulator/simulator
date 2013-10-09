@@ -1,8 +1,9 @@
 #include <physics_simulation.h>
 
-PhysicsSimulation::PhysicsSimulation(const track_library::TrackModel &model)
-    : m_track_model(model)
-    , m_frame_duration(0.01)
+PhysicsSimulation::PhysicsSimulation(const track_library::TrackModel &model,
+                                     QObject * parent)
+    : QObject(parent)
+    , m_track_model(model)
     , m_start_position(nullptr)
 {
     dInitODE();
@@ -29,41 +30,25 @@ PhysicsSimulation::~PhysicsSimulation()
     }
 }
 
-dReal PhysicsSimulation::getFrameDuration()
+void PhysicsSimulation::process(DataSet & data)
 {
-    return m_frame_duration;
-}
-
-void PhysicsSimulation::setFrameDuration(dReal duration)
-{
-    m_frame_duration = duration;
-}
-
-DataSet PhysicsSimulation::onModelResponse(const DataSet & control)
-{
-    // stepping with smaller step yields more precision, and yet
-    // our control algorithm will have to run with longer intervals;
-    // so we do multiple steps to achieve desired interval
-    for (int s = 0; s < m_frame_duration / WORLD_STEP; s++)
+    for (int i = 2; i < 4; i++)
     {
-        for (int i = 2; i < 4; i++)
-        {
-            dJointSetHinge2Param(m_wheels[i], dParamVel2, 15);
-            dJointSetHinge2Param(m_wheels[i], dParamFMax2, .1);
-        }
-
-        for (int i = 0; i < 2; i++)
-          {
-            dJointSetHinge2Param(m_wheels[i], dParamLoStop,
-                                 -control[MovementAngle].toFloat() * 2);
-            dJointSetHinge2Param(m_wheels[i], dParamHiStop,
-                                 -control[MovementAngle].toFloat() * 2);
-          }
-
-        dSpaceCollide(m_space, this, &PhysicsSimulation::nearCallbackWrapper);
-        dWorldStep(m_world, WORLD_STEP);
-        dJointGroupEmpty(m_contact_group);
+        dJointSetHinge2Param(m_wheels[i], dParamVel2, 15);
+        dJointSetHinge2Param(m_wheels[i], dParamFMax2, .1);
     }
+
+    for (int i = 0; i < 2; i++)
+    {
+        dJointSetHinge2Param(m_wheels[i], dParamLoStop,
+                             -data.wheel_angle * 2);
+        dJointSetHinge2Param(m_wheels[i], dParamHiStop,
+                             -data.wheel_angle * 2);
+    }
+
+    dSpaceCollide(m_space, this, &PhysicsSimulation::nearCallbackWrapper);
+    dWorldStep(m_world, data.physics_timestep);
+    dJointGroupEmpty(m_contact_group);
 
     const dReal * position_v = dBodyGetPosition(m_vehicle_body);
     const dReal * velocity_v = dBodyGetLinearVel(m_vehicle_body);
@@ -75,22 +60,20 @@ DataSet PhysicsSimulation::onModelResponse(const DataSet & control)
 
 
     const float w = rotation_q[0], x = rotation_q[1],
-        y = rotation_q[2], z = rotation_q[3];
+            y = rotation_q[2], z = rotation_q[3];
     float chasis_angle = -(std::atan2(2 * (w*z + x*y),
                                       1 - 2 * (y*y + z*z)) / M_PI) * 180.0;
     qDebug("position %.3f, %.3f, %.3f; rotation %.4f, l.v.m. %.3f",
            position_v[0], position_v[1], position_v[2], chasis_angle, velocity);
 
-    DataSet s;
-
-    s[CameraPositionX] = position_v[0];
-    s[CameraPositionY] = position_v[1];
-    s[CameraPositionZ] = position_v[2] + .65;
-    s[CameraRotationX] = 55;
-    s[CameraRotationY] = chasis_angle;
-    s[CameraRotationZ] = 0;
-
-    return s;
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wnarrowing"
+#endif
+    data.camera_position = {position_v[0], position_v[1], position_v[2] + .65};
+    data.camera_rotation = {55, chasis_angle, 0};
+#ifdef __GNUC__
+#pragma GCC diagnostic warning "-Wnarrowing"
+#endif
 }
 
 void PhysicsSimulation::importModel(const QString &path, const QString & name)
@@ -171,9 +154,9 @@ void PhysicsSimulation::buildTrack()
 #if 0
     // can be useful for debugging
     qDebug("%f %f %f\n%f %f %f\n%f %f %f", m_start_direction[0],
-        m_start_direction[1], m_start_direction[2], m_start_direction[4],
-        m_start_direction[5], m_start_direction[6], m_start_direction[8],
-        m_start_direction[9], m_start_direction[10]);
+            m_start_direction[1], m_start_direction[2], m_start_direction[4],
+            m_start_direction[5], m_start_direction[6], m_start_direction[8],
+            m_start_direction[9], m_start_direction[10]);
 #endif
 }
 
@@ -184,6 +167,11 @@ void PhysicsSimulation::createVehicle()
     const dReal spawn_height = .08;
     const dReal radius = .025;
 
+    /*
+     * this code is here to support different start directions; we cannot just
+     * rotate the vehicle after creating it, so we create it already facing the
+     * right direction by rearranging anchor points
+     */
     int inv = m_start_direction[5] ? 1 : m_start_direction[5];
     int shift = -m_start_direction[4];
     QVector<QVector<dReal>> anchor_points(4);
@@ -191,18 +179,18 @@ void PhysicsSimulation::createVehicle()
     const dReal anchor_z = spawn_height - d[2] / 2;
 
     switch (shift)
-      {
-      case 1:
+    {
+    case 1:
         indices = {2, 0, 3, 1};
         break;
-      case -1:
+    case -1:
         indices = {1, 3, 0, 2};
         break;
-      default:
-      case 0:
+    default:
+    case 0:
         indices = {0, 1, 2, 3};
         break;
-      }
+    }
 
     // front left
     anchor_points[indices[0]] = {sp[0] - d[0] / 2 * inv, sp[1] + d[1] / 2 * inv,
@@ -237,13 +225,13 @@ void PhysicsSimulation::createVehicle()
         dMassSetSphereTotal(&mass, 0.1, radius);
         dBodySetMass(id, &mass);
         dBodySetPosition(id, anchor_points[i][0], anchor_points[i][1],
-            anchor_points[i][2]);
+                anchor_points[i][2]);
         dGeomSetBody(gid, id);
 
         jid = dJointCreateHinge2(m_world, 0);
         dJointAttach(jid, m_vehicle_body, id);
         dJointSetHinge2Anchor(jid, anchor_points[i][0], anchor_points[i][1],
-            anchor_points[i][2]);
+                anchor_points[i][2]);
         dJointSetHinge2Axis1(jid, 0, 0, 1);
         dJointSetHinge2Axis2(jid, m_start_direction[5], m_start_direction[4], 0);
         dJointSetHinge2Param(jid, dParamSuspensionERP, 0.4);
