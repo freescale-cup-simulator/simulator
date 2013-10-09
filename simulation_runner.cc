@@ -12,8 +12,13 @@ bool SimulationRunner::loadAlgorithmFile(const QString &file)
     if (m_running)
         return false;
     auto ca = new ControlAlgorithm (this);
+    if (!ca->loadFile(file))
+      {
+        delete ca;
+        return false;
+      }
     m_control_algorithm = QSharedPointer<ControlAlgorithm>(ca);
-    return ca->loadFile(file);
+    return true;
 }
 
 bool SimulationRunner::loadTrack(const QString &track_path)
@@ -53,7 +58,7 @@ void SimulationRunner::run()
     QByteArray line;
     DataSet dataset = m_control_algorithm->onCameraResponse(line);
 
-    while(m_running)
+    while (m_running)
     {
         dataset = m_physics_simulation->onModelResponse(dataset);
         line = m_camera_simulator->onSimulatorResponse(dataset);
