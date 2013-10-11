@@ -8,6 +8,7 @@
 #include <control_algorithm.h>
 #include <physics_simulation.h>
 #include <camera_simulator.h>
+#include <vehicle_model.h>
 #include <track_io.h>
 #include <config.h>
 
@@ -54,6 +55,7 @@ private:
     QSharedPointer<PhysicsSimulation> m_physics_simulation;
     QSharedPointer<CameraSimulator> m_camera_simulator;
     QSharedPointer<ControlAlgorithm> m_control_algorithm;
+    QSharedPointer<VehicleModel> m_vehicle_model;
 };
 
 #endif // SIMULATION_RUNNER_H

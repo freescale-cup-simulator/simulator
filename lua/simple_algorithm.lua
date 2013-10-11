@@ -47,7 +47,7 @@ function run()
 	-- print("[Lua] Turn angle is " .. a)
 
 	local signals = {}
-	signals["angle"] = a
+	signals["angle"] = a * 45;
 	signals["lspeed"] = 1 - (a / 90)
 	signals["rspeed"] = 1 - (a / 90)
 	-- print(signals)
