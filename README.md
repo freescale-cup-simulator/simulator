@@ -1,7 +1,7 @@
 simulator
 =========
 
-Useful links:
+Useful links
 -------------------------  
   General info
     https://docs.google.com/document/d/1AsWgFDdzwZjjciUL-MGJZuOVbMW1o2tJQTximEqg5zI/edit
