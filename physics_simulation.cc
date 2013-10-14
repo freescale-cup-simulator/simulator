@@ -62,8 +62,10 @@ void PhysicsSimulation::process(DataSet & data)
             y = rotation_q[2], z = rotation_q[3];
     float chasis_angle = -(std::atan2(2 * (w*z + x*y),
                                       1 - 2 * (y*y + z*z)) / M_PI) * 180.0;
+#if 0
     qDebug("position %.3f, %.3f, %.3f; rotation %.4f, l.v.m. %.3f",
            position_v[0], position_v[1], position_v[2], chasis_angle, velocity);
+#endif
 
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wnarrowing"
