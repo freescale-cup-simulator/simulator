@@ -5,13 +5,22 @@ VehicleModel::VehicleModel(QObject * parent)
 {
 }
 
-void VehicleModel::process(const DataSet & target, DataSet & output)
+void VehicleModel::process(DataSet & d)
 {
-    output = target;
-    if (target.wheel_angle < m_last_output.wheel_angle)
-        m_last_output.wheel_angle -= DEGREES_PER_SECOND * target.physics_timestep;
-    else if (target.wheel_angle > m_last_output.wheel_angle)
-        m_last_output.wheel_angle += DEGREES_PER_SECOND * target.physics_timestep;
-    output.wheel_angle = m_last_output.wheel_angle;
-    qDebug() << target.wheel_angle << output.wheel_angle;
+    const float dps = DEGREES_PER_SECOND * d.physics_timestep;
+
+    // servo will reach desired angle during current step
+    if (std::abs(d.desired_wheel_angle - d.current_wheel_angle) < dps)
+    {
+        d.current_wheel_angle = d.desired_wheel_angle;
+    }
+    else if (d.desired_wheel_angle < d.current_wheel_angle)
+    {
+        d.current_wheel_angle -= dps;
+    }
+    else
+    {
+        d.current_wheel_angle += dps;
+    }
+    qDebug() << d.current_wheel_angle << d.desired_wheel_angle;
 }

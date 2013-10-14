@@ -59,9 +59,10 @@ void SimulationRunner::run()
     m_vehicle_model = QSharedPointer<VehicleModel>(vm);
 
     m_running = true;
-    DataSet dataset, model_output;
+    DataSet dataset;
     float physics_runtime;
 
+    dataset.current_wheel_angle = 0;
     dataset.physics_timestep = m_physics_timestep;
     dataset.control_interval = m_control_interval;
     m_control_algorithm->process(dataset);
@@ -71,11 +72,10 @@ void SimulationRunner::run()
         physics_runtime = 0;
         while (physics_runtime < m_control_interval)
         {
-            m_vehicle_model->process(dataset, model_output);
-            m_physics_simulation->process(model_output);
+            m_vehicle_model->process(dataset);
+            m_physics_simulation->process(dataset);
             physics_runtime += m_physics_timestep;
         }
-        dataset = model_output;
         m_camera_simulator->process(dataset);
         m_control_algorithm->process(dataset);
     }

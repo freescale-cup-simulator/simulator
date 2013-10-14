@@ -38,12 +38,11 @@ void PhysicsSimulation::process(DataSet & data)
         dJointSetHinge2Param(m_wheels[i], dParamFMax2, .1);
     }
 
+    const float rad_angle = -(data.current_wheel_angle / 180.0) * M_PI;
     for (int i = 0; i < 2; i++)
     {
-        dJointSetHinge2Param(m_wheels[i], dParamLoStop,
-                             -data.wheel_angle * 2);
-        dJointSetHinge2Param(m_wheels[i], dParamHiStop,
-                             -data.wheel_angle * 2);
+        dJointSetHinge2Param(m_wheels[i], dParamLoStop, rad_angle * 3.5);
+        dJointSetHinge2Param(m_wheels[i], dParamHiStop, rad_angle * 3.5);
     }
 
     dSpaceCollide(m_space, this, &PhysicsSimulation::nearCallbackWrapper);

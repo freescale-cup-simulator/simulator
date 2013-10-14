@@ -132,11 +132,9 @@ void CameraSimulator::process(DataSet & data)
     QRgb * line = reinterpret_cast<QRgb *>(qimg.scanLine(m_device_size.Height / 2));
 
     for(unsigned int i = 0; i < m_device_size.Width; i++)
-        frame.append(qGray(line[i]));
+        data.camera_pixels[i] = qGray(line[i]);
 
     m_frame_texture->unlock();
     m_device->getSceneManager()->drawAll();
     m_device->getVideoDriver()->endScene();
-
-    data.camera_pixels = frame;
 }
