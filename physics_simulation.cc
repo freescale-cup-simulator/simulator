@@ -32,13 +32,12 @@ PhysicsSimulation::~PhysicsSimulation()
 
 void PhysicsSimulation::process(DataSet & data)
 {
-    for (int i = 2; i < 4; i++)
-    {
-        dJointSetHinge2Param(m_wheels[i], dParamVel2, 15);
-        dJointSetHinge2Param(m_wheels[i], dParamFMax2, .1);
-    }
+    dJointSetHinge2Param(m_wheels[2], dParamVel2, data.wheel_power_l);
+    dJointSetHinge2Param(m_wheels[2], dParamFMax2, .1);
+    dJointSetHinge2Param(m_wheels[3], dParamVel2, data.wheel_power_r);
+    dJointSetHinge2Param(m_wheels[3], dParamFMax2, .1);
 
-    const float rad_angle = -(data.current_wheel_angle / 180.0) * M_PI;
+    const float rad_angle = (data.current_wheel_angle / 180.0) * M_PI;
     for (int i = 0; i < 2; i++)
     {
         dJointSetHinge2Param(m_wheels[i], dParamLoStop, rad_angle * 3.5);

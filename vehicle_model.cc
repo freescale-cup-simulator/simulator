@@ -22,5 +22,4 @@ void VehicleModel::process(DataSet & d)
     {
         d.current_wheel_angle += dps;
     }
-    qDebug() << d.current_wheel_angle << d.desired_wheel_angle;
 }
