@@ -24,7 +24,7 @@ class SimulationRunner : public QObject, public QRunnable
 public:
     explicit SimulationRunner(QObject * parent = nullptr);
     bool loadAlgorithmFile(const QString & file);
-    bool loadTrack(const QString & track_path);
+    track_library::TrackModel * loadTrack(const QString & track_path);
     void run();
     void stop();
 

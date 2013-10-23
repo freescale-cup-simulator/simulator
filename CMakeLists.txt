@@ -12,6 +12,7 @@ set(project_sources
     simulation_runner.cc
     control_algorithm.cc
     camera_simulator.cc
+    global_renderer.cc
 )
 
 set(project_headers
@@ -22,6 +23,11 @@ set(project_headers
     control_algorithm.h
     common.h
     camera_simulator.h
+    global_renderer.h
+)
+
+set(qrc
+    resources/resources.qrc
 )
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -54,6 +60,17 @@ include_directories(SYSTEM
                     ${LUA_INCLUDE_DIRS}
 )
 
+find_package(OGRE REQUIRED)
+find_package(OIS REQUIRED)
+find_package(Boost COMPONENTS system thread date_time REQUIRED)
+
+include_directories(
+        ${Boost_INCLUDE_DIR}
+        ${OGRE_INCLUDE_DIRS}
+        ${OGRE_SAMPLES_INCLUDEPATH}
+        ${OIS_INCLUDE_DIRS}
+)
+
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${ODE_CFLAGS_OTHER}")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${ODE_CFLAGS_OTHER}")
 
@@ -61,9 +78,15 @@ add_subdirectory(libtrack EXCLUDE_FROM_ALL)
 include_directories(libtrack
                     ${CMAKE_BINARY_DIR}/libtrack/)
 
+add_subdirectory(libqmlogre EXCLUDE_FROM_ALL)
+include_directories(libqmlogre
+                    ${CMAKE_BINARY_DIR}/libqmlogre/)
+
+
 message(STATUS "Build type is: ${CMAKE_BUILD_TYPE}")
 
 #qt5_wrap_cpp(moc_output ${project_headers})
+qt5_add_resources (RC_SRCS ${qrc})
 
 set(RESOURCE_DIR ${CMAKE_SOURCE_DIR}/resources/)
 set(LUA_SCRIPT_DIR ${CMAKE_SOURCE_DIR}/lua/)
@@ -74,15 +97,21 @@ add_executable(freescale_simulator
 
                ${project_sources}
                ${project_headers}
+               ${RC_SRCS}
 )
 
 set_target_properties(freescale_simulator PROPERTIES AUTOMOC TRUE)
-qt5_use_modules(freescale_simulator Core Gui)
+qt5_use_modules(freescale_simulator Core Gui Qml Quick)
 target_link_libraries(freescale_simulator
 
                       track
+                      qmlogre
                       ${LUA_LIBRARIES}
                       ${ODE_LIBRARIES}
                       ${IRRLICHT_LIBRARIES}
                       ${ASSIMP_LIBRARIES}
+                      ${OGRE_LIBRARIES}
+                      ${OIS_LIBRARIES}
+                      ${Boost_LIBRARIES}
+
 )

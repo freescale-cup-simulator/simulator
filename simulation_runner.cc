@@ -23,12 +23,12 @@ bool SimulationRunner::loadAlgorithmFile(const QString &file)
     return true;
 }
 
-bool SimulationRunner::loadTrack(const QString &track_path)
+TrackModel *SimulationRunner::loadTrack(const QString &track_path)
 {
     if (m_running)
     {
         qWarning("Will not change track while running");
-        return false;
+        return 0;
     }
 
     m_track_model.clear();
@@ -38,9 +38,9 @@ bool SimulationRunner::loadTrack(const QString &track_path)
     {
         qWarning("Failed to populate track from %s, aborting",
                  track_path.toLocal8Bit().data());
-        return false;
+        return 0;
     }
-    return true;
+    return &m_track_model;
 }
 
 void SimulationRunner::run()

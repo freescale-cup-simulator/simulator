@@ -8,25 +8,17 @@
  */
 
 import QtQuick 2.0
-import Ogre 1.0
+import CameraGrabber 1.0
 
 Rectangle {
     id: ogre
-    objectName: "main"
+    objectName: "root"
     width: 1024
     height: 768
     color: "black"
 
-    CameraGrabber
-    {
-        objectName:"camgrab"
-        anchors.fill: parent
-        camera: Camera
-        ogreEngine: OgreEngine
-    }
-
-    OgreItem {
-        id: ogreitem
+    CameraGrabber {
+        id: grabber
         width: ogre.width
         height: ogre.height
         anchors.leftMargin: -5
@@ -41,37 +33,15 @@ Rectangle {
             anchors.fill: parent
             focus: true
             Keys.onPressed: {
-                ogreitem.camera.onKeyPressed(event.key);
+                grabber.camera.onKeyPressed(event.key);
                 event.accepted=true;
             }
             Keys.onReleased: {
-                ogreitem.camera.onKeyReleased(event.key);
+                grabber.camera.onKeyReleased(event.key);
                 event.accepted=true;
             }
         }
 
-        MouseArea {
-            anchors.fill: parent
-            //acceptedButtons: Qt.LeftButton | Qt.RightButton
-
-            property int prevX: -1
-            property int prevY: -1
-
-            acceptedButtons: Qt.LeftButton
-
-            onPositionChanged: {
-                if (pressedButtons & Qt.LeftButton) {
-                    if (prevX > -1)
-                        ogreitem.camera.yaw -= (mouse.x - prevX) / 2
-                    if (prevY > -1)
-                        ogreitem.camera.pitch -= (mouse.y - prevY) / 2
-                    prevX = mouse.x
-                    prevY = mouse.y
-                }
-            }
-            onReleased: { prevX = -1; prevY = -1 }
-
-        }
     }
 
 
