@@ -12,6 +12,7 @@ install:
   - sudo apt-get install cmake qt51base libirrlicht-dev libirrlicht1.7a libode-dev libode1 libassimp-dev libassimp2 liblua5.2-dev liblua5.2-0
 before_script:
   - source /opt/qt51/bin/qt51-env.sh
+  - export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig/
   - cmake .
 script: make
 
