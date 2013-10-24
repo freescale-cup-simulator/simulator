@@ -49,6 +49,7 @@ private:
     Ogre::Root * m_root;
     TrackModel * m_track_model;
     QList<SharedImage *> m_shared_images;
+    SharedImage * m_img;
 };
 
 #endif

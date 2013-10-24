@@ -11,7 +11,7 @@ GlobalRenderer::GlobalRenderer(TrackModel *model, QWindow *parent)
     connect(this, &GlobalRenderer::beforeRendering, this, &GlobalRenderer::initializeOgre, Qt::DirectConnection);
     connect(this, &GlobalRenderer::ogreInitialized, this, &GlobalRenderer::addContent);
     connect(this,&GlobalRenderer::statusChanged,this,&GlobalRenderer::onStatusChanged);
-    connect(this,&GlobalRenderer::frameSwapped,this,&GlobalRenderer::onFrameSwapped);
+    connect(this,&GlobalRenderer::afterRendering,this,&GlobalRenderer::onFrameSwapped);
     qmlRegisterType<CameraGrabber>("CameraGrabber", 1, 0, "CameraGrabber");
     qmlRegisterType<SharedImage>("SharedImage",1,0,"SharedImage");
 }
@@ -24,7 +24,26 @@ GlobalRenderer::~GlobalRenderer()
 
 SharedImage *GlobalRenderer::createCameraGrabber()
 {
+    QString camera_name="CS_";
+    camera_name.append(QString::number(m_shared_images.size()));
+    Ogre::Camera * camera=m_scene_manager->createCamera(camera_name.toStdString().c_str());
+    camera->setNearClipDistance(1);
+    camera->setFarClipDistance(99999);
+    camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
+    camera->setPosition(0,0,2);
+    SharedImage * buffer=new SharedImage();
+    m_shared_images<<buffer;
+    Camera * cameraObject=new Camera(camera);
+    CameraGrabber * grabber=new CameraGrabber(m_ogre_engine,cameraObject,buffer);
+    //grabber->setOgreEngine(m_ogre_engine);
+    //grabber->setCamera(cameraObject);
 
+    qDebug()<<this->rootObject()->objectName();
+    grabber->setParentItem(this->rootObject());
+    grabber->setWidth(grabber->parentItem()->width());
+    grabber->setHeight(grabber->parentItem()->height());
+    grabber->setPosition(QPointF(-grabber->parentItem()->width(),0));
+    return buffer;
 }
 
 void GlobalRenderer::initializeOgre()
@@ -44,6 +63,7 @@ void GlobalRenderer::initializeOgre()
     camera->setNearClipDistance(1);
     camera->setFarClipDistance(99999);
     camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
+    camera->setPosition(0,0,2);
     m_camera_controller=new OgreBites::SdkCameraMan(camera);
     m_user_camera=new Camera(camera,m_camera_controller);
 
@@ -113,12 +133,18 @@ void GlobalRenderer::addContent()
 
 void GlobalRenderer::onStatusChanged(QQuickView::Status status)
 {
-    //if(status==QQuickView::Ready)
-
+    if(status==QQuickView::Ready)
+        m_img=createCameraGrabber();
 }
 
 void GlobalRenderer::onFrameSwapped()
 {
-    disconnect(this,&GlobalRenderer::frameSwapped,this,&GlobalRenderer::onFrameSwapped);
+    //disconnect(this,&GlobalRenderer::afterRendering,this,&GlobalRenderer::onFrameSwapped);
+    //qDebug()<<"Frame rendered "<<m_img->size();
+    //m_img->waitNoEmpty();
+    quint8 * data=m_img->lock();
+    QImage img (data, 800,600,QImage::Format_ARGB32);
+    img.save("screenshot.bmp");
+    m_img->unlock();
     emit startSimulation();
 }
