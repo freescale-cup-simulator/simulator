@@ -39,7 +39,7 @@ pkg_check_modules(ASSIMP REQUIRED assimp)
 
 pkg_check_modules(LUA lua)
 if(NOT LUA_FOUND) # Debuan/Ubuntu have a different naming scheme
-  pkg_check_modules(LUA lua52 REQUIRED)
+  pkg_check_modules(LUA lua5.2 REQUIRED)
 endif()
 
 include_directories(SYSTEM
