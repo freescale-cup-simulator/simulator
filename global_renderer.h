@@ -4,7 +4,7 @@
 #include <QCoreApplication>
 #include <QtQml/QQmlContext>
 #include <QtQuick/QQuickView>
-
+#include <QSemaphore>
 #include <QList>
 
 #include <ogre_engine.h>
@@ -22,23 +22,22 @@ class GlobalRenderer : public QQuickView
 
 public:
 
-    explicit GlobalRenderer(TrackModel * model,QWindow *parent = 0);
+    explicit GlobalRenderer(QWindow *parent = 0);
     ~GlobalRenderer();
 
-    SharedImage * createCameraGrabber();
+    void setTrackModel(TrackModel * model);
+    CameraGrabber * createCameraGrabber(QSemaphore * sync);
 
 
 signals:
-
-    void ogreInitialized();
     void startSimulation();
+    void ogreInitialized();
 
 public slots:
 
     void initializeOgre();
     void addContent();
     void onStatusChanged(QQuickView::Status status);
-    void onFrameSwapped();
 
 private:
 
@@ -48,8 +47,7 @@ private:
     Ogre::SceneManager * m_scene_manager;
     Ogre::Root * m_root;
     TrackModel * m_track_model;
-    QList<SharedImage *> m_shared_images;
-    SharedImage * m_img;
+    QList<CameraGrabber *> m_camera_grabbers;
 };
 
 #endif

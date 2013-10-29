@@ -1,8 +1,8 @@
 #include <global_renderer.h>
 
-GlobalRenderer::GlobalRenderer(TrackModel *model, QWindow *parent)
+GlobalRenderer::GlobalRenderer(QWindow *parent)
     : QQuickView(parent)
-    , m_track_model(model)
+    , m_track_model(0)
     , m_user_camera(0)
     , m_camera_controller(0)
     , m_ogre_engine(0)
@@ -11,9 +11,10 @@ GlobalRenderer::GlobalRenderer(TrackModel *model, QWindow *parent)
     connect(this, &GlobalRenderer::beforeRendering, this, &GlobalRenderer::initializeOgre, Qt::DirectConnection);
     connect(this, &GlobalRenderer::ogreInitialized, this, &GlobalRenderer::addContent);
     connect(this,&GlobalRenderer::statusChanged,this,&GlobalRenderer::onStatusChanged);
-    connect(this,&GlobalRenderer::afterRendering,this,&GlobalRenderer::onFrameSwapped);
+    //connect(this,&GlobalRenderer::afterRendering,this,&GlobalRenderer::onFrameSwapped);
     qmlRegisterType<CameraGrabber>("CameraGrabber", 1, 0, "CameraGrabber");
-    qmlRegisterType<SharedImage>("SharedImage",1,0,"SharedImage");
+    //qmlRegisterType<Camera>("Camera", 1, 0, "Camera");
+    //qmlRegisterType<SharedImage>("SharedImage",1,0,"SharedImage");
 }
 
 GlobalRenderer::~GlobalRenderer()
@@ -22,32 +23,39 @@ GlobalRenderer::~GlobalRenderer()
         m_root->destroySceneManager(m_scene_manager);
 }
 
-SharedImage *GlobalRenderer::createCameraGrabber()
+void GlobalRenderer::setTrackModel(TrackModel *model)
+{
+    m_track_model=model;
+}
+
+CameraGrabber *GlobalRenderer::createCameraGrabber(QSemaphore *sync)
 {
     QString camera_name="CS_";
-    camera_name.append(QString::number(m_shared_images.size()));
+    camera_name.append(QString::number(m_camera_grabbers.size()));
     Ogre::Camera * camera=m_scene_manager->createCamera(camera_name.toStdString().c_str());
-    camera->setNearClipDistance(1);
+    camera->setNearClipDistance(0.1);
     camera->setFarClipDistance(99999);
     camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
-    camera->setPosition(0,0,2);
-    SharedImage * buffer=new SharedImage();
-    m_shared_images<<buffer;
+    //camera->setPosition(-2,0,2);
+    //camera->pitch(Ogre::Degree(0));
+    //camera->yaw(Ogre::Degree(0));
+    //camera->roll(Ogre::Degree(0));
+    //Ogre::Quaternion rot_up(Ogre::Degree(90),Ogre::Vector3::UNIT_Y);
+    //camera->rotate(rot_up);
+    SharedImage * buffer=new SharedImage(sync);
     Camera * cameraObject=new Camera(camera);
     CameraGrabber * grabber=new CameraGrabber(m_ogre_engine,cameraObject,buffer);
-    //grabber->setOgreEngine(m_ogre_engine);
-    //grabber->setCamera(cameraObject);
-
-    qDebug()<<this->rootObject()->objectName();
+    m_camera_grabbers<< grabber;
     grabber->setParentItem(this->rootObject());
     grabber->setWidth(grabber->parentItem()->width());
     grabber->setHeight(grabber->parentItem()->height());
-    grabber->setPosition(QPointF(-grabber->parentItem()->width(),0));
-    return buffer;
+    //grabber->setPosition(QPointF(-grabber->parentItem()->width(),0));
+    return grabber;
 }
 
 void GlobalRenderer::initializeOgre()
 {
+    Q_ASSERT(m_track_model);
     disconnect(this, &GlobalRenderer::beforeRendering, this, &GlobalRenderer::initializeOgre);
     m_ogre_engine=new OgreEngine(this);
     m_root=m_ogre_engine->startEngine(RESOURCE_DIRECTORY "plugins.cfg");
@@ -74,7 +82,7 @@ void GlobalRenderer::initializeOgre()
 
     Ogre::Plane plane(Ogre::Vector3::UNIT_Z, 0);
     Ogre::MeshManager::getSingleton().createPlane("ground", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-                                                  plane, m_track_model->width(), m_track_model->height(), m_track_model->width(), m_track_model->height(), true, 1, 5, 5, Ogre::Vector3::UNIT_Y);
+                                                  plane, m_track_model->width(), m_track_model->height(), m_track_model->width(), m_track_model->height(), false, 1, 5, 5, Ogre::Vector3::UNIT_Y);
 
     Ogre::Entity* entGround = m_scene_manager->createEntity("GroundEntity", "ground");
     auto groundNode=m_scene_manager->getRootSceneNode()->createChildSceneNode();
@@ -83,7 +91,7 @@ void GlobalRenderer::initializeOgre()
     groundNode->attachObject(entGround);
     entGround->setMaterialName("ground");
 
-    groundNode->setPosition(m_track_model->width()/2,m_track_model->height()/2,0);
+    groundNode->setPosition(m_track_model->width()/2,m_track_model->height()/2,-0.5);
 
     for (const Tile & tile : m_track_model->tiles())
     {
@@ -111,7 +119,7 @@ void GlobalRenderer::initializeOgre()
 
         Ogre::SceneNode* node = m_scene_manager->getRootSceneNode()->createChildSceneNode();
         node->attachObject(current);
-        node->setPosition(tile.x()-0.5,tile.y()+0.5,0);
+        node->setPosition(tile.x()+0.5,tile.y()+0.5,0);
         node->rotate(Ogre::Vector3::UNIT_Z,Ogre::Degree(180-tile.rotation()));
     }
 
@@ -133,18 +141,19 @@ void GlobalRenderer::addContent()
 
 void GlobalRenderer::onStatusChanged(QQuickView::Status status)
 {
+    disconnect(this,&GlobalRenderer::statusChanged,this,&GlobalRenderer::onStatusChanged);
     if(status==QQuickView::Ready)
-        m_img=createCameraGrabber();
+        emit startSimulation();
 }
 
-void GlobalRenderer::onFrameSwapped()
+/*void GlobalRenderer::onFrameSwapped()
 {
     //disconnect(this,&GlobalRenderer::afterRendering,this,&GlobalRenderer::onFrameSwapped);
     //qDebug()<<"Frame rendered "<<m_img->size();
     //m_img->waitNoEmpty();
-    quint8 * data=m_img->lock();
-    QImage img (data, 800,600,QImage::Format_ARGB32);
-    img.save("screenshot.bmp");
-    m_img->unlock();
-    emit startSimulation();
-}
+    //quint8 * data=m_img->lock();
+    //QImage img (data, 800,600,QImage::Format_ARGB32);
+    //img.save("screenshot.bmp");
+    //m_img->unlock();
+    //emit startSimulation();
+}*/

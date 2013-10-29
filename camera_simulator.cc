@@ -1,26 +1,21 @@
 #include <camera_simulator.h>
 
-CameraSimulator::CameraSimulator(const TrackModel & track,
-                                 QSize deviceSize,
-                                 QObject *parent)
+CameraSimulator::CameraSimulator(Ogre::Camera * camera,SharedImage * buffer,QObject *parent)
     : QObject(parent)
-    , m_device_size(deviceSize.width(), deviceSize.height())
-    , m_track_model(track)
+    , m_camera(camera)
+    , m_buffer(buffer)
 {
-    init();
-}
+    m_step=0;
+    m_initial_orientation=m_camera->getOrientation();
+    //m_camera->setFixedYawAxis(true, Ogre::Vector3::UNIT_Z);
 
-core::vector3df CameraSimulator::getTargetPosition()
-{
-    return m_camera->getTarget();
 }
 
 CameraSimulator::~CameraSimulator()
 {
-    m_device->drop();
 }
 
-void CameraSimulator::init()
+/*void CameraSimulator::init()
 {
     SIrrlichtCreationParameters p;
     p.AntiAlias = 8;
@@ -101,40 +96,67 @@ void CameraSimulator::init()
             m_video_driver->addRenderTargetTexture(m_device_size, "frame",
                                                    video::ECF_R8G8B8);
     m_camera->bindTargetAndRotation(true);
-}
+}*/
 
 void CameraSimulator::process(DataSet & data)
 {
-    m_camera->setPosition(core::vector3df(data.camera_position.x(),
+    Q_ASSERT(m_camera);
+    Q_ASSERT(m_buffer);
+    qDebug()<<"Position: "<<data.camera_position.x()<<","<<data.camera_position.y()<<","<<data.camera_position.z();
+    m_camera->setPosition(data.camera_position.x(),data.camera_position.y(),data.camera_position.z());
+
+    //m_camera->setPosition(); ??????
+    //m_camera->move(Ogre::Vector3(data.camera_position.x(),data.camera_position.y(),data.camera_position.z()+0.5));
+    /*m_camera->setPosition(core::vector3df(data.camera_position.x(),
                                           data.camera_position.z(),
-                                          data.camera_position.y()));
+                                          data.camera_position.y()));*/
 
-    m_camera->setRotation(core::vector3df(data.camera_rotation.x(),
-                                          data.camera_rotation.y(),
-                                          data.camera_rotation.z()));
-    m_camera->updateAbsolutePosition();
-    m_target->setPosition(m_camera->getTarget());
-    m_target->updateAbsolutePosition();
+    //Ogre::Quaternion rot_x(Ogre::Degree(data.camera_rotation.x()),Ogre::Vector3::UNIT_X);
+    //Ogre::Quaternion rot_y(Ogre::Degree(data.camera_rotation.y()),Ogre::Vector3::UNIT_Y);
+    //Ogre::Quaternion rot_z(Ogre::Degree(data.camera_rotation.z()),Ogre::Vector3::UNIT_Z);
+    //Ogre::Quaternion rot_up(Ogre::Degree(90),Ogre::Vector3::UNIT_Y);
+    //m_camera->rotate(rot_x*rot_y*rot_z);
+    //m_camera->roll(Ogre::Degree(data.camera_rotation.z()));
+    //m_camera->yaw(Ogre::Degree(data.camera_rotation.y()));
+    //m_camera->pitch(Ogre::Degree(data.camera_rotation.x()));
+    //Ogre::Vector3 vect=m_camera->getDirection().normalisedCopy();
+    //qDebug()<<"Direction: "<<vect.x<<","<<vect.y<<","<<vect.z;
 
-    m_device->getTimer()->tick();
-    m_device->getVideoDriver()->beginScene();
-    m_video_driver->setRenderTarget(m_frame_texture);
+    qDebug()<<"Cam rot. X: "<<data.camera_rotation.x();
+    qDebug()<<"Cam rot. Z: "<<data.camera_rotation.z();
 
-    m_target->setVisible(false);
-    m_device->getSceneManager()->drawAll();
-    m_video_driver->setRenderTarget(0);
-    m_target->setVisible(true);
+    //m_camera->rotate(Ogre::Vector3::UNIT_X,Ogre::Degree(0));
+    //m_camera->rotate(Ogre::Vector3::UNIT_X,Ogre::Degree(data.camera_rotation.x()));
+    //m_camera->rotate(Ogre::Vector3::UNIT_Z,Ogre::Radian(data.camera_rotation.z()));
+    //m_camera->rotate(Ogre::Vector3::UNIT_Y,Ogre::Radian(data.camera_rotation.y()));
+    //m_camera->roll(Ogre::Degree(data.camera_rotation.z()));
+    //m_camera->pitch(Ogre::Radian(data.camera_rotation.x()));
 
-    void * imageData = m_frame_texture->lock();
-    QByteArray frame;
-    QImage qimg(static_cast<unsigned char *>(imageData), m_device_size.Width,
-                m_device_size.Height, QImage::Format_RGB888);
-    QRgb * line = reinterpret_cast<QRgb *>(qimg.scanLine(m_device_size.Height / 2));
-
-    for(unsigned int i = 0; i < m_device_size.Width; i++)
-        data.camera_pixels[i] = qGray(line[i]);
-
-    m_frame_texture->unlock();
-    m_device->getSceneManager()->drawAll();
-    m_device->getVideoDriver()->endScene();
+    //m_camera->yaw(Ogre::Degree(data.camera_rotation.z()));
+    Ogre::Quaternion q(data.camera_rotation_quat.scalar(),data.camera_rotation_quat.x(),data.camera_rotation_quat.y(),data.camera_rotation_quat.z());
+    Ogre::Quaternion q2(Ogre::Radian(0.95),Ogre::Vector3::UNIT_X);
+    m_camera->setOrientation(q*q2);
+    //qDebug()<<"RotX:"<<data.camera_rotation.x()<<"; RotY:"<<data.camera_rotation.y()<<"; RotZ: "<<data.camera_rotation.z();
+    //m_camera->rotate(rot_x*rot_y*m_initial_orientation);
+    quint8 * imageData = m_buffer->lock();
+    QImage qimg(imageData, m_buffer->size().width(),m_buffer->size().height(), QImage::Format_ARGB32);
+    //qimg.save("qimg.bmp");
+    //qDebug()<<qimg.size();
+    //Q_ASSERT(0);
+    QRgb * line = reinterpret_cast<QRgb *>(qimg.scanLine(m_buffer->size().height() / 2));
+    quint32 startPos=(m_buffer->size().width()-CAMERA_FRAME_LEN)/2;
+    quint32 index=0;
+    QImage grayscale(128,1,QImage::Format_RGB888);
+    while(index<128)
+    {
+        data.camera_pixels[index] = qGray(line[startPos+index]);
+        grayscale.setPixel(index,0,qRgb(data.camera_pixels[index],data.camera_pixels[index],data.camera_pixels[index]));
+        index++;
+    }
+    //grayscale.save("grayscale.bmp");
+    //QByteArray test_array((char *)data.camera_pixels,128);
+    //qDebug()<<test_array;
+    //Q_ASSERT(m_step!=BREAK_ON_STEP);
+    //m_step++;
+    m_buffer->unlock();
 }

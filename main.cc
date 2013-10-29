@@ -11,17 +11,21 @@ int main(int argc, char * argv[])
     qRegisterMetaType<DataSet>();
 
     QGuiApplication application (argc, argv);
-    SimulationRunner sr;
+    GlobalRenderer view;
+    SimulationRunner sr(&view);
 
     if(sr.loadAlgorithmFile(LUA_DIRECTORY "/simple_algorithm.lua"))
         qDebug("main(): lua algorithm loaded ok");
     track_library::TrackModel * track=sr.loadTrack(RESOURCE_DIRECTORY "tracks/simple-circle.xml");
-    //QThreadPool::globalInstance()->start(&sr);
 
-    GlobalRenderer view(track);
+    view.setTrackModel(track);
     view.resize(800,600);
     view.show();
     view.raise();
-
+    SimulationRunner * sr_ptr=&sr;
+    application.connect(&view, &GlobalRenderer::startSimulation, [sr_ptr]() {
+        qDebug()<<"Starting simulation...";
+        QThreadPool::globalInstance()->start(sr_ptr);
+    });
     return application.exec();
 }
