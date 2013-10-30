@@ -56,11 +56,16 @@ CameraGrabber *GlobalRenderer::createCameraGrabber(QSemaphore *sync)
 
 void GlobalRenderer::process(DataSet &data)
 {
-    m_ogre_head->setPosition(data.camera_position.x(),data.camera_position.y(),data.camera_position.z()+1);
-    Ogre::Quaternion q(data.camera_rotation_quat.scalar(),data.camera_rotation_quat.x(),data.camera_rotation_quat.y(),data.camera_rotation_quat.z());
-    Ogre::Quaternion q2(Ogre::Radian(-0.95),Ogre::Vector3::UNIT_X);
-    Ogre::Quaternion q3(Ogre::Radian(Ogre::Degree(180)),Ogre::Vector3::UNIT_Y);
-    m_ogre_head->setOrientation(q3*q);
+    m_ogre_head->setPosition(data.camera_position.x(), data.camera_position.y(),
+                             data.camera_position.z() + 1);
+    Ogre::Quaternion q(data.camera_rotation_quat.scalar(),
+                       data.camera_rotation_quat.x(),
+                       data.camera_rotation_quat.y(),
+                       data.camera_rotation_quat.z());
+
+    Ogre::Quaternion qy(Ogre::Radian(M_PI), Ogre::Vector3::UNIT_Y);
+
+    m_ogre_head->setOrientation(-q * qy);
 }
 
 void GlobalRenderer::attachCamToGUI(quint32 index)

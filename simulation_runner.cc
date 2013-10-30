@@ -4,7 +4,7 @@ SimulationRunner::SimulationRunner(GlobalRenderer * renderer,QObject *parent)
     : QObject(parent)
     , m_running(false)
     , m_control_interval(0.1)
-    , m_physics_timestep(8e-3)
+    , m_physics_timestep(1e-3)
     , m_renderer(renderer)
 {
     setAutoDelete(false);
@@ -67,21 +67,21 @@ void SimulationRunner::run()
     float physics_runtime;
 
     dataset.current_wheel_angle = 0;
+    dataset.wheel_power_l = dataset.wheel_power_r = 0;
     dataset.physics_timestep = m_physics_timestep;
     dataset.control_interval = m_control_interval;
-    m_control_algorithm->process(dataset);
 
     m_cameras_syncronizator.acquire(VIRTUAL_CAMERAS_COUNT);
 
     while (m_running)
     {
         physics_runtime = 0;
-        //while (physics_runtime < m_control_interval)
-        //{
+        while (physics_runtime < m_control_interval)
+        {
             m_vehicle_model->process(dataset);
             m_physics_simulation->process(dataset);
             physics_runtime += m_physics_timestep;
-        //}
+        }
         m_camera_simulator->process(dataset);
         m_renderer->process(dataset);
         m_control_algorithm->process(dataset);

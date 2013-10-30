@@ -12,14 +12,14 @@ function calculate_threshold(frame)
                sum = sum + v
                if v < lowest then lowest = v end
         end
-        sum = sum / 128 + lowest / 2
+        sum = sum / 128 - lowest / 1
         return sum
 end
 
 function binarize(frame)
 	local binarized = {}
 	local threshold = calculate_threshold(frame)
-	-- pint_array(frame)
+        print_array(frame)
 	for k,v in pairs(frame) do
 		if (v <= threshold) then
 			binarized[k] = true
@@ -32,6 +32,7 @@ end
 
 function run()
 	local b = binarize(g_camera_frame)
+        --print_array(b)
         local line_found = false
 
 	local start_found, end_found = false, false
@@ -42,7 +43,7 @@ function run()
                         start_found = true
 	                start_pos = k
 	        end
-	        if not v and start_found and math.abs(start_pos - k) < 10 then
+	        if not v and start_found and math.abs(start_pos - k) < 40 then
 	                end_found = true
 	                end_pos = k
                 end
@@ -56,7 +57,7 @@ function run()
         else
                 angle = last_turn_angle
 	end
-
+                print("a = " .. angle)
 
 	local signals = {}
 	signals["angle"] = angle * 45;
@@ -66,8 +67,17 @@ function run()
 end
 
 function print_array(a)
+        local p
 	for _,v in pairs(a) do
-		io.write(v .. " ")
+	p = v
+        if type(v) == "boolean" then
+                if p then
+                        p = 1
+                else
+                        p = 0
+                end
+        end
+                io.write(p .. " ")
 	end
 	print()
 end

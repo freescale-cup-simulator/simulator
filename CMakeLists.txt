@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.9 FATAL_ERROR)
 
-project(freescale_simulator CXX)
+project(freescale_simulator CXX C)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -41,8 +41,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -std=c++11 -O2")
 endif()
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
-
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Gui REQUIRED)
 
@@ -61,7 +59,7 @@ find_package(OGRE REQUIRED)
 find_package(OIS REQUIRED)
 find_package(Boost COMPONENTS system thread date_time REQUIRED)
 
-include_directories(
+include_directories(SYSTEM
         ${Boost_INCLUDE_DIR}
         ${OGRE_INCLUDE_DIRS}
         ${OGRE_SAMPLES_INCLUDEPATH}
