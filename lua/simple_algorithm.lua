@@ -19,7 +19,7 @@ end
 function binarize(frame)
 	local binarized = {}
 	local threshold = calculate_threshold(frame)
-
+	-- pint_array(frame)
 	for k,v in pairs(frame) do
 		if (v <= threshold) then
 			binarized[k] = true

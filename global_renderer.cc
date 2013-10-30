@@ -49,8 +49,27 @@ CameraGrabber *GlobalRenderer::createCameraGrabber(QSemaphore *sync)
     grabber->setParentItem(this->rootObject());
     grabber->setWidth(grabber->parentItem()->width());
     grabber->setHeight(grabber->parentItem()->height());
-    //grabber->setPosition(QPointF(-grabber->parentItem()->width(),0));
+    grabber->setPosition(QPointF(-grabber->parentItem()->width(),0));
+    attachCamToGUI(0);
     return grabber;
+}
+
+void GlobalRenderer::process(DataSet &data)
+{
+    m_ogre_head->setPosition(data.camera_position.x(),data.camera_position.y(),data.camera_position.z()+1);
+    Ogre::Quaternion q(data.camera_rotation_quat.scalar(),data.camera_rotation_quat.x(),data.camera_rotation_quat.y(),data.camera_rotation_quat.z());
+    Ogre::Quaternion q2(Ogre::Radian(-0.95),Ogre::Vector3::UNIT_X);
+    Ogre::Quaternion q3(Ogre::Radian(Ogre::Degree(180)),Ogre::Vector3::UNIT_Y);
+    m_ogre_head->setOrientation(q3*q);
+}
+
+void GlobalRenderer::attachCamToGUI(quint32 index)
+{
+    CameraGrabber * grabber=m_camera_grabbers.at(index);
+    Q_ASSERT(grabber);
+    QObject * viewGrabber=this->rootObject()->findChild<QQuickItem *>("camViewContainer")->findChild<QObject *>("camView");
+    Q_ASSERT(viewGrabber);
+    qobject_cast<CameraGrabber *>(viewGrabber)->setCamera(grabber->camera());
 }
 
 void GlobalRenderer::initializeOgre()
@@ -71,8 +90,12 @@ void GlobalRenderer::initializeOgre()
     camera->setNearClipDistance(1);
     camera->setFarClipDistance(99999);
     camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
-    camera->setPosition(0,0,2);
+    camera->setPosition(4,-1,4);
+    camera->setOrientation(Ogre::Quaternion(Ogre::Radian(Ogre::Degree(45)),Ogre::Vector3::UNIT_X));
+    //camera->lookAt(camera->getPosition().normalisedCopy());
+    //camera->setFixedYawAxis(true,Ogre::Vector3::UNIT_Y);
     m_camera_controller=new OgreBites::SdkCameraMan(camera);
+    m_camera_controller->setTopSpeed(10);
     m_user_camera=new Camera(camera,m_camera_controller);
 
     m_ogre_engine->activateOgreContext();
@@ -91,7 +114,13 @@ void GlobalRenderer::initializeOgre()
     groundNode->attachObject(entGround);
     entGround->setMaterialName("ground");
 
-    groundNode->setPosition(m_track_model->width()/2,m_track_model->height()/2,-0.5);
+    groundNode->setPosition(m_track_model->width()/2,m_track_model->height()/2,-0.01);
+
+    Ogre::Entity  * ogreEnt=m_scene_manager->createEntity("Head", "ogrehead.mesh");
+    m_ogre_head=m_scene_manager->getRootSceneNode()->createChildSceneNode();
+    m_ogre_head->attachObject(ogreEnt);
+    m_ogre_head->setScale(0.01,0.01,0.01);
+    //m_scene_manager->getRootSceneNode()->attachObject(ogreEnt);
 
     for (const Tile & tile : m_track_model->tiles())
     {

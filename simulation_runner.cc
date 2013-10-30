@@ -76,13 +76,14 @@ void SimulationRunner::run()
     while (m_running)
     {
         physics_runtime = 0;
-        while (physics_runtime < m_control_interval)
-        {
+        //while (physics_runtime < m_control_interval)
+        //{
             m_vehicle_model->process(dataset);
             m_physics_simulation->process(dataset);
             physics_runtime += m_physics_timestep;
-        }
+        //}
         m_camera_simulator->process(dataset);
+        m_renderer->process(dataset);
         m_control_algorithm->process(dataset);
     }
     qDebug("Simulation done!");

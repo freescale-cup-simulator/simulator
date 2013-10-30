@@ -41,6 +41,25 @@ Rectangle {
                 event.accepted=true;
             }
         }
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.LeftButton
+
+            property int prevX: -1
+            property int prevY: -1
+
+            onPositionChanged: {
+                if (pressedButtons & Qt.LeftButton) {
+                    //mouse.x mouse.y grabber.camera
+                    if (prevX > -1 && prevY > -1)
+                        grabber.camera.onMouseMove(mouse.x-prevX,mouse.y-prevY);
+                        //ogreitem.camera.pitch -= (mouse.y - prevY) / 2
+                    prevX = mouse.x
+                    prevY = mouse.y
+                }
+            }
+            onReleased: { prevX = -1; prevY = -1 }
+        }
 
     }
 
@@ -48,6 +67,7 @@ Rectangle {
 
     Rectangle {
         id: rectangle1
+        objectName: "camViewContainer"
         width: 136
         height: 136
 
@@ -58,6 +78,17 @@ Rectangle {
         border.width: 4
         border.color: "#1a1a1a"
         clip: false
+        CameraGrabber
+        {
+            objectName: "camView"
+            anchors.left: rectangle1.left
+            anchors.leftMargin: 4
+            anchors.top: rectangle1.top
+            anchors.topMargin: 4
+            width: 128
+            height: 128
+            ogreEngine: OgreEngine
+        }
 
         Behavior on opacity { PropertyAnimation { } }
     }

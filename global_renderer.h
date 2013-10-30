@@ -12,6 +12,7 @@
 #include <camera.h>
 #include <shared_image.h>
 #include <config.h>
+#include <common.h>
 #include <track_model.h>
 
 using namespace track_library;
@@ -27,7 +28,8 @@ public:
 
     void setTrackModel(TrackModel * model);
     CameraGrabber * createCameraGrabber(QSemaphore * sync);
-
+    void process(DataSet & data);
+    void attachCamToGUI(quint32 index);
 
 signals:
     void startSimulation();
@@ -48,6 +50,7 @@ private:
     Ogre::Root * m_root;
     TrackModel * m_track_model;
     QList<CameraGrabber *> m_camera_grabbers;
+    Ogre::SceneNode * m_ogre_head;
 };
 
 #endif

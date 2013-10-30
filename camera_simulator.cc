@@ -102,7 +102,7 @@ void CameraSimulator::process(DataSet & data)
 {
     Q_ASSERT(m_camera);
     Q_ASSERT(m_buffer);
-    qDebug()<<"Position: "<<data.camera_position.x()<<","<<data.camera_position.y()<<","<<data.camera_position.z();
+    //qDebug()<<"Position: "<<data.camera_position.x()<<","<<data.camera_position.y()<<","<<data.camera_position.z();
     m_camera->setPosition(data.camera_position.x(),data.camera_position.y(),data.camera_position.z());
 
     //m_camera->setPosition(); ??????
@@ -122,8 +122,8 @@ void CameraSimulator::process(DataSet & data)
     //Ogre::Vector3 vect=m_camera->getDirection().normalisedCopy();
     //qDebug()<<"Direction: "<<vect.x<<","<<vect.y<<","<<vect.z;
 
-    qDebug()<<"Cam rot. X: "<<data.camera_rotation.x();
-    qDebug()<<"Cam rot. Z: "<<data.camera_rotation.z();
+    //qDebug()<<"Cam rot. X: "<<data.camera_rotation.x();
+    //qDebug()<<"Cam rot. Z: "<<data.camera_rotation.z();
 
     //m_camera->rotate(Ogre::Vector3::UNIT_X,Ogre::Degree(0));
     //m_camera->rotate(Ogre::Vector3::UNIT_X,Ogre::Degree(data.camera_rotation.x()));
@@ -150,7 +150,7 @@ void CameraSimulator::process(DataSet & data)
     while(index<128)
     {
         data.camera_pixels[index] = qGray(line[startPos+index]);
-        grayscale.setPixel(index,0,qRgb(data.camera_pixels[index],data.camera_pixels[index],data.camera_pixels[index]));
+        //grayscale.setPixel(index,0,qRgb(data.camera_pixels[index],data.camera_pixels[index],data.camera_pixels[index]));
         index++;
     }
     //grayscale.save("grayscale.bmp");

@@ -43,9 +43,6 @@ endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 
-find_package(Irrlicht REQUIRED)
-include_directories(${IRRLICHT_INCLUDE_DIRS})
-
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Gui REQUIRED)
 
@@ -108,7 +105,6 @@ target_link_libraries(freescale_simulator
                       qmlogre
                       ${LUA_LIBRARIES}
                       ${ODE_LIBRARIES}
-                      ${IRRLICHT_LIBRARIES}
                       ${ASSIMP_LIBRARIES}
                       ${OGRE_LIBRARIES}
                       ${OIS_LIBRARIES}
