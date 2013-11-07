@@ -1,10 +1,11 @@
 #include <simulation_runner.h>
 
-SimulationRunner::SimulationRunner(QObject *parent)
+SimulationRunner::SimulationRunner(GlobalRenderer * renderer,QObject *parent)
     : QObject(parent)
     , m_running(false)
     , m_control_interval(0.1)
-    , m_physics_timestep(8e-3)
+    , m_physics_timestep(1e-3)
+    , m_renderer(renderer)
 {
     setAutoDelete(false);
 }
@@ -23,12 +24,12 @@ bool SimulationRunner::loadAlgorithmFile(const QString &file)
     return true;
 }
 
-bool SimulationRunner::loadTrack(const QString &track_path)
+TrackModel *SimulationRunner::loadTrack(const QString &track_path)
 {
     if (m_running)
     {
         qWarning("Will not change track while running");
-        return false;
+        return 0;
     }
 
     m_track_model.clear();
@@ -38,9 +39,9 @@ bool SimulationRunner::loadTrack(const QString &track_path)
     {
         qWarning("Failed to populate track from %s, aborting",
                  track_path.toLocal8Bit().data());
-        return false;
+        return 0;
     }
-    return true;
+    return &m_track_model;
 }
 
 void SimulationRunner::run()
@@ -50,8 +51,11 @@ void SimulationRunner::run()
         qWarning("Control algorithm not loaded, will not run");
         return;
     }
+    CameraGrabber * camGrab=m_renderer->createCameraGrabber(&m_cameras_syncronizator);
+    Camera * cameraObj=qobject_cast<Camera *>(camGrab->camera());
+    SharedImage * shBuffer=qobject_cast<SharedImage *>(camGrab->sharedImage());
 
-    auto cs = new CameraSimulator(m_track_model);
+    auto cs = new CameraSimulator(cameraObj->get(),shBuffer);
     auto ps = new PhysicsSimulation(m_track_model);
     auto vm = new VehicleModel;
     m_camera_simulator = QSharedPointer<CameraSimulator>(cs);
@@ -63,9 +67,11 @@ void SimulationRunner::run()
     float physics_runtime;
 
     dataset.current_wheel_angle = 0;
+    dataset.wheel_power_l = dataset.wheel_power_r = 0;
     dataset.physics_timestep = m_physics_timestep;
     dataset.control_interval = m_control_interval;
-    m_control_algorithm->process(dataset);
+
+    m_cameras_syncronizator.acquire(VIRTUAL_CAMERAS_COUNT);
 
     while (m_running)
     {
@@ -77,6 +83,7 @@ void SimulationRunner::run()
             physics_runtime += m_physics_timestep;
         }
         m_camera_simulator->process(dataset);
+        m_renderer->process(dataset);
         m_control_algorithm->process(dataset);
     }
     qDebug("Simulation done!");

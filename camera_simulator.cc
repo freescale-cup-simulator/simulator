@@ -140,19 +140,26 @@ void CameraSimulator::process(DataSet & data)
     //m_camera->rotate(rot_x*rot_y*m_initial_orientation);
     quint8 * imageData = m_buffer->lock();
     QImage qimg(imageData, m_buffer->size().width(),m_buffer->size().height(), QImage::Format_ARGB32);
+    QImage scaled=qimg.scaledToWidth(128);
     //qimg.save("qimg.bmp");
+    //scaled.save("scaled.bmp");
     //qDebug()<<qimg.size();
     //Q_ASSERT(0);
-    QRgb * line = reinterpret_cast<QRgb *>(qimg.scanLine(m_buffer->size().height() / 2));
-    quint32 startPos=(m_buffer->size().width()-CAMERA_FRAME_LEN)/2;
-    quint32 index=0;
-    QImage grayscale(128,1,QImage::Format_RGB888);
-    while(index<128)
+    QRgb * line = reinterpret_cast<QRgb *>(scaled.scanLine(scaled.height() / 2));
+    //quint32 startPos=(m_buffer->size().width()-CAMERA_FRAME_LEN)/2;
+    //quint32 index=0;
+    //QImage grayscale(128,1,QImage::Format_RGB888);
+    for(int i=0;i<128;i++)
+    {
+        data.camera_pixels[i] = qGray(line[i]);
+        //grayscale.setPixel(i,0,qRgb(data.camera_pixels[i],data.camera_pixels[i],data.camera_pixels[i]));
+    }
+    /*while(index<128)
     {
         data.camera_pixels[index] = qGray(line[startPos+index]);
-        //grayscale.setPixel(index,0,qRgb(data.camera_pixels[index],data.camera_pixels[index],data.camera_pixels[index]));
+        grayscale.setPixel(index,0,qRgb(data.camera_pixels[index],data.camera_pixels[index],data.camera_pixels[index]));
         index++;
-    }
+    }*/
     //grayscale.save("grayscale.bmp");
     //QByteArray test_array((char *)data.camera_pixels,128);
     //qDebug()<<test_array;
