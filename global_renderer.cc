@@ -153,6 +153,8 @@ void GlobalRenderer::initializeOgre()
 
         Ogre::SceneNode* node = m_scene_manager->getRootSceneNode()->createChildSceneNode();
         node->attachObject(current);
+        node->_update(false,false);
+        qDebug()<<"Node box: "<<node->_getWorldAABB().getSize().x<<", "<<node->_getWorldAABB().getSize().y<<", "<<node->_getWorldAABB().getSize().z;
         node->setPosition(tile.x()+0.5,tile.y()+0.5,0);
         node->rotate(Ogre::Vector3::UNIT_Z,Ogre::Degree(180-tile.rotation()));
     }
