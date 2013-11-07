@@ -9,10 +9,9 @@ before_install:
   - sudo add-apt-repository --yes ppa:beineri/opt-qt511
   - sudo apt-get update -qq
 install:
-  - sudo apt-get install cmake qt51base libirrlicht-dev libirrlicht1.7a libode-dev libode1 libassimp-dev libassimp2 liblua5.2-dev liblua5.2-0
+  - sudo apt-get install cmake qt51base qt51quickcontrols libode-dev libode1 libassimp-dev libassimp2 liblua5.2-dev liblua5.2-0 libogre-dev libogre-1.7.4 libois-dev libois-1.3.0
 before_script:
   - source /opt/qt51/bin/qt51-env.sh
   - export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig/
   - cmake .
 script: make
-
