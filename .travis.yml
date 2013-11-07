@@ -13,5 +13,5 @@ install:
 before_script:
   - source /opt/qt51/bin/qt51-env.sh
   - export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig/
-  - cmake -DCMAKE_MODULE_PATH=/usr/shre/OGRE/cmake/ .
+  - cmake -DCMAKE_MODULE_PATH=/usr/shre/OGRE/cmake/modules/ .
 script: make
