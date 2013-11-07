@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.7 FATAL_ERROR)
 
-project(freescale_simulator CXX)
+project(freescale_simulator CXX C)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -12,6 +12,7 @@ set(project_sources
     simulation_runner.cc
     control_algorithm.cc
     camera_simulator.cc
+    global_renderer.cc
 )
 
 set(project_headers
@@ -22,6 +23,11 @@ set(project_headers
     control_algorithm.h
     common.h
     camera_simulator.h
+    global_renderer.h
+)
+
+set(qrc
+    resources/resources.qrc
 )
 
 find_package(Qt5Gui REQUIRED)
@@ -29,9 +35,17 @@ include_directories(${Qt5Gui_INCLUDE_DIRS})
 add_definitions(${Qt5Gui_DEFINITIONS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Gui_EXECUTABLE_COMPILE_FLAGS}")
 
+<<<<<<< HEAD
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/cmake/")
 find_package(Irrlicht REQUIRED)
 include_directories(${IRRLICHT_INCLUDE_DIRS})
+=======
+if(CMAKE_COMPILER_IS_GNUCXX)
+  set(CMAKE_CXX_FLAGS_DEBUG
+      "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -ggdb3 -Wall -Wextra -pedantic")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -std=c++11 -O2")
+endif()
+>>>>>>> refs/remotes/origin/ogre
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(ODE REQUIRED ode)
@@ -48,6 +62,7 @@ include_directories(SYSTEM
                     ${LUA_INCLUDE_DIRS}
 )
 
+<<<<<<< HEAD
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ODE_CFLAGS_OTHER}")
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -74,12 +89,38 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQ
 else()
   message(FATAL_ERROR "Unsupported compiler")
 endif()
+=======
+find_package(OGRE REQUIRED)
+find_package(OIS REQUIRED)
+find_package(Boost COMPONENTS system thread date_time REQUIRED)
+
+include_directories(SYSTEM
+        ${Boost_INCLUDE_DIR}
+        ${OGRE_INCLUDE_DIRS}
+        ${OGRE_SAMPLES_INCLUDEPATH}
+        ${OIS_INCLUDE_DIRS}
+)
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${ODE_CFLAGS_OTHER}")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${ODE_CFLAGS_OTHER}")
+>>>>>>> refs/remotes/origin/ogre
 
 add_subdirectory(libtrack EXCLUDE_FROM_ALL)
 include_directories(libtrack
                     ${CMAKE_BINARY_DIR}/libtrack/)
 
+add_subdirectory(libqmlogre EXCLUDE_FROM_ALL)
+include_directories(libqmlogre
+                    ${CMAKE_BINARY_DIR}/libqmlogre/)
+
+
 message(STATUS "Build type is: ${CMAKE_BUILD_TYPE}")
+<<<<<<< HEAD
+=======
+
+#qt5_wrap_cpp(moc_output ${project_headers})
+qt5_add_resources (RC_SRCS ${qrc})
+>>>>>>> refs/remotes/origin/ogre
 
 set(RESOURCE_DIR ${CMAKE_SOURCE_DIR}/resources/)
 set(LUA_SCRIPT_DIR ${CMAKE_SOURCE_DIR}/lua/)
@@ -90,15 +131,27 @@ add_executable(freescale_simulator
 
                ${project_sources}
                ${project_headers}
+               ${RC_SRCS}
 )
 
 set_target_properties(freescale_simulator PROPERTIES AUTOMOC TRUE)
+<<<<<<< HEAD
+=======
+qt5_use_modules(freescale_simulator Core Gui Qml Quick)
+>>>>>>> refs/remotes/origin/ogre
 target_link_libraries(freescale_simulator
 
                       track
+                      qmlogre
                       ${LUA_LIBRARIES}
                       ${ODE_LIBRARIES}
-                      ${IRRLICHT_LIBRARIES}
                       ${ASSIMP_LIBRARIES}
+<<<<<<< HEAD
                       ${Qt5Gui_LIBRARIES}
+=======
+                      ${OGRE_LIBRARIES}
+                      ${OIS_LIBRARIES}
+                      ${Boost_LIBRARIES}
+
+>>>>>>> refs/remotes/origin/ogre
 )

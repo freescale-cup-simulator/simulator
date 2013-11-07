@@ -7,42 +7,33 @@
 #include <QImage>
 #include <QString>
 #include <QDebug>
+#include <QRgb>
 
-#include <irrlicht/irrlicht.h>
+#include <OgreCamera.h>
+
+#include <shared_image.h>
 #include <cmath>
-
-#include <config.h>
 #include <common.h>
-#include <track_model.h>
 
-using namespace irr;
-using namespace track_library;
-
-//SCHURAKIN - Fantastic Moments
+#define BREAK_ON_STEP 2
 
 class CameraSimulator : public QObject
 {
     Q_OBJECT
 public:
-    explicit CameraSimulator(const TrackModel &track,
-                             QSize deviceSize = QSize(128, 128),
-                             QObject *parent = 0);
+    explicit CameraSimulator(Ogre::Camera *camera, SharedImage *buffer, QObject *parent = 0);
     ~CameraSimulator();
-    core::vector3df getTargetPosition();
+
     void process(DataSet & data);
+
 private:
+
     void init();
 
-    core::dimension2du m_device_size;
-    const TrackModel & m_track_model;
-
-    IrrlichtDevice * m_device;
-    scene::ISceneManager * m_scene_manager;
-    video::IVideoDriver * m_video_driver;
-    scene::ICameraSceneNode * m_camera;
-
-    scene::IBillboardSceneNode * m_target;
-    video::ITexture * m_frame_texture;
+    Ogre::Camera * m_camera;
+    SharedImage * m_buffer;
+    quint64 m_step;
+    Ogre::Quaternion m_initial_orientation;
 };
 
 #endif // CAMERASIMULATOR_H

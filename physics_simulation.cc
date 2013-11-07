@@ -33,15 +33,15 @@ PhysicsSimulation::~PhysicsSimulation()
 void PhysicsSimulation::process(DataSet & data)
 {
     dJointSetHinge2Param(m_wheels[2], dParamVel2, data.wheel_power_l);
-    dJointSetHinge2Param(m_wheels[2], dParamFMax2, .1);
+    dJointSetHinge2Param(m_wheels[2], dParamFMax2, .01);
     dJointSetHinge2Param(m_wheels[3], dParamVel2, data.wheel_power_r);
-    dJointSetHinge2Param(m_wheels[3], dParamFMax2, .1);
+    dJointSetHinge2Param(m_wheels[3], dParamFMax2, .01);
 
     const float rad_angle = (data.current_wheel_angle / 180.0) * M_PI;
     for (int i = 0; i < 2; i++)
     {
-        dJointSetHinge2Param(m_wheels[i], dParamLoStop, rad_angle * 3.5);
-        dJointSetHinge2Param(m_wheels[i], dParamHiStop, rad_angle * 3.5);
+        dJointSetHinge2Param(m_wheels[i], dParamLoStop, rad_angle * 2.5);
+        dJointSetHinge2Param(m_wheels[i], dParamHiStop, rad_angle * 2.5);
     }
 
     dSpaceCollide(m_space, this, &PhysicsSimulation::nearCallbackWrapper);
@@ -49,19 +49,18 @@ void PhysicsSimulation::process(DataSet & data)
     dJointGroupEmpty(m_contact_group);
 
     const dReal * position_v = dBodyGetPosition(m_vehicle_body);
-    const dReal * velocity_v = dBodyGetLinearVel(m_vehicle_body);
     const dReal * rotation_q = dBodyGetQuaternion(m_vehicle_body);
 
+    const float w = rotation_q[0], x = rotation_q[1], y = rotation_q[2],
+            z = rotation_q[3];
+    const float chasis_angle = std::atan2(2 * (w*z + x*y), 1 - 2 * (y*y + z*z));
+
+#if 0
+    const dReal * velocity_v = dBodyGetLinearVel(m_vehicle_body);
     const float velocity = std::sqrt(velocity_v[0]*velocity_v[0]
             + velocity_v[1]*velocity_v[1]
             + velocity_v[2]*velocity_v[2]);
 
-
-    const float w = rotation_q[0], x = rotation_q[1],
-            y = rotation_q[2], z = rotation_q[3];
-    float chasis_angle = -(std::atan2(2 * (w*z + x*y),
-                                      1 - 2 * (y*y + z*z)) / M_PI) * 180.0;
-#if 0
     qDebug("position %.3f, %.3f, %.3f; rotation %.4f, l.v.m. %.3f",
            position_v[0], position_v[1], position_v[2], chasis_angle, velocity);
 #endif
@@ -70,7 +69,10 @@ void PhysicsSimulation::process(DataSet & data)
 #pragma GCC diagnostic ignored "-Wnarrowing"
 #endif
     data.camera_position = {position_v[0], position_v[1], position_v[2] + .65};
-    data.camera_rotation = {55, chasis_angle, 0};
+    data.camera_rotation = {0.95, 0, chasis_angle};
+    QQuaternion q(rotation_q[0],rotation_q[1],rotation_q[2],rotation_q[3]);
+    data.camera_rotation_quat=q;
+
 #ifdef __GNUC__
 #pragma GCC diagnostic warning "-Wnarrowing"
 #endif
