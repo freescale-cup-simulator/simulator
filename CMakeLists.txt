@@ -32,19 +32,8 @@ set(qrc
     resources/resources.qrc
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Gui_EXECUTABLE_COMPILE_FLAGS}")
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS_DEBUG
-      "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -ggdb3 -Wall -Wextra -pedantic")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -std=c++11 -O2")
-endif()
-
-
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Gui REQUIRED)
-find_package(Qt5Qml REQUIRED)
 find_package(Qt5Quick REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Quick_EXECUTABLE_COMPILE_FLAGS}")
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(ODE REQUIRED ode)
@@ -113,8 +102,7 @@ include_directories(libqmlogre
 
 message(STATUS "Build type is: ${CMAKE_BUILD_TYPE}")
 
-#qt5_wrap_cpp(moc_output ${project_headers})
-qt5_add_resources (RC_SRCS ${qrc})
+qt5_add_resources(RC_SRCS ${qrc})
 
 set(RESOURCE_DIR ${CMAKE_SOURCE_DIR}/resources/)
 set(LUA_SCRIPT_DIR ${CMAKE_SOURCE_DIR}/lua/)
@@ -129,7 +117,6 @@ add_executable(freescale_simulator
 )
 
 set_target_properties(freescale_simulator PROPERTIES AUTOMOC TRUE)
-qt5_use_modules(freescale_simulator Core Gui Qml Quick)
 target_link_libraries(freescale_simulator
                       track
                       qmlogre
@@ -139,5 +126,5 @@ target_link_libraries(freescale_simulator
                       ${OGRE_LIBRARIES}
                       ${OIS_LIBRARIES}
                       ${Boost_LIBRARIES}
-
+                      ${Qt5Quick_LIBRARIES}
 )
