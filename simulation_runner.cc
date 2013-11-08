@@ -8,6 +8,8 @@ SimulationRunner::SimulationRunner(GlobalRenderer * renderer,QObject *parent)
     , m_renderer(renderer)
 {
     setAutoDelete(false);
+    connect(m_renderer,&GlobalRenderer::queryExit,this,&SimulationRunner::stop);
+    connect(this,&SimulationRunner::simulationStopped,m_renderer,&GlobalRenderer::close);
 }
 
 bool SimulationRunner::loadAlgorithmFile(const QString &file)
@@ -96,6 +98,7 @@ void SimulationRunner::run()
         m_logger<<dataset;
     }
     m_logger.endWrite();
+    emit simulationStopped();
     qDebug("Simulation done!");
 }
 

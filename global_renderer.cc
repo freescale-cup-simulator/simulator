@@ -7,6 +7,7 @@ GlobalRenderer::GlobalRenderer(QWindow *parent)
     , m_camera_controller(0)
     , m_ogre_engine(0)
     , m_root(0)
+    , m_closing(false)
 {
     connect(this, &GlobalRenderer::beforeRendering, this, &GlobalRenderer::initializeOgre, Qt::DirectConnection);
     connect(this, &GlobalRenderer::ogreInitialized, this, &GlobalRenderer::addContent);
@@ -92,7 +93,7 @@ void GlobalRenderer::initializeOgre()
     m_scene_manager = m_root->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
 
     Ogre::Camera * camera = m_scene_manager->createCamera("user_camera");
-    camera->setNearClipDistance(1);
+    camera->setNearClipDistance(0.1s);
     camera->setFarClipDistance(99999);
     camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
     camera->setPosition(4,-1,4);
@@ -184,14 +185,15 @@ void GlobalRenderer::onStatusChanged(QQuickView::Status status)
         emit startSimulation();
 }
 
-/*void GlobalRenderer::onFrameSwapped()
+bool GlobalRenderer::event(QEvent *event)
 {
-    //disconnect(this,&GlobalRenderer::afterRendering,this,&GlobalRenderer::onFrameSwapped);
-    //qDebug()<<"Frame rendered "<<m_img->size();
-    //m_img->waitNoEmpty();
-    //quint8 * data=m_img->lock();
-    //QImage img (data, 800,600,QImage::Format_ARGB32);
-    //img.save("screenshot.bmp");
-    //m_img->unlock();
-    //emit startSimulation();
-}*/
+    if(event->type()==QEvent::Close && !m_closing)
+    {
+        m_closing=true;
+        emit queryExit();
+        event->ignore();
+        return false;
+    }
+    return QWindow::event(event);
+}
+

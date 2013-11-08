@@ -33,7 +33,6 @@ public:
     bool loadAlgorithmFile(const QString & file);
     track_library::TrackModel * loadTrack(const QString & track_path);
     void run();
-    void stop();
 
     inline float controlInterval() { return m_control_interval; }
     inline float physicsTimeStep() { return m_physics_timestep; }
@@ -49,10 +48,15 @@ public:
         m_physics_timestep = v;
         physicsTimeStepChanged();
     }
+public slots:
+    void stop();
 
 signals:
+
     void controlIntervalChanged();
     void physicsTimeStepChanged();
+    void simulationStopped();
+
 private:
     bool m_running;
     float m_control_interval;

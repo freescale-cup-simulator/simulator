@@ -15,8 +15,6 @@
 #include <cmath>
 #include <common.h>
 
-#define BREAK_ON_STEP 2
-
 class CameraSimulator : public QObject
 {
     Q_OBJECT
@@ -28,12 +26,8 @@ public:
 
 private:
 
-    void init();
-
     Ogre::Camera * m_camera;
     SharedImage * m_buffer;
-    quint64 m_step;
-    Ogre::Quaternion m_initial_orientation;
 };
 
 #endif // CAMERASIMULATOR_H

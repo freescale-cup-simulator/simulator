@@ -34,6 +34,7 @@ public:
 signals:
     void startSimulation();
     void ogreInitialized();
+    void queryExit();
 
 public slots:
 
@@ -41,6 +42,8 @@ public slots:
     void addContent();
     void onStatusChanged(QQuickView::Status status);
 
+protected:
+    bool event(QEvent *event);
 private:
 
     Camera * m_user_camera;
@@ -51,6 +54,7 @@ private:
     TrackModel * m_track_model;
     QList<CameraGrabber *> m_camera_grabbers;
     Ogre::SceneNode * m_ogre_head;
+    bool m_closing;
 };
 
 #endif
