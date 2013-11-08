@@ -1,12 +1,12 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <QString>
 #include <QVector3D>
 #include <QQuaternion>
 #include <QDebug>
 
 constexpr int CAMERA_FRAME_LEN = 128;
+constexpr quint32 DATASET_VERSION=0x1;
 
 typedef struct
 {

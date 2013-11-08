@@ -4,7 +4,7 @@ SimulationRunner::SimulationRunner(GlobalRenderer * renderer,QObject *parent)
     : QObject(parent)
     , m_running(false)
     , m_control_interval(0.1)
-    , m_physics_timestep(1e-3)
+    , m_physics_timestep(20e-3)
     , m_renderer(renderer)
 {
     setAutoDelete(false);
@@ -14,6 +14,8 @@ bool SimulationRunner::loadAlgorithmFile(const QString &file)
 {
     if (m_running)
         return false;
+    QFileInfo info(file);
+    m_logger.setFileName(info.baseName()+".dat");
     auto ca = new ControlAlgorithm (this);
     if (!ca->loadFile(file))
     {
@@ -73,19 +75,27 @@ void SimulationRunner::run()
 
     m_cameras_syncronizator.acquire(VIRTUAL_CAMERAS_COUNT);
 
+    Q_ASSERT(m_logger.beginWrite());
+    m_logger<<dataset;
     while (m_running)
     {
         physics_runtime = 0;
         while (physics_runtime < m_control_interval)
         {
             m_vehicle_model->process(dataset);
+            m_logger<<dataset;
             m_physics_simulation->process(dataset);
+            m_logger<<dataset;
             physics_runtime += m_physics_timestep;
         }
         m_camera_simulator->process(dataset);
+        m_logger<<dataset;
         m_renderer->process(dataset);
+        m_logger<<dataset;
         m_control_algorithm->process(dataset);
+        m_logger<<dataset;
     }
+    m_logger.endWrite();
     qDebug("Simulation done!");
 }
 

@@ -13,6 +13,7 @@ set(project_sources
     control_algorithm.cc
     camera_simulator.cc
     global_renderer.cc
+    logger.cc
 )
 
 set(project_headers
@@ -24,6 +25,7 @@ set(project_headers
     common.h
     camera_simulator.h
     global_renderer.h
+    logger.h
 )
 
 set(qrc

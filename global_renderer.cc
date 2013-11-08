@@ -155,6 +155,8 @@ void GlobalRenderer::initializeOgre()
         node->attachObject(current);
         node->_update(false,false);
         qDebug()<<"Node box: "<<node->_getWorldAABB().getSize().x<<", "<<node->_getWorldAABB().getSize().y<<", "<<node->_getWorldAABB().getSize().z;
+        //qDebug()<<1/node->_getWorldAABB().getSize().x;
+        node->scale(0.9999,0.99999,0.99999);
         node->setPosition(tile.x()+0.5,tile.y()+0.5,0);
         node->rotate(Ogre::Vector3::UNIT_Z,Ogre::Degree(180-tile.rotation()));
     }

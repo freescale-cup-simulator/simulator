@@ -5,12 +5,14 @@
 #include <QRunnable>
 #include <QThread>
 #include <QSemaphore>
+#include <QFileInfo>
 
 #include <global_renderer.h>
 #include <control_algorithm.h>
 #include <physics_simulation.h>
 #include <camera_simulator.h>
 #include <vehicle_model.h>
+#include <logger.h>
 #include <track_io.h>
 #include <config.h>
 
@@ -62,7 +64,7 @@ private:
     QSharedPointer<ControlAlgorithm> m_control_algorithm;
     QSharedPointer<VehicleModel> m_vehicle_model;
     GlobalRenderer * m_renderer;
-
+    Logger m_logger;
     QSemaphore m_cameras_syncronizator;
 };
 
