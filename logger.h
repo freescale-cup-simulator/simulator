@@ -25,6 +25,8 @@ public:
 
     bool beginRead();
     void endRead();
+    bool canRead();
+    bool canWrite();
 
     Mode mode() {return m_mode;}
     quint64 size();

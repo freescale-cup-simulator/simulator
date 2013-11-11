@@ -68,6 +68,16 @@ void Logger::endRead()
     endWrite();
 }
 
+bool Logger::canRead()
+{
+    return !(m_stream.status()==QDataStream::ReadPastEnd || m_stream.status()==QDataStream::ReadCorruptData);
+}
+
+bool Logger::canWrite()
+{
+    return !(m_stream.status()==QDataStream::WriteFailed);
+}
+
 bool Logger::seek(quint64 blocksFromStart)
 {
     if(m_mode!=Logger::Read)
