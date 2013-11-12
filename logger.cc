@@ -4,6 +4,7 @@ Logger::Logger ()
     : m_stream(0)
     , m_file(0)
     , m_mode(Logger::Closed)
+    , m_written(0)
 {
 
 }
@@ -19,6 +20,7 @@ void Logger::setFileName(const QString &filename)
 bool Logger::beginWrite()
 {
     Q_ASSERT(m_file);
+    m_written=0;
     if(m_file->open(QIODevice::WriteOnly))
     {
         m_mode=Logger::Write;
@@ -30,11 +32,13 @@ bool Logger::beginWrite()
         return false;
 }
 
-void Logger::endWrite()
+quint64 Logger::endWrite()
 {
-    m_stream.setDevice(0);
+    m_file->flush();
     m_file->close();
+    m_stream.setDevice(0);
     m_mode=Logger::Closed;
+    return m_written;
 }
 
 bool Logger::beginRead()
@@ -52,10 +56,6 @@ bool Logger::beginRead()
             log("Bad log file or different version.");
             return false;
         }
-        if((m_file->size()-4)%sizeof(DataSet)!=0)
-        {
-            log("Warning! May be corrupted data in logfile.");
-        }
         m_mode=Logger::Read;
         return true;
     }
@@ -63,39 +63,19 @@ bool Logger::beginRead()
         return false;
 }
 
-void Logger::endRead()
+quint64 Logger::endRead()
 {
-    endWrite();
+    return endWrite();
 }
 
 bool Logger::canRead()
 {
-    return !(m_stream.status()==QDataStream::ReadPastEnd || m_stream.status()==QDataStream::ReadCorruptData);
+    return !(m_stream.status()==QDataStream::ReadPastEnd || m_stream.status()==QDataStream::ReadCorruptData || m_stream.atEnd());
 }
 
 bool Logger::canWrite()
 {
     return !(m_stream.status()==QDataStream::WriteFailed);
-}
-
-bool Logger::seek(quint64 blocksFromStart)
-{
-    if(m_mode!=Logger::Read)
-    {
-        log("Seek function available only in Read mode.");
-        return false;
-    }
-    return m_file->seek(4+sizeof(DataSet)*blocksFromStart);
-}
-
-quint64 Logger::size()
-{
-    if(m_mode!=Logger::Read)
-    {
-        log("Size function available only in Read mode.");
-        return false;
-    }
-    return (m_file->size()-4)/sizeof(DataSet);
 }
 
 Logger & Logger::operator <<(DataSet &dataset)
@@ -115,6 +95,9 @@ Logger & Logger::operator <<(DataSet &dataset)
     m_stream<<dataset.physics_timestep;
     m_stream<<dataset.wheel_power_l;
     m_stream<<dataset.wheel_power_r;
+
+    m_written++;
+
     return *this;
 }
 

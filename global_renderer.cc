@@ -93,7 +93,7 @@ void GlobalRenderer::initializeOgre()
     m_scene_manager = m_root->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
 
     Ogre::Camera * camera = m_scene_manager->createCamera("user_camera");
-    camera->setNearClipDistance(0.1s);
+    camera->setNearClipDistance(0.1);
     camera->setFarClipDistance(99999);
     camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
     camera->setPosition(4,-1,4);
