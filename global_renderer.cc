@@ -2,11 +2,11 @@
 
 GlobalRenderer::GlobalRenderer(QWindow *parent)
     : QQuickView(parent)
-    , m_track_model(0)
     , m_user_camera(0)
     , m_camera_controller(0)
     , m_ogre_engine(0)
     , m_root(0)
+    , m_track_model(0)
     , m_closing(false)
 {
     connect(this, &GlobalRenderer::beforeRendering, this, &GlobalRenderer::initializeOgre, Qt::DirectConnection);
@@ -93,7 +93,7 @@ void GlobalRenderer::initializeOgre()
     m_scene_manager = m_root->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
 
     Ogre::Camera * camera = m_scene_manager->createCamera("user_camera");
-    camera->setNearClipDistance(0.1s);
+    camera->setNearClipDistance(0.1);
     camera->setFarClipDistance(99999);
     camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
     camera->setPosition(4,-1,4);

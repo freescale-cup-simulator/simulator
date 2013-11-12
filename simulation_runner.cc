@@ -16,14 +16,17 @@ bool SimulationRunner::loadAlgorithmFile(const QString &file)
 {
     if (m_running)
         return false;
-    QFileInfo info(file);
-    m_logger.setFileName(info.baseName()+".dat");
+
     auto ca = new ControlAlgorithm (this);
     if (!ca->loadFile(file))
     {
         delete ca;
         return false;
     }
+
+    QFileInfo info(file);
+    m_logger.setFileName(info.baseName() + ".dat");
+
     m_control_algorithm = QSharedPointer<ControlAlgorithm>(ca);
     return true;
 }
