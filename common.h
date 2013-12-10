@@ -20,6 +20,7 @@ typedef struct
     float wheel_power_l;
     float physics_timestep;
     float control_interval;
+    qint32 line_position;
 } DataSet;
 
 Q_DECLARE_METATYPE(DataSet)

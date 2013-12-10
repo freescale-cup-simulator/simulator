@@ -74,28 +74,28 @@ void SimulationRunner::run()
     dataset.wheel_power_l = dataset.wheel_power_r = 0;
     dataset.physics_timestep = m_physics_timestep;
     dataset.control_interval = m_control_interval;
+    dataset.line_position=64;
 
     m_cameras_syncronizator.acquire(VIRTUAL_CAMERAS_COUNT);
 
     Q_ASSERT(m_logger.beginWrite());
-    m_logger<<dataset;
     while (m_running)
     {
+        m_logger<<dataset;
         physics_runtime = 0;
         while (physics_runtime < m_control_interval)
         {
             m_vehicle_model->process(dataset);
-            m_logger<<dataset;
             m_physics_simulation->process(dataset);
-            m_logger<<dataset;
             physics_runtime += m_physics_timestep;
         }
-        m_camera_simulator->process(dataset);
-        m_logger<<dataset;
+        m_camera_simulator->process(dataset);        
         m_renderer->process(dataset);
-        m_logger<<dataset;
         m_control_algorithm->process(dataset);
-        m_logger<<dataset;
+        if(dataset.line_position!=-1)
+            qDebug()<<"Line offset: "<<(64-dataset.line_position);
+        else
+            qDebug()<<"Line offset: ?";
     }
     m_logger.endWrite();
     emit simulationStopped();
