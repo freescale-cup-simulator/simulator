@@ -21,20 +21,19 @@ public:
     void setFileName(const QString &filename);
 
     bool beginWrite();
-    void endWrite();
-
-    bool beginRead();
-    void endRead();
-    bool canRead();
+    quint64 endWrite();
     bool canWrite();
 
+    bool beginRead();
+    quint64 endRead();
+    bool canRead();
+
+
     Mode mode() {return m_mode;}
-    quint64 size();
 
     Logger & operator <<(DataSet & dataset);
     Logger & operator >> (DataSet & dataset);
 
-    bool seek(quint64 blocksFromStart);
     ~Logger();
 
     class CorruptedStructureException {};
@@ -43,6 +42,7 @@ private:
     QFile * m_file;
     QDataStream m_stream;
     Mode m_mode;
+    quint64 m_written;
     void log(QString text);
 
 };
