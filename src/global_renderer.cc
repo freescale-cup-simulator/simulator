@@ -58,7 +58,7 @@ CameraGrabber *GlobalRenderer::createCameraGrabber(QSemaphore *sync)
 void GlobalRenderer::process(DataSet &data)
 {
     m_ogre_head->setPosition(data.camera_position.x(), data.camera_position.y(),
-                             data.camera_position.z() + 1);
+                             data.camera_position.z()+1);
     Ogre::Quaternion q(data.camera_rotation_quat.scalar(),
                        data.camera_rotation_quat.x(),
                        data.camera_rotation_quat.y(),
@@ -110,8 +110,15 @@ void GlobalRenderer::initializeOgre()
     m_scene_manager->createLight("light")->setPosition(0, 0, 10);
 
     Ogre::Plane plane(Ogre::Vector3::UNIT_Z, 0);
-    Ogre::MeshManager::getSingleton().createPlane("ground", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-                                                  plane, m_track_model->width(), m_track_model->height(), m_track_model->width(), m_track_model->height(), false, 1, 5, 5, Ogre::Vector3::UNIT_Y);
+    Ogre::MeshManager::getSingleton().createPlane("ground",
+                                                  Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+                                                  plane,
+                                                  m_track_model->width(),
+                                                  m_track_model->height(),
+                                                  m_track_model->width(),
+                                                  m_track_model->height(),
+                                                  false,
+                                                  1, 5, 5, Ogre::Vector3::UNIT_Y);
 
     Ogre::Entity* entGround = m_scene_manager->createEntity("GroundEntity", "ground");
     auto groundNode=m_scene_manager->getRootSceneNode()->createChildSceneNode();
@@ -154,10 +161,10 @@ void GlobalRenderer::initializeOgre()
 
         Ogre::SceneNode* node = m_scene_manager->getRootSceneNode()->createChildSceneNode();
         node->attachObject(current);
-        node->_update(false,false);
-        qDebug()<<"Node box: "<<node->_getWorldAABB().getSize().x<<", "<<node->_getWorldAABB().getSize().y<<", "<<node->_getWorldAABB().getSize().z;
+        //node->_update(false,false);
+        //qDebug()<<"Node box: "<<node->_getWorldAABB().getSize().x<<", "<<node->_getWorldAABB().getSize().y<<", "<<node->_getWorldAABB().getSize().z;
         //qDebug()<<1/node->_getWorldAABB().getSize().x;
-        node->scale(0.9999,0.99999,0.99999);
+        //node->scale(0.9999,0.99999,0.99999);
         node->setPosition(tile.x()+0.5,tile.y()+0.5,0);
         node->rotate(Ogre::Vector3::UNIT_Z,Ogre::Degree(180-tile.rotation()));
     }
