@@ -63,6 +63,11 @@ function run()
 	signals["angle"] = angle * 45;
 	signals["lspeed"] = (1 - (math.abs(angle) / 45)) * 10
 	signals["rspeed"] = signals["lspeed"]
+	if start_found and end_found then
+	  signals["linepos"] = start_pos/2 + end_pos
+	else
+	  signals["linepos"] = -1
+	end
 	return signals
 end
 

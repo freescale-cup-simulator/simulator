@@ -71,5 +71,9 @@ void ControlAlgorithm::process(DataSet & d)
     d.wheel_power_l = lua_tonumber(m_lua_state, -1);
     lua_pop(m_lua_state, 1);
 
+    lua_getfield(m_lua_state, -1, "linepos");
+    d.line_position = lua_tonumber(m_lua_state, -1);
+    lua_pop(m_lua_state, 1);
+
     lua_pop(m_lua_state, 1);
 }
