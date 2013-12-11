@@ -95,6 +95,7 @@ Logger & Logger::operator <<(DataSet &dataset)
     m_stream<<dataset.physics_timestep;
     m_stream<<dataset.wheel_power_l;
     m_stream<<dataset.wheel_power_r;
+    m_stream<<dataset.line_position;
 
     m_written++;
 
@@ -118,6 +119,7 @@ Logger &Logger::operator >>(DataSet &dataset)
     m_stream>>dataset.physics_timestep;
     m_stream>>dataset.wheel_power_l;
     m_stream>>dataset.wheel_power_r;
+    m_stream>>dataset.line_position;
     if(m_stream.status()==QDataStream::ReadCorruptData)
         throw CorruptedStructureException();
     return *this;
