@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.7 FATAL_ERROR)
-
 project(freescale_simulator CXX C)
 
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};/usr/lib/OGRE/cmake/")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(project_sources
@@ -29,7 +29,7 @@ set(project_headers
 )
 
 set(qrc
-    resources/resources.qrc
+    ${CMAKE_SOURCE_DIR}/../resources/resources.qrc
 )
 
 find_package(Qt5Quick REQUIRED)
@@ -86,6 +86,7 @@ include_directories(SYSTEM
         ${OGRE_INCLUDE_DIRS}
         ${OGRE_SAMPLES_INCLUDEPATH}
         ${OIS_INCLUDE_DIRS}
+	${CMAKE_BINARY_DIR}
 )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${ODE_CFLAGS_OTHER}")
@@ -104,8 +105,8 @@ message(STATUS "Build type is: ${CMAKE_BUILD_TYPE}")
 
 qt5_add_resources(RC_SRCS ${qrc})
 
-set(RESOURCE_DIR ${CMAKE_SOURCE_DIR}/resources/)
-set(LUA_SCRIPT_DIR ${CMAKE_SOURCE_DIR}/lua/)
+set(RESOURCE_DIR ${CMAKE_SOURCE_DIR}/../resources/)
+set(LUA_SCRIPT_DIR ${CMAKE_SOURCE_DIR}/../lua/)
 
 configure_file(config.h.template ${CMAKE_BINARY_DIR}/config.h)
 

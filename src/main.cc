@@ -4,7 +4,7 @@
 #include <track_model.h>
 #include <simulation_runner.h>
 #include <global_renderer.h>
-
+#include <config.h>
 
 int main(int argc, char * argv[])
 {

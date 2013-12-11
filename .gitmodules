@@ -1,6 +1,6 @@
 [submodule "libtrack"]
-	path = libtrack
+	path = src/libtrack
 	url = git://github.com/freescale-cup-simulator/libtrack.git
 [submodule "libqmlogre"]
-	path = libqmlogre
+	path = src/libqmlogre
 	url = https://github.com/freescale-cup-simulator/libqmlogre.git
