@@ -57,8 +57,10 @@ CameraGrabber *GlobalRenderer::createCameraGrabber(QSemaphore *sync)
 
 void GlobalRenderer::process(DataSet &data)
 {
-    m_ogre_head->setPosition(data.camera_position.x(), data.camera_position.y(),
-                             data.camera_position.z() + 1);
+    m_ogre_head->setPosition(data.camera_position.x(),
+                             data.camera_position.y() + 1,
+                             data.camera_position.z());
+
     Ogre::Quaternion q(data.camera_rotation_quat.scalar(),
                        data.camera_rotation_quat.x(),
                        data.camera_rotation_quat.y(),
@@ -85,10 +87,11 @@ void GlobalRenderer::initializeOgre()
     m_ogre_engine=new OgreEngine(this);
     m_root=m_ogre_engine->startEngine(RESOURCE_DIRECTORY "plugins.cfg");
 
-    Ogre::ResourceGroupManager::getSingleton().addResourceLocation( RESOURCE_DIRECTORY "materials", "FileSystem");
-    Ogre::ResourceGroupManager::getSingleton().addResourceLocation( RESOURCE_DIRECTORY "meshes", "FileSystem");
-    Ogre::ResourceGroupManager::getSingleton().addResourceLocation( RESOURCE_DIRECTORY "data.zip", "Zip");
-    Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+    Ogre::ResourceGroupManager & rm = Ogre::ResourceGroupManager::getSingleton();
+    rm.addResourceLocation( RESOURCE_DIRECTORY "materials", "FileSystem");
+    rm.addResourceLocation( RESOURCE_DIRECTORY "meshes", "FileSystem");
+    rm.addResourceLocation( RESOURCE_DIRECTORY "data.zip", "Zip");
+    rm.initialiseAllResourceGroups();
 
     m_scene_manager = m_root->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
 
@@ -96,8 +99,8 @@ void GlobalRenderer::initializeOgre()
     camera->setNearClipDistance(0.1);
     camera->setFarClipDistance(99999);
     camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
-    camera->setPosition(4,-1,4);
-    camera->setOrientation(Ogre::Quaternion(Ogre::Radian(Ogre::Degree(45)),Ogre::Vector3::UNIT_X));
+    camera->setPosition(0, 5, 0);
+    camera->setOrientation(Ogre::Quaternion(Ogre::Radian(Ogre::Degree(-90)), Ogre::Vector3::UNIT_X));
     //camera->lookAt(camera->getPosition().normalisedCopy());
     //camera->setFixedYawAxis(true,Ogre::Vector3::UNIT_Y);
     m_camera_controller=new OgreBites::SdkCameraMan(camera);
@@ -107,22 +110,29 @@ void GlobalRenderer::initializeOgre()
     m_ogre_engine->activateOgreContext();
     m_scene_manager->setSkyBox(true, "SpaceSkyBox", 10000);
 
-    m_scene_manager->createLight("light")->setPosition(0, 0, 10);
+    m_scene_manager->createLight("light")->setPosition(0, 10, 0);
 
-    Ogre::Plane plane(Ogre::Vector3::UNIT_Z, 0);
-    Ogre::MeshManager::getSingleton().createPlane("ground", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-                                                  plane, m_track_model->width(), m_track_model->height(), m_track_model->width(), m_track_model->height(), false, 1, 5, 5, Ogre::Vector3::UNIT_Y);
+    Ogre::Plane plane(Ogre::Vector3::UNIT_Y, 0);
+    auto gn = Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME;
+    Ogre::MeshManager::getSingleton().createPlane("ground", gn, plane,
+                                                  m_track_model->width(),
+                                                  m_track_model->height(),
+                                                  m_track_model->width(),
+                                                  m_track_model->height(),
+                                                  false, 1, 5, 5,
+                                                  Ogre::Vector3::UNIT_Z);
 
-    Ogre::Entity* entGround = m_scene_manager->createEntity("GroundEntity", "ground");
+    Ogre::Entity* entGround = m_scene_manager->createEntity("GroundEntity",
+                                                            "ground");
     auto groundNode=m_scene_manager->getRootSceneNode()->createChildSceneNode();
-
 
     groundNode->attachObject(entGround);
     entGround->setMaterialName("ground");
 
-    groundNode->setPosition(m_track_model->width()/2,m_track_model->height()/2,-0.01);
+    groundNode->setPosition(m_track_model->width()/2, -0.01,
+                            m_track_model->height()/2);
 
-    Ogre::Entity  * ogreEnt=m_scene_manager->createEntity("Head", "ogrehead.mesh");
+    Ogre::Entity * ogreEnt=m_scene_manager->createEntity("Head", "ogrehead.mesh");
     m_ogre_head=m_scene_manager->getRootSceneNode()->createChildSceneNode();
     m_ogre_head->attachObject(ogreEnt);
     m_ogre_head->setScale(0.01,0.01,0.01);
@@ -154,14 +164,30 @@ void GlobalRenderer::initializeOgre()
 
         Ogre::SceneNode* node = m_scene_manager->getRootSceneNode()->createChildSceneNode();
         node->attachObject(current);
-        node->_update(false,false);
-        qDebug()<<"Node box: "<<node->_getWorldAABB().getSize().x<<", "<<node->_getWorldAABB().getSize().y<<", "<<node->_getWorldAABB().getSize().z;
-        //qDebug()<<1/node->_getWorldAABB().getSize().x;
-        node->scale(0.9999,0.99999,0.99999);
-        node->setPosition(tile.x()+0.5,tile.y()+0.5,0);
-        node->rotate(Ogre::Vector3::UNIT_Z,Ogre::Degree(180-tile.rotation()));
+
+        node->setPosition(-tile.x() + 0.5, 0, tile.y() + 0.5);
+        node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(-tile.rotation() + 90));
+        node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(90));
     }
 
+    Ogre::Entity * current = m_scene_manager->createEntity("crossing.mesh");
+    Ogre::SceneNode* node = m_scene_manager->getRootSceneNode()->createChildSceneNode();
+    node->attachObject(current);
+    node->setPosition(0, 3, 0);
+    node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(90));
+
+    current = m_scene_manager->createEntity("line.mesh");
+    node = m_scene_manager->getRootSceneNode()->createChildSceneNode();
+    node->attachObject(current);
+    node->setPosition(5, 3, 0);
+    node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(90));
+
+    current = m_scene_manager->createEntity("turn.mesh");
+    node = m_scene_manager->getRootSceneNode()->createChildSceneNode();
+    node->attachObject(current);
+    node->setPosition(0, 3, 5);
+
+    node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(90));
     m_ogre_engine->doneOgreContext();
     emit ogreInitialized();
 }

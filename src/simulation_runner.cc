@@ -3,8 +3,8 @@
 SimulationRunner::SimulationRunner(GlobalRenderer * renderer,QObject *parent)
     : QObject(parent)
     , m_running(false)
-    , m_control_interval(0.1)
-    , m_physics_timestep(20e-3)
+    , m_control_interval(0.001)
+    , m_physics_timestep(1e-3)
     , m_renderer(renderer)
 {
     setAutoDelete(false);
@@ -92,13 +92,13 @@ void SimulationRunner::run()
             m_physics_simulation->process(dataset);
             physics_runtime += m_physics_timestep;
         }
-        m_camera_simulator->process(dataset);        
+        m_camera_simulator->process(dataset);
         m_renderer->process(dataset);
         m_control_algorithm->process(dataset);
-        if(dataset.line_position!=-1)
-            qDebug()<<"Line offset: "<<(64-dataset.line_position);
-        else
-            qDebug()<<"Line offset: ?";
+//        if(dataset.line_position!=-1)
+//            qDebug()<<"Line offset: "<<(64-dataset.line_position);
+//        else
+//            qDebug()<<"Line offset: ?";
     }
     m_logger.endWrite();
     emit simulationStopped();

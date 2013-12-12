@@ -31,18 +31,21 @@ public:
 
     void process(DataSet & data);
 private:
+    enum StartDirection {Up = 0, Right, Down, Left};
+
     void importModel(const QString & path, const QString & name);
     void buildTrack();
     void createVehicle();
     void nearCallback(void *, dGeomID a, dGeomID b);
     static void nearCallbackWrapper(void * i, dGeomID a, dGeomID b);
 
-    static constexpr dReal GRAVITY_CONSTANT = -9.81;
+    static constexpr dReal GRAVITY_CONSTANT = -.0981;
     static constexpr int MAX_CONTACTS = 32;
 
     const track_library::TrackModel & m_track_model;
     const dReal * m_start_position;
-    const dReal * m_start_direction;
+    const dReal * m_start_rotation;
+    StartDirection m_start_direction;
 
     dGeomID m_vehicle_geom;
     dBodyID m_vehicle_body;

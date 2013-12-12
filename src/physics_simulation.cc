@@ -10,7 +10,7 @@ PhysicsSimulation::PhysicsSimulation(const track_library::TrackModel &model,
     m_world = dWorldCreate();
     m_space = dSimpleSpaceCreate(nullptr);
     m_contact_group = dJointGroupCreate(0);
-    dWorldSetGravity(m_world, 0, 0, GRAVITY_CONSTANT);
+    dWorldSetGravity(m_world, 0, GRAVITY_CONSTANT, 0);
 
     importModel(RESOURCE_DIRECTORY "physics_models/tile.dae", "tile");
     buildTrack();
@@ -32,17 +32,17 @@ PhysicsSimulation::~PhysicsSimulation()
 
 void PhysicsSimulation::process(DataSet & data)
 {
-    dJointSetHinge2Param(m_wheels[2], dParamVel2, data.wheel_power_l);
-    dJointSetHinge2Param(m_wheels[2], dParamFMax2, .01);
-    dJointSetHinge2Param(m_wheels[3], dParamVel2, data.wheel_power_r);
-    dJointSetHinge2Param(m_wheels[3], dParamFMax2, .01);
+//    dJointSetHinge2Param(m_wheels[2], dParamVel2, 200);
+//    dJointSetHinge2Param(m_wheels[2], dParamFMax2, .01);
+//    dJointSetHinge2Param(m_wheels[3], dParamVel2, 200);
+//    dJointSetHinge2Param(m_wheels[3], dParamFMax2, .01);
 
-    const float rad_angle = (data.current_wheel_angle / 180.0) * M_PI;
-    for (int i = 0; i < 2; i++)
-    {
-        dJointSetHinge2Param(m_wheels[i], dParamLoStop, rad_angle * 2.5);
-        dJointSetHinge2Param(m_wheels[i], dParamHiStop, rad_angle * 2.5);
-    }
+//    const float rad_angle = (data.current_wheel_angle / 180.0) * M_PI;
+//    for (int i = 0; i < 2; i++)
+//    {
+//        dJointSetHinge2Param(m_wheels[i], dParamLoStop, rad_angle * 2.5);
+//        dJointSetHinge2Param(m_wheels[i], dParamHiStop, rad_angle * 2.5);
+//    }
 
     dSpaceCollide(m_space, this, &PhysicsSimulation::nearCallbackWrapper);
     dWorldStep(m_world, data.physics_timestep);
@@ -68,7 +68,7 @@ void PhysicsSimulation::process(DataSet & data)
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wnarrowing"
 #endif
-    data.camera_position = {position_v[0], position_v[1], position_v[2] + .65};
+    data.camera_position = {position_v[0], position_v[1], position_v[2]};
     data.camera_rotation = {0.95, 0, chasis_angle};
     QQuaternion q(rotation_q[0],rotation_q[1],rotation_q[2],rotation_q[3]);
     data.camera_rotation_quat=q;
@@ -119,21 +119,24 @@ void PhysicsSimulation::importModel(const QString &path, const QString & name)
 
 void PhysicsSimulation::buildTrack()
 {
+    int rotation;
+
     for (const tl::Tile & tile : m_track_model.tiles())
     {
         dGeomID id = dCreateTriMesh(m_space, m_trimesh_data["tile"], 0, 0, 0);
         dGeomSetBody(id, 0);
         // shifting top face of tile to z=0 in blender works, don't have to
         // adjust height here
-        dGeomSetPosition(id, tile.x() + 0.5, tile.y() + 0.5, 0);
+        dGeomSetPosition(id, -tile.x() + 0.5, 0, tile.y() + 0.5);
         dMatrix3 rm;
-        dRFromEulerAngles(rm, 0, 0, (tile.rotation() / 180.0) * M_PI);
+        dRFromEulerAngles(rm, (tile.rotation() / 180.0) * M_PI, 0, 0);
         dGeomSetRotation(id, rm);
 
         if (tile.type() == tl::Tile::Start)
         {
             m_start_position = dGeomGetPosition(id);
-            m_start_direction = dGeomGetRotation(id);
+            m_start_rotation = dGeomGetRotation(id);
+            rotation = tile.rotation();
         }
         m_track_geoms.append(id);
     }
@@ -151,34 +154,46 @@ void PhysicsSimulation::buildTrack()
 
     qDebug("Start location: (%.1f,%.1f,%.1f)", m_start_position[0],
             m_start_position[1], m_start_position[2]);
-    qDebug("Start direction vector: (%.1f,%.1f)", -m_start_direction[4],
-            m_start_direction[5]);
-#if 0
-    // can be useful for debugging
-    qDebug("%f %f %f\n%f %f %f\n%f %f %f", m_start_direction[0],
-            m_start_direction[1], m_start_direction[2], m_start_direction[4],
-            m_start_direction[5], m_start_direction[6], m_start_direction[8],
-            m_start_direction[9], m_start_direction[10]);
-#endif
+
+    const char * d[] = {"Up", "Right", "Down", "Left"};
+
+    switch(rotation)
+    {
+    case 0:
+        m_start_direction = Up;
+        break;
+    case 90:
+        m_start_direction = Right;
+        break;
+    case 180:
+        m_start_direction = Down;
+        break;
+    case 270:
+        m_start_direction = Left;
+        break;
+    }
+
+    qDebug("Start direction: %s", d[m_start_direction]);
 }
 
 void PhysicsSimulation::createVehicle()
 {
-    const dVector3 d = {.16, .25, .01};
+    const dVector3 d = {.25, .01, .16};
     const dReal * sp = m_start_position;
-    const dReal spawn_height = .08;
-    const dReal radius = .025;
+    const dReal spawn_height = 0.8;
+    const dReal radius = .25;
 
     /*
      * this code is here to support different start directions; we cannot just
      * rotate the vehicle after creating it, so we create it already facing the
      * right direction by rearranging anchor points
      */
-    int inv = m_start_direction[5] ? 1 : m_start_direction[5];
-    int shift = -m_start_direction[4];
+
+    int inv = (m_start_direction == Up) ? -1 : 1;
+    int shift = -1;
     QVector<QVector<dReal>> anchor_points(4);
     QVector<int> indices;
-    const dReal anchor_z = spawn_height - d[2] / 2;
+    const dReal anchor_y = spawn_height - d[1] / 2;
 
     switch (shift)
     {
@@ -195,32 +210,32 @@ void PhysicsSimulation::createVehicle()
     }
 
     // front left
-    anchor_points[indices[0]] = {sp[0] - d[0] / 2 * inv, sp[1] + d[1] / 2 * inv,
-                                 anchor_z};
+    anchor_points[indices[0]] = {sp[0] - d[0] / 2 * inv, anchor_y,
+                                 sp[2] + d[2] / 2 * inv};
     // front right
-    anchor_points[indices[1]] = {sp[0] + d[0] / 2 * inv, sp[1] + d[1] / 2 * inv,
-                                 anchor_z};
+    anchor_points[indices[1]] = {sp[0] + d[0] / 2 * inv, anchor_y,
+                                 sp[2] + d[2] / 2 * inv};
     // rear left
-    anchor_points[indices[2]] = {sp[0] - d[0] / 2 * inv, sp[1] - d[1] / 2 * inv,
-                                 anchor_z};
+    anchor_points[indices[2]] = {sp[0] - d[0] / 2 * inv, anchor_y,
+                                 sp[2] - d[2] / 2 * inv};
     // rear right
-    anchor_points[indices[3]] = {sp[0] + d[0] / 2 * inv, sp[1] - d[1] / 2 * inv,
-                                 anchor_z};
+    anchor_points[indices[3]] = {sp[0] + d[0] / 2 * inv, anchor_y,
+                                 sp[2] - d[2] / 2 * inv};
 
     dBodyID id = dBodyCreate(m_world);
     dGeomID gid = dCreateBox(m_space, d[0], d[1], d[2]);
     dMass mass;
     dJointID jid;
 
-    dBodySetRotation(id, m_start_direction);
+    dBodySetRotation(id, m_start_rotation);
     dMassSetBoxTotal(&mass, 1, d[0], d[1], d[2]);
     dBodySetMass(id, &mass);
     dGeomSetBody(gid, id);
-    dBodySetPosition(id, sp[0], sp[1], spawn_height);
+    dBodySetPosition(id, sp[0], spawn_height, sp[2]);
     m_vehicle_geom = gid;
     m_vehicle_body = id;
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 2; i++)
     {
         id = dBodyCreate(m_world);
         gid = dCreateSphere(m_space, radius);
@@ -234,18 +249,21 @@ void PhysicsSimulation::createVehicle()
         dJointAttach(jid, m_vehicle_body, id);
         dJointSetHinge2Anchor(jid, anchor_points[i][0], anchor_points[i][1],
                 anchor_points[i][2]);
-        dJointSetHinge2Axis1(jid, 0, 0, 1);
-        dJointSetHinge2Axis2(jid, m_start_direction[5], m_start_direction[4], 0);
+        dJointSetHinge2Axis1(jid, 0, 1, 0);
+        if (m_start_direction == Up || m_start_direction == Down)
+            dJointSetHinge2Axis2(jid, 1, 0, 0);
+        else
+            dJointSetHinge2Axis2(jid, 0, 0, 1);
         dJointSetHinge2Param(jid, dParamSuspensionERP, 0.4);
         dJointSetHinge2Param(jid, dParamSuspensionCFM, 0.1);
         m_wheels[i] = jid;
         m_wheel_bodies[i] = id;
     }
-    for (int i = 2; i < 4; i++)
-    {
-        dJointSetHinge2Param(m_wheels[i], dParamLoStop, 0);
-        dJointSetHinge2Param(m_wheels[i], dParamHiStop, 0);
-    }
+//    for (int i = 2; i < 4; i++)
+//    {
+//        dJointSetHinge2Param(m_wheels[i], dParamLoStop, 0);
+//        dJointSetHinge2Param(m_wheels[i], dParamHiStop, 0);
+//    }
 }
 
 void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
