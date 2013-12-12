@@ -164,7 +164,6 @@ void GlobalRenderer::initializeOgre()
 
         Ogre::SceneNode* node = m_scene_manager->getRootSceneNode()->createChildSceneNode();
         node->attachObject(current);
-
         node->setPosition(-tile.x() + 0.5, 0, tile.y() + 0.5);
         node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(-tile.rotation() + 90));
         node->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(90));
