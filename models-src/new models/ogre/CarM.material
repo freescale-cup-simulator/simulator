@@ -1,4 +1,4 @@
-// CarM genrated by blender2ogre 0.6.0
+// CarM genrated by blender2ogre 0.5.9
 
 material CarM 
 {
@@ -32,10 +32,10 @@ material CarM
 
             texture_unit 
             {
-                texture 2.png
+                texture car.png
                 tex_address_mode wrap
                 scale 1.0 1.0
-                colour_op alpha_blend
+                colour_op modulate
             }
         }
     }

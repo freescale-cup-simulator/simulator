@@ -1,4 +1,4 @@
-// line genrated by blender2ogre 0.6.0
+// line genrated by blender2ogre 0.5.9
 
 material line 
 {
@@ -8,8 +8,8 @@ material line
     {
         pass line
         {
-            ambient 0.5882350206375122 0.5882350206375122 0.5882350206375122 1.0
-            diffuse 0.47058802352231766 0.47058802352231766 0.47058802352231766 1.0
+            ambient 1.0 1.0 1.0 1.0
+            diffuse 0.800000011920929 0.800000011920929 0.800000011920929 1.0
             specular 0.0 0.0 0.0 1.0 1.25
             emissive 0.0 0.0 0.0 1.0
 
@@ -32,7 +32,7 @@ material line
 
             texture_unit 
             {
-                texture line.png
+                texture line.jpg
                 tex_address_mode wrap
                 scale 1.0 1.0
                 colour_op modulate
