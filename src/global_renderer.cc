@@ -53,11 +53,22 @@ void GlobalRenderer::process(DataSet &data)
 {
     m_car_body->setPosition(data.vehicle.p.x(), data.vehicle.p.y(),
                             data.vehicle.p.z());
-
     Ogre::Quaternion q(data.vehicle.q.scalar(), data.vehicle.q.x(),
                        data.vehicle.q.y(), data.vehicle.q.z());
-
     m_car_body->setOrientation(q);
+    m_car_body->_updateBounds();
+
+    for (int i = 0; i < 4; i++)
+    {
+        qDebug() << data.wheels[i].p.x();
+        m_wheels[i]->setPosition(data.wheels[i].p.x(), data.wheels[i].p.y(),
+                                 data.wheels[i].p.z());
+        Ogre::Quaternion q(data.wheels[i].q.scalar(), data.wheels[i].q.x(),
+                           data.wheels[i].q.y(), data.wheels[i].q.z());
+        m_wheels[i]->setOrientation(q);
+        m_wheels[i]->_updateBounds();
+    }
+
 }
 
 void GlobalRenderer::attachCamToGUI(quint32 index)
@@ -99,9 +110,18 @@ void GlobalRenderer::initializeOgre()
 
     m_scene_manager->createLight("light")->setPosition(5, 10, 0);
 
-    Ogre::Entity * car_body = m_scene_manager->createEntity("car", "car_body.mesh");
+    Ogre::Entity * ent;
+
+    ent = m_scene_manager->createEntity("car", "car_body.mesh");
     m_car_body = m_scene_manager->getRootSceneNode()->createChildSceneNode();
-    m_car_body->attachObject(car_body);
+    m_car_body->attachObject(ent);
+
+    for (int i = 0; i < 4; i++)
+    {
+        m_wheels[i] = m_scene_manager->getRootSceneNode()->createChildSceneNode();
+        ent = m_scene_manager->createEntity("wheel_h.mesh");
+        m_wheels[i]->attachObject(ent);
+    }
 
     for (const Tile & tile : m_track_model->tiles())
     {

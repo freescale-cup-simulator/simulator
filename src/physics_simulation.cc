@@ -36,14 +36,14 @@ void PhysicsSimulation::process(DataSet & data)
     for (int i = 2; i < 4; i++)
     {
         dJointSetHinge2Param(m_wheels[i], dParamVel2, 50);
-        dJointSetHinge2Param(m_wheels[i], dParamFMax2, .01);
+        dJointSetHinge2Param(m_wheels[i], dParamFMax2, .001);
     }
 
     const float rad_angle = (data.current_wheel_angle / 180.0) * M_PI;
     for (int i = 0; i < 2; i++)
     {
-        dJointSetHinge2Param(m_wheels[i], dParamLoStop1, rad_angle * 5.0 - 1e-3);
-        dJointSetHinge2Param(m_wheels[i], dParamHiStop1, rad_angle * 5.0 + 1e-3);
+        dJointSetHinge2Param(m_wheels[i], dParamLoStop1, rad_angle * 1.0 - 1e-3);
+        dJointSetHinge2Param(m_wheels[i], dParamHiStop1, rad_angle * 1.0 + 1e-3);
     }
 
     dSpaceCollide(m_space, this, &PhysicsSimulation::nearCallbackWrapper);
@@ -231,10 +231,10 @@ void PhysicsSimulation::createVehicle()
             break;
         }
 
-        dJointSetHinge2Param(jid, dParamSuspensionERP, 0.5);
-        dJointSetHinge2Param(jid, dParamSuspensionCFM, 0.1);
+        dJointSetHinge2Param(jid, dParamSuspensionERP, 0.35);
+        dJointSetHinge2Param(jid, dParamSuspensionCFM, 0.075);
         m_wheels[i] = jid;
-        m_wheel_bodies[i] = id;
+        m_wheel_bodies.append(id);
     }
 
     for (int i = 2; i < 4; i++)
@@ -264,7 +264,7 @@ void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
         contacts[i].surface.slip1 = .1;
         contacts[i].surface.slip2 = .1;
         contacts[i].surface.soft_cfm = 1e-5;
-        contacts[i].surface.soft_erp = 0.4;
+        contacts[i].surface.soft_erp = 0.3;
     }
 
     int nc = dCollide(ga, gb, MAX_CONTACTS, &contacts[0].geom, sizeof(dContact));

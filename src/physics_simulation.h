@@ -70,7 +70,7 @@ private:
     dBodyID m_vehicle_body;
     dBodyID m_camera_body;
     dJointID m_wheels[4];
-    dBodyID m_wheel_bodies[4];
+    QVector<dBodyID> m_wheel_bodies;
     QVector<dGeomID> m_track_geoms;
 
     dWorldID m_world;

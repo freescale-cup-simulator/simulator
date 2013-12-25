@@ -53,7 +53,7 @@ private:
     Ogre::Root * m_root;
     QList<CameraGrabber *> m_camera_grabbers;
     Ogre::SceneNode * m_car_body;
-
+    Ogre::SceneNode * m_wheels[4];
     TrackModel * m_track_model;
     bool m_closing;
 };
