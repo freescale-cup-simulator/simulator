@@ -4,14 +4,15 @@
 #include <cmath>
 
 #include <ode/ode.h>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/mesh.h>
-#include <assimp/postprocess.h>
+
+#include <OGRE/OgreMesh.h>
+#include <OGRE/OgreSubMesh.h>
+#include <OGRE/OgreBone.h>
+#include <OGRE/OgreVertexIndexData.h>
+#include <OGRE/OgreMeshManager.h>
 
 #include <QObject>
 #include <QHash>
-#include <QDir>
 #include <QVector3D>
 #include <QPair>
 
@@ -33,23 +34,40 @@ public:
 private:
     enum StartDirection {Up = 0, Right, Down, Left};
 
-    void importModel(const QString & path, const QString & name);
+    inline void setTrimeshLastTransform(dGeomID id)
+    {
+        const dReal * pos = dGeomGetPosition(m_vehicle_geom);
+        const dReal * rot = dGeomGetRotation(m_vehicle_geom);
+        dMatrix4 transform
+        {
+            rot[0], rot[4], rot[8],  0,
+            rot[1], rot[5], rot[9],  0,
+            rot[2], rot[6], rot[10], 0,
+            pos[0], pos[1], pos[2],  1
+        };
+        dGeomTriMeshSetLastTransform(id, transform);
+    }
+
+    void importModel(const QString & mesh_name, const QString & name);
     void buildTrack();
     void createVehicle();
     void nearCallback(void *, dGeomID a, dGeomID b);
     static void nearCallbackWrapper(void * i, dGeomID a, dGeomID b);
+    void getOgreMeshData(const Ogre::Mesh * const mesh, size_t & vertex_count,
+                         float * & vertices, size_t & index_count,
+                         unsigned int * & indices);
 
-    static constexpr dReal GRAVITY_CONSTANT = -.0981;
-    static constexpr int MAX_CONTACTS = 32;
+    static constexpr dReal GRAVITY_CONSTANT = -9.81;
+    static constexpr int MAX_CONTACTS = 128;
 
     const track_library::TrackModel & m_track_model;
     const dReal * m_start_position;
-    const dReal * m_start_rotation;
+    dQuaternion m_start_rotation_q;
     StartDirection m_start_direction;
 
     dGeomID m_vehicle_geom;
     dBodyID m_vehicle_body;
-    // front left, front right, rear left, rear right
+    dBodyID m_camera_body;
     dJointID m_wheels[4];
     dBodyID m_wheel_bodies[4];
     QVector<dGeomID> m_track_geoms;
@@ -59,9 +77,7 @@ private:
     dJointGroupID m_contact_group;
     QHash<QString, dTriMeshDataID> m_trimesh_data;
 
-    QVector<QPair<float *, int *>> m_allocated_memory;
-
-    Assimp::Importer m_importer;
+    QVector<QPair<float *, unsigned int *>> m_allocated_memory;
 };
 
 #endif

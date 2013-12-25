@@ -37,7 +37,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Quick_EXECUTABLE_COMPILE_FLAGS}")
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(ODE REQUIRED ode)
-pkg_check_modules(ASSIMP REQUIRED assimp)
 
 pkg_check_modules(LUA lua)
 if(NOT LUA_FOUND) # Debuan/Ubuntu have a different naming scheme
@@ -46,7 +45,6 @@ endif()
 
 include_directories(SYSTEM
                     ${ODE_INCLUDE_DIRS}
-                    ${ASSIMP_INCLUDE_DIRS}
                     ${LUA_INCLUDE_DIRS}
 )
 
@@ -86,7 +84,7 @@ include_directories(SYSTEM
         ${OGRE_INCLUDE_DIRS}
         ${OGRE_SAMPLES_INCLUDEPATH}
         ${OIS_INCLUDE_DIRS}
-	${CMAKE_BINARY_DIR}
+        ${CMAKE_BINARY_DIR}
 )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${ODE_CFLAGS_OTHER}")
@@ -123,7 +121,6 @@ target_link_libraries(freescale_simulator
                       qmlogre
                       ${LUA_LIBRARIES}
                       ${ODE_LIBRARIES}
-                      ${ASSIMP_LIBRARIES}
                       ${OGRE_LIBRARIES}
                       ${OIS_LIBRARIES}
                       ${Boost_LIBRARIES}

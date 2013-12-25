@@ -11,8 +11,10 @@ constexpr quint32 DATASET_VERSION=0x1;
 typedef struct
 {
     QVector3D camera_position;
-    QVector3D camera_rotation;
-    QQuaternion camera_rotation_quat;
+    QQuaternion camera_rotation;
+    QVector3D vehicle_position;
+    QQuaternion vehicle_rotation;
+
     quint8 camera_pixels[CAMERA_FRAME_LEN];
     float current_wheel_angle;
     float desired_wheel_angle;

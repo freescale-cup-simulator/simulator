@@ -52,7 +52,7 @@ private:
     Ogre::SceneManager * m_scene_manager;
     Ogre::Root * m_root;
     QList<CameraGrabber *> m_camera_grabbers;
-    Ogre::SceneNode * m_ogre_head;
+    Ogre::SceneNode * m_car_body;
 
     TrackModel * m_track_model;
     bool m_closing;

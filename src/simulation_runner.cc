@@ -4,7 +4,7 @@ SimulationRunner::SimulationRunner(GlobalRenderer * renderer,QObject *parent)
     : QObject(parent)
     , m_running(false)
     , m_control_interval(0.001)
-    , m_physics_timestep(1e-3)
+    , m_physics_timestep(5e-4)
     , m_renderer(renderer)
 {
     setAutoDelete(false);

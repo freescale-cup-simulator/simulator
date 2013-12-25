@@ -1,16 +1,16 @@
-// turn genrated by blender2ogre 0.5.9
+// CarM genrated by blender2ogre 0.5.9
 
-material turn 
+material CarM 
 {
     receive_shadows on 
 
     technique
     {
-        pass turn
+        pass CarM
         {
-            ambient 1.0 1.0 1.0 1.0
-            diffuse 0.800000011920929 0.800000011920929 0.800000011920929 1.0
-            specular 0.5 0.5 0.5 1.0 12.5
+            ambient 0.800000011920929 0.800000011920929 0.800000011920929 1.0
+            diffuse 0.6400000190734865 0.6400000190734865 0.6400000190734865 1.0
+            specular 0.0 0.0 0.0 1.0 0.75
             emissive 0.0 0.0 0.0 1.0
 
             alpha_to_coverage off
@@ -32,7 +32,7 @@ material turn
 
             texture_unit 
             {
-                texture turn.png
+                texture car.png
                 tex_address_mode wrap
                 scale 1.0 1.0
                 colour_op modulate

@@ -88,7 +88,6 @@ Logger & Logger::operator <<(DataSet &dataset)
     m_stream.writeRawData((char *)dataset.camera_pixels,CAMERA_FRAME_LEN);
     m_stream<<dataset.camera_position;
     m_stream<<dataset.camera_rotation;
-    m_stream<<dataset.camera_rotation_quat;
     m_stream<<dataset.control_interval;
     m_stream<<dataset.current_wheel_angle;
     m_stream<<dataset.desired_wheel_angle;
@@ -112,7 +111,6 @@ Logger &Logger::operator >>(DataSet &dataset)
     m_stream.readRawData((char *)dataset.camera_pixels,CAMERA_FRAME_LEN);
     m_stream>>dataset.camera_position;
     m_stream>>dataset.camera_rotation;
-    m_stream>>dataset.camera_rotation_quat;
     m_stream>>dataset.control_interval;
     m_stream>>dataset.current_wheel_angle;
     m_stream>>dataset.desired_wheel_angle;
