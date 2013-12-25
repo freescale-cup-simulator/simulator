@@ -51,11 +51,11 @@ CameraGrabber *GlobalRenderer::createCameraGrabber(QSemaphore *sync)
 
 void GlobalRenderer::process(DataSet &data)
 {
-    m_car_body->setPosition(data.vehicle_position.x(), data.vehicle_position.y(),
-                            data.vehicle_position.z());
+    m_car_body->setPosition(data.vehicle.p.x(), data.vehicle.p.y(),
+                            data.vehicle.p.z());
 
-    Ogre::Quaternion q(data.vehicle_rotation.scalar(), data.vehicle_rotation.x(),
-                       data.vehicle_rotation.y(), data.vehicle_rotation.z());
+    Ogre::Quaternion q(data.vehicle.q.scalar(), data.vehicle.q.x(),
+                       data.vehicle.q.y(), data.vehicle.q.z());
 
     m_car_body->setOrientation(q);
 }

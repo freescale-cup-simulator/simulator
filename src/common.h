@@ -10,10 +10,15 @@ constexpr quint32 DATASET_VERSION=0x1;
 
 typedef struct
 {
-    QVector3D camera_position;
-    QQuaternion camera_rotation;
-    QVector3D vehicle_position;
-    QQuaternion vehicle_rotation;
+    QVector3D p;
+    QQuaternion q;
+} BodyData;
+
+typedef struct
+{
+    BodyData camera;
+    BodyData vehicle;
+    BodyData wheels[4];
 
     quint8 camera_pixels[CAMERA_FRAME_LEN];
     float current_wheel_angle;

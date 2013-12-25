@@ -55,28 +55,7 @@ void PhysicsSimulation::process(DataSet & data)
     dWorldStep(m_world, data.physics_timestep);
     dJointGroupEmpty(m_contact_group);
 
-    const dReal * position_v = dBodyGetPosition(m_vehicle_body);
-    const dReal * rotation_q = dBodyGetQuaternion(m_vehicle_body);
-
-    const dReal * camera_position_v = dBodyGetPosition(m_camera_body);
-    const dReal * camera_rotation_q = dBodyGetQuaternion(m_camera_body);
-
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wnarrowing"
-#endif
-
-    data.vehicle_position = {position_v[0], position_v[1], position_v[2]};
-    data.camera_position = {camera_position_v[0], camera_position_v[1],
-                            camera_position_v[2]};
-
-    data.vehicle_rotation = QQuaternion(rotation_q[0], rotation_q[1],
-            rotation_q[2], rotation_q[3]);
-    data.camera_rotation = QQuaternion(camera_rotation_q[0],
-            camera_rotation_q[1], camera_rotation_q[2], camera_rotation_q[3]);
-
-#ifdef __GNUC__
-#pragma GCC diagnostic warning "-Wnarrowing"
-#endif
+    updateBodyData(data);
 
 #if 0
     const dReal * q = dBodyGetQuaternion(m_wheel_bodies[3]);
@@ -411,4 +390,41 @@ void PhysicsSimulation::getOgreMeshData(const Ogre::Mesh * const mesh,
         ibuf->unlock();
         current_offset = next_offset;
     }
+}
+
+void PhysicsSimulation::updateBodyData(DataSet & d)
+{
+    const dReal * p;
+    const dReal * q;
+
+/*
+ * if ODE is built with double precision, disable "narrowing" warnings because
+ * QVector3D and QQuaternion use floats
+ */
+#if defined(__GNUC__) && defined(dDOUBLE)
+#pragma GCC diagnostic ignored "-Wnarrowing"
+#endif
+
+    p = dBodyGetPosition(m_camera_body);
+    q = dBodyGetQuaternion(m_camera_body);
+    d.camera.p = { p[0], p[1], p[2] };
+    d.camera.q = { q[0], q[1], q[2], q[3] };
+
+    p = dBodyGetPosition(m_vehicle_body);
+    q = dBodyGetQuaternion(m_vehicle_body);
+    d.vehicle.p = { p[0], p[1], p[2] };
+    d.vehicle.q = { q[0], q[1], q[2], q[3] };
+
+    for (int i = 0; i < 4; i++)
+    {
+        p = dBodyGetPosition(m_wheel_bodies[i]);
+        q = dBodyGetQuaternion(m_wheel_bodies[i]);
+
+        d.wheels[i].p = { p[0], p[1], p[2] };
+        d.wheels[i].q = { q[0], q[1], q[2], q[3] };
+    }
+
+#if defined(__GNUC__) && defined(dDOUBLE)
+#pragma GCC diagnostic warning "-Wnarrowing"
+#endif
 }

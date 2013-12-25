@@ -56,6 +56,7 @@ private:
     void getOgreMeshData(const Ogre::Mesh * const mesh, size_t & vertex_count,
                          float * & vertices, size_t & index_count,
                          unsigned int * & indices);
+    void updateBodyData(DataSet & d);
 
     static constexpr dReal GRAVITY_CONSTANT = -9.81;
     static constexpr int MAX_CONTACTS = 128;

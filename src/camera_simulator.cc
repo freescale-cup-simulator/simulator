@@ -16,11 +16,11 @@ void CameraSimulator::process(DataSet & data)
     Q_ASSERT(m_camera);
     Q_ASSERT(m_buffer);
 
-    m_camera->setPosition(data.camera_position.x(), data.camera_position.y(),
-                          data.camera_position.z());
+    m_camera->setPosition(data.camera.p.x(), data.camera.p.y(),
+                          data.camera.p.z());
 
-    Ogre::Quaternion q(data.camera_rotation.scalar(), data.camera_rotation.x(),
-                       data.camera_rotation.y(), data.camera_rotation.z());
+    Ogre::Quaternion q(data.camera.q.scalar(), data.camera.q.x(),
+                       data.camera.q.y(), data.camera.q.z());
     Ogre::Quaternion ry(Ogre::Radian(M_PI), Ogre::Vector3::UNIT_Y);
     Ogre::Quaternion rx(Ogre::Radian(-M_PI_4), Ogre::Vector3::UNIT_X);
 
