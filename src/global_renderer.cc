@@ -60,7 +60,6 @@ void GlobalRenderer::process(DataSet &data)
 
     for (int i = 0; i < 4; i++)
     {
-        qDebug() << data.wheels[i].p.x();
         m_wheels[i]->setPosition(data.wheels[i].p.x(), data.wheels[i].p.y(),
                                  data.wheels[i].p.z());
         Ogre::Quaternion q(data.wheels[i].q.scalar(), data.wheels[i].q.x(),

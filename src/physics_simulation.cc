@@ -36,7 +36,7 @@ void PhysicsSimulation::process(DataSet & data)
     for (int i = 2; i < 4; i++)
     {
         dJointSetHinge2Param(m_wheels[i], dParamVel2, 50);
-        dJointSetHinge2Param(m_wheels[i], dParamFMax2, .001);
+        dJointSetHinge2Param(m_wheels[i], dParamFMax2, .01);
     }
 
     const float rad_angle = (data.current_wheel_angle / 180.0) * M_PI;
@@ -155,7 +155,7 @@ void PhysicsSimulation::buildTrack()
 void PhysicsSimulation::createVehicle()
 {
     constexpr dReal spawn_height = 0.1;
-    constexpr dReal mass = .87;
+    constexpr dReal mass = 1.27;
 
     dBodyID id = dBodyCreate(m_world);
     dGeomID gid = dCreateTriMesh(m_space, m_trimesh_data["car"], 0, 0, 0);
@@ -205,7 +205,7 @@ void PhysicsSimulation::createVehicle()
 
         id = dBodyCreate(m_world);
         gid = dCreateSphere(m_space, radius);
-        dMassSetSphereTotal(&m, 0.2, radius);
+        dMassSetSphereTotal(&m, 0.3, radius);
         dBodySetMass(id, &m);
         dBodySetPosition(id, v[0], v[1], v[2]);
         dGeomSetBody(gid, id);
@@ -253,18 +253,36 @@ void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
     if (!ground_collision)
         return;
 
+    // FIXME: different roll angle for front/rear wheels?
+
     dContact contacts[MAX_CONTACTS];
+    const dReal * q = dBodyGetQuaternion(m_vehicle_body);
+    dReal roll_angle = dJointGetHinge2Param(m_wheels[0], dParamLoStop1);
+    QVector3D v = {0, 0, 1};
+
+    // sum angle relative to body and body around to Y axis
+    roll_angle += std::asin(2 * (q[0]*q[2] - q[3]*q[1]));
+    // convert to degrees for QQuaternion
+    roll_angle = (roll_angle / M_PI) * 180.0;
+
+    QQuaternion qv = QQuaternion::fromAxisAndAngle(0, 1, 0, roll_angle);
+    v = qv.rotatedVector(v);
+
+//    qDebug() << "vector: " << v;
 
     for (int i = 0; i < MAX_CONTACTS; i++)
     {
+
         contacts[i].surface.mode = dContactSoftCFM | dContactSoftERP
-                | dContactSlip1 | dContactSlip2;
+                | dContactSlip1 | dContactSlip2 | dContactFDir1;
         contacts[i].surface.mu = dInfinity;
-        contacts[i].surface.mu2 = 0;
-        contacts[i].surface.slip1 = .1;
-        contacts[i].surface.slip2 = .1;
-        contacts[i].surface.soft_cfm = 1e-5;
-        contacts[i].surface.soft_erp = 0.3;
+        contacts[i].surface.soft_cfm = 5e-5;
+        contacts[i].surface.soft_erp = 0.5;
+        contacts[i].fdir1[0] = v.x();
+        contacts[i].fdir1[1] = v.y();
+        contacts[i].fdir1[2] = v.z();
+        contacts[i].surface.slip1 = 0;
+        contacts[i].surface.slip2 = .0002;
     }
 
     int nc = dCollide(ga, gb, MAX_CONTACTS, &contacts[0].geom, sizeof(dContact));

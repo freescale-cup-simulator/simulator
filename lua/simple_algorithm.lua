@@ -57,7 +57,6 @@ function run()
         else
                 angle = last_turn_angle
 	end
-                print("a = " .. angle)
 
 	local signals = {}
 	signals["angle"] = angle * 45;
