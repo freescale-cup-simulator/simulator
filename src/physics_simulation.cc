@@ -35,8 +35,8 @@ void PhysicsSimulation::process(DataSet & data)
 {
     for (int i = 2; i < 4; i++)
     {
-        dJointSetHinge2Param(m_wheels[i], dParamVel2, 50);
-        dJointSetHinge2Param(m_wheels[i], dParamFMax2, .01);
+        dJointSetHinge2Param(m_wheels[i], dParamVel2, 25);
+        dJointSetHinge2Param(m_wheels[i], dParamFMax2, .001);
     }
 
     const float rad_angle = (data.current_wheel_angle / 180.0) * M_PI;
@@ -253,12 +253,24 @@ void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
     if (!ground_collision)
         return;
 
-    // FIXME: different roll angle for front/rear wheels?
-
-    dContact contacts[MAX_CONTACTS];
     const dReal * q = dBodyGetQuaternion(m_vehicle_body);
-    dReal roll_angle = dJointGetHinge2Param(m_wheels[0], dParamLoStop1);
+    dContact contacts[MAX_CONTACTS];
+    dReal roll_angle;
     QVector3D v = {0, 0, 1};
+    int wheel_index;
+
+    dBodyID ba = dGeomGetBody(ga), bb = dGeomGetBody(gb);
+
+    if (m_wheel_bodies.contains(ba))
+        wheel_index = m_wheel_bodies.indexOf(ba);
+    else
+        wheel_index = m_wheel_bodies.indexOf(bb);
+
+    // rear wheels do not rotate relative to chasis
+    if (wheel_index > 1)
+        roll_angle = 0;
+    else
+        roll_angle = dJointGetHinge2Param(m_wheels[0], dParamLoStop1);
 
     // sum angle relative to body and body around to Y axis
     roll_angle += std::asin(2 * (q[0]*q[2] - q[3]*q[1]));
@@ -268,7 +280,7 @@ void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
     QQuaternion qv = QQuaternion::fromAxisAndAngle(0, 1, 0, roll_angle);
     v = qv.rotatedVector(v);
 
-//    qDebug() << "vector: " << v;
+    qDebug() << v;
 
     for (int i = 0; i < MAX_CONTACTS; i++)
     {

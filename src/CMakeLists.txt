@@ -35,20 +35,34 @@ set(qrc
 find_package(Qt5Quick REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Quick_EXECUTABLE_COMPILE_FLAGS}")
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(ODE REQUIRED ode)
-
-pkg_check_modules(LUA lua)
-if(NOT LUA_FOUND) # Debuan/Ubuntu have a different naming scheme
-  pkg_check_modules(LUA lua5.2 REQUIRED)
-endif()
-
-include_directories(SYSTEM
-                    ${ODE_INCLUDE_DIRS}
-                    ${LUA_INCLUDE_DIRS}
+include(ExternalProject)
+ExternalProject_Add(
+  ODE
+  URL ${CMAKE_CURRENT_SOURCE_DIR}/deps/ode-0.12.tar.bz2
+  URL_MD5 48fdd41fae1a7e7831feeded09826599
+  BUILD_IN_SOURCE 1
+  CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --enable-static
+    --disable-shared --enable-double-precision --with-trimesh=gimpact
+    --disable-demos --with-drawstuff=none --enable-libccd
+  BUILD_COMMAND make
+  INSTALL_COMMAND make install
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ODE_CFLAGS_OTHER}")
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LUA lua)
+if(NOT LUA_FOUND) # Debuan/Ubuntu have a different naming scheme
+  pkg_check_modules(LUA REQUIRED lua5.2 )
+endif()
+
+ExternalProject_Get_Property(ODE INSTALL_DIR)
+
+include_directories(SYSTEM
+                    ${LUA_INCLUDE_DIRS}
+                    ${INSTALL_DIR}/include
+)
+
+link_directories(${INSTALL_DIR}/lib/)
+add_definitions(-DdDOUBLE)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug CACHE STRING
@@ -87,9 +101,6 @@ include_directories(SYSTEM
         ${CMAKE_BINARY_DIR}
 )
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${ODE_CFLAGS_OTHER}")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${ODE_CFLAGS_OTHER}")
-
 add_subdirectory(libtrack EXCLUDE_FROM_ALL)
 include_directories(libtrack
                     ${CMAKE_BINARY_DIR}/libtrack/)
@@ -115,12 +126,13 @@ add_executable(freescale_simulator
                ${RC_SRCS}
 )
 
+
 set_target_properties(freescale_simulator PROPERTIES AUTOMOC TRUE)
 target_link_libraries(freescale_simulator
                       track
                       qmlogre
+                      ode
                       ${LUA_LIBRARIES}
-                      ${ODE_LIBRARIES}
                       ${OGRE_LIBRARIES}
                       ${OIS_LIBRARIES}
                       ${Boost_LIBRARIES}
