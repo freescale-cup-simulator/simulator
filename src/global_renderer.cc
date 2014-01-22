@@ -82,7 +82,6 @@ void GlobalRenderer::initializeOgre()
     m_scene_manager = m_root->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
     m_scene_manager->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
     m_scene_manager->setAmbientLight(Ogre::ColourValue(255, 255, 255));
-    m_scene_manager->createLight("light")->setPosition(5, 10, 0);
     Ogre::Camera * camera = m_scene_manager->createCamera("user_camera");
     camera->setNearClipDistance(1e-3);
     camera->setFarClipDistance(1e3);

@@ -9,9 +9,7 @@ material line
         pass line
         {
             ambient 1.0 1.0 1.0 1.0
-            diffuse 0.800000011920929 0.800000011920929 0.800000011920929 1.0
-            specular 0.0 0.0 0.0 1.0 1.25
-            emissive 0.0 0.0 0.0 1.0
+            
 
             alpha_to_coverage off
             colour_write on
