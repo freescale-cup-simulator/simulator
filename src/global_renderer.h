@@ -14,6 +14,7 @@
 #include <config.h>
 #include <common.h>
 #include <track_model.h>
+#include <QMutex>
 
 using namespace track_library;
 
@@ -41,6 +42,7 @@ public slots:
     void initializeOgre();
     void addContent();
     void onStatusChanged(QQuickView::Status status);
+    void updateScene();
 
 protected:
     bool event(QEvent *event);
@@ -55,6 +57,8 @@ private:
     Ogre::SceneNode * m_car_body;
     Ogre::SceneNode * m_wheels[4];
     TrackModel * m_track_model;
+    DataSet m_local_dataset;
+    QMutex m_local_dataset_locker;
     bool m_closing;
 };
 

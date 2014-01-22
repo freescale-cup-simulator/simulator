@@ -51,23 +51,9 @@ CameraGrabber *GlobalRenderer::createCameraGrabber(QSemaphore *sync)
 
 void GlobalRenderer::process(DataSet &data)
 {
-    m_car_body->setPosition(data.vehicle.p.x(), data.vehicle.p.y(),
-                            data.vehicle.p.z());
-    Ogre::Quaternion q(data.vehicle.q.scalar(), data.vehicle.q.x(),
-                       data.vehicle.q.y(), data.vehicle.q.z());
-    m_car_body->setOrientation(q);
-    m_car_body->_updateBounds();
-
-    for (int i = 0; i < 4; i++)
-    {
-        m_wheels[i]->setPosition(data.wheels[i].p.x(), data.wheels[i].p.y(),
-                                 data.wheels[i].p.z());
-        Ogre::Quaternion q(data.wheels[i].q.scalar(), data.wheels[i].q.x(),
-                           data.wheels[i].q.y(), data.wheels[i].q.z());
-        m_wheels[i]->setOrientation(q);
-        m_wheels[i]->_updateBounds();
-    }
-
+    m_local_dataset_locker.tryLock();
+    m_local_dataset=data;
+    m_local_dataset_locker.unlock();
 }
 
 void GlobalRenderer::attachCamToGUI(quint32 index)
@@ -87,13 +73,16 @@ void GlobalRenderer::initializeOgre()
     m_ogre_engine=new OgreEngine(this);
     m_root=m_ogre_engine->startEngine(RESOURCE_DIRECTORY "plugins.cfg");
 
+    m_ogre_engine->activateOgreContext();
     Ogre::ResourceGroupManager & rm = Ogre::ResourceGroupManager::getSingleton();
     rm.addResourceLocation(RESOURCE_DIRECTORY "materials", "FileSystem");
     rm.addResourceLocation(RESOURCE_DIRECTORY "meshes", "FileSystem");
     rm.initialiseAllResourceGroups();
 
     m_scene_manager = m_root->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
-
+    m_scene_manager->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
+    m_scene_manager->setAmbientLight(Ogre::ColourValue(255, 255, 255));
+    m_scene_manager->createLight("light")->setPosition(5, 10, 0);
     Ogre::Camera * camera = m_scene_manager->createCamera("user_camera");
     camera->setNearClipDistance(1e-3);
     camera->setFarClipDistance(1e3);
@@ -104,10 +93,6 @@ void GlobalRenderer::initializeOgre()
     m_camera_controller=new OgreBites::SdkCameraMan(camera);
     m_camera_controller->setTopSpeed(10);
     m_user_camera=new Camera(camera,m_camera_controller);
-
-    m_ogre_engine->activateOgreContext();
-
-    m_scene_manager->createLight("light")->setPosition(5, 10, 0);
 
     Ogre::Entity * ent;
 
@@ -154,6 +139,9 @@ void GlobalRenderer::initializeOgre()
     }
 
     m_ogre_engine->doneOgreContext();
+
+    connect(this,&GlobalRenderer::beforeRendering,this,&GlobalRenderer::updateScene);
+
     emit ogreInitialized();
 }
 
@@ -187,5 +175,30 @@ bool GlobalRenderer::event(QEvent *event)
         return false;
     }
     return QWindow::event(event);
+}
+
+void GlobalRenderer::updateScene()
+{
+    m_local_dataset_locker.lock();
+    m_ogre_engine->activateOgreContext();
+
+    m_car_body->setPosition(m_local_dataset.vehicle.p.x(), m_local_dataset.vehicle.p.y(),
+                            m_local_dataset.vehicle.p.z());
+    Ogre::Quaternion q(m_local_dataset.vehicle.q.scalar(), m_local_dataset.vehicle.q.x(),
+                       m_local_dataset.vehicle.q.y(), m_local_dataset.vehicle.q.z());
+    m_car_body->setOrientation(q);
+    m_car_body->_updateBounds();
+
+    for (int i = 0; i < 4; i++)
+    {
+        m_wheels[i]->setPosition(m_local_dataset.wheels[i].p.x(), m_local_dataset.wheels[i].p.y(),
+                                 m_local_dataset.wheels[i].p.z());
+        Ogre::Quaternion q(m_local_dataset.wheels[i].q.scalar(), m_local_dataset.wheels[i].q.x(),
+                           m_local_dataset.wheels[i].q.y(), m_local_dataset.wheels[i].q.z());
+        m_wheels[i]->setOrientation(q);
+        m_wheels[i]->_updateBounds();
+    }
+    m_ogre_engine->doneOgreContext();
+    m_local_dataset_locker.unlock();
 }
 
