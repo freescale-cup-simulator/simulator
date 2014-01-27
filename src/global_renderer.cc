@@ -179,7 +179,8 @@ bool GlobalRenderer::event(QEvent *event)
 void GlobalRenderer::updateScene()
 {
     m_local_dataset_locker.lock();
-    m_ogre_engine->activateOgreContext();
+// FIXME: crashes?
+//    m_ogre_engine->activateOgreContext();
 
     m_car_body->setPosition(m_local_dataset.vehicle.p.x(), m_local_dataset.vehicle.p.y(),
                             m_local_dataset.vehicle.p.z());
@@ -197,7 +198,7 @@ void GlobalRenderer::updateScene()
         m_wheels[i]->setOrientation(q);
         m_wheels[i]->_updateBounds();
     }
-    m_ogre_engine->doneOgreContext();
+//    m_ogre_engine->doneOgreContext();
     m_local_dataset_locker.unlock();
 }
 
