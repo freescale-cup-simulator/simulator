@@ -139,7 +139,7 @@ void GlobalRenderer::initializeOgre()
 
     m_ogre_engine->doneOgreContext();
 
-    connect(this,&GlobalRenderer::beforeRendering,this,&GlobalRenderer::updateScene);
+    connect(this,&GlobalRenderer::beforeRendering,this,&GlobalRenderer::updateScene,Qt::DirectConnection);
 
     emit ogreInitialized();
 }
@@ -179,8 +179,7 @@ bool GlobalRenderer::event(QEvent *event)
 void GlobalRenderer::updateScene()
 {
     m_local_dataset_locker.lock();
-// FIXME: crashes?
-//    m_ogre_engine->activateOgreContext();
+    m_ogre_engine->activateOgreContext();
 
     m_car_body->setPosition(m_local_dataset.vehicle.p.x(), m_local_dataset.vehicle.p.y(),
                             m_local_dataset.vehicle.p.z());
@@ -198,7 +197,7 @@ void GlobalRenderer::updateScene()
         m_wheels[i]->setOrientation(q);
         m_wheels[i]->_updateBounds();
     }
-//    m_ogre_engine->doneOgreContext();
+    m_ogre_engine->doneOgreContext();
     m_local_dataset_locker.unlock();
 }
 
