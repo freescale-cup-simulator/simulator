@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/qml">
         <file>ui.qml</file>
+	<file>gui.qml</file>
+	<file>gui/GUI/MenuStrip.qml</file>
+	<file>gui/GUI/qmldir</file>
     </qresource>
 </RCC>

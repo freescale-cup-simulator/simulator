@@ -1,21 +1,43 @@
 #include <global_renderer.h>
 
 GlobalRenderer::GlobalRenderer(QWindow *parent)
-    : QQuickView(parent)
+    : QQmlApplicationEngine(parent)
     , m_user_camera(0)
     , m_camera_controller(0)
     , m_ogre_engine(0)
     , m_root(0)
     , m_track_model(0)
     , m_closing(false)
+    , m_root_window(nullptr)
 {
-    connect(this, &GlobalRenderer::beforeRendering, this, &GlobalRenderer::initializeOgre, Qt::DirectConnection);
-    connect(this, &GlobalRenderer::ogreInitialized, this, &GlobalRenderer::addContent);
-    connect(this,&GlobalRenderer::statusChanged,this,&GlobalRenderer::onStatusChanged);
-    //connect(this,&GlobalRenderer::afterRendering,this,&GlobalRenderer::onFrameSwapped);
-    qmlRegisterType<CameraGrabber>("CameraGrabber", 1, 0, "CameraGrabber");
-    //qmlRegisterType<Camera>("Camera", 1, 0, "Camera");
-    //qmlRegisterType<SharedImage>("SharedImage",1,0,"SharedImage");
+    qmlRegisterType<CameraGrabber>("OgreTypes", 1, 0, "CameraGrabber");
+    qmlRegisterType<GlobalRenderer>("OgreTypes", 1, 0, "GlobalRenderer");
+    qmlRegisterType<OgreEngine>("OgreTypes", 1, 0, "OgreEngine");
+
+    addImportPath(":/qml/gui/");
+    addImportPath(":/qml/");
+    rootContext()->setContextProperty("globalRenderer", this);
+    load(QUrl("qrc:/qml/gui.qml"));
+
+    m_root_window = qobject_cast<QQuickWindow *>(rootObjects().at(0));
+    Q_ASSERT(m_root_window->objectName() == "rootWindow");
+
+    connect(m_root_window, &QQuickWindow::beforeRendering, this, &GlobalRenderer::initializeOgre, Qt::DirectConnection);
+    connect(this, &GlobalRenderer::ogreInitialized, this, &GlobalRenderer::setContextObjects);
+
+    //connect(this, &GlobalRenderer::beforeRendering, this, &GlobalRenderer::initializeOgre, Qt::DirectConnection);
+    //connect(this, &GlobalRenderer::ogreInitialized, this, &GlobalRenderer::addContent);
+    //connect(this,&GlobalRenderer::statusChanged,this,&GlobalRenderer::onStatusChanged);
+
+}
+
+void GlobalRenderer::setContextObjects()
+{
+    rootContext()->setContextProperty("rootWindow", m_root_window);
+    rootContext()->setContextProperty("userCamera", m_user_camera);
+    rootContext()->setContextProperty("ogreEngineInstance", m_ogre_engine);
+    qDebug() << "done";
+    emit contextObjectsSet();
 }
 
 GlobalRenderer::~GlobalRenderer()
@@ -36,12 +58,12 @@ CameraGrabber *GlobalRenderer::createCameraGrabber(QSemaphore *sync)
     Ogre::Camera * camera=m_scene_manager->createCamera(camera_name.toStdString().c_str());
     camera->setNearClipDistance(0.1);
     camera->setFarClipDistance(99999);
-    camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
+    camera->setAspectRatio(Ogre::Real(m_root_window->width()) / Ogre::Real(m_root_window->height()));
     SharedImage * buffer=new SharedImage(sync);
     Camera * cameraObject=new Camera(camera);
     CameraGrabber * grabber=new CameraGrabber(m_ogre_engine,cameraObject,buffer);
     m_camera_grabbers<< grabber;
-    grabber->setParentItem(this->rootObject());
+    grabber->setParentItem(m_root_window->findChild<QQuickItem *>("camViewContainer"));
     grabber->setWidth(grabber->parentItem()->width());
     grabber->setHeight(grabber->parentItem()->height());
     grabber->setPosition(QPointF(-grabber->parentItem()->width(),0));
@@ -60,7 +82,7 @@ void GlobalRenderer::attachCamToGUI(quint32 index)
 {
     CameraGrabber * grabber=m_camera_grabbers.at(index);
     Q_ASSERT(grabber);
-    QObject * viewGrabber=this->rootObject()->findChild<QQuickItem *>("camViewContainer")->findChild<QObject *>("camView");
+    QObject * viewGrabber=m_root_window->findChild<QQuickItem *>("camViewContainer")->findChild<QObject *>("camView");
     Q_ASSERT(viewGrabber);
     qobject_cast<CameraGrabber *>(viewGrabber)->setCamera(grabber->camera());
 }
@@ -68,9 +90,8 @@ void GlobalRenderer::attachCamToGUI(quint32 index)
 void GlobalRenderer::initializeOgre()
 {
     Q_ASSERT(m_track_model);
-    disconnect(this, &GlobalRenderer::beforeRendering, this,
-               &GlobalRenderer::initializeOgre);
-    m_ogre_engine=new OgreEngine(this);
+    disconnect(m_root_window, &QQuickWindow::beforeRendering, this, &GlobalRenderer::initializeOgre);
+    m_ogre_engine=new OgreEngine(m_root_window);
     m_root=m_ogre_engine->startEngine(RESOURCE_DIRECTORY "plugins.cfg");
 
     m_ogre_engine->activateOgreContext();
@@ -85,7 +106,7 @@ void GlobalRenderer::initializeOgre()
     Ogre::Camera * camera = m_scene_manager->createCamera("user_camera");
     camera->setNearClipDistance(1e-3);
     camera->setFarClipDistance(1e3);
-    camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
+    camera->setAspectRatio(Ogre::Real(m_root_window->width()) / Ogre::Real(m_root_window->height()));
     camera->setPosition(0, 5, 0);
     camera->setOrientation(Ogre::Quaternion(Ogre::Radian(Ogre::Degree(-90)),
                                             Ogre::Vector3::UNIT_X));
@@ -139,29 +160,17 @@ void GlobalRenderer::initializeOgre()
 
     m_ogre_engine->doneOgreContext();
 
-    connect(this,&GlobalRenderer::beforeRendering,this,&GlobalRenderer::updateScene);
+    connect(m_root_window, &QQuickWindow::beforeRendering,this,&GlobalRenderer::updateScene,Qt::DirectConnection);
 
     emit ogreInitialized();
 }
 
-void GlobalRenderer::addContent()
-{
-    // expose objects as QML globals
-    rootContext()->setContextProperty("Window", this);
-    rootContext()->setContextProperty("Camera", m_user_camera);
-    rootContext()->setContextProperty("OgreEngine", m_ogre_engine);
-
-    // load the QML scene
-    setResizeMode(QQuickView::SizeRootObjectToView);
-    setSource(QUrl("qrc:/qml/ui.qml"));
-}
-
 void GlobalRenderer::onStatusChanged(QQuickView::Status status)
 {
-    disconnect(this, &GlobalRenderer::statusChanged, this,
+    /*disconnect(m_root_window, &QQuickWindow::statusChanged, this,
                &GlobalRenderer::onStatusChanged);
     if(status==QQuickView::Ready)
-        emit startSimulation();
+        emit startSimulation();*/
 }
 
 bool GlobalRenderer::event(QEvent *event)
@@ -173,7 +182,7 @@ bool GlobalRenderer::event(QEvent *event)
         event->ignore();
         return false;
     }
-    return QWindow::event(event);
+    return QQmlEngine::event(event);
 }
 
 void GlobalRenderer::updateScene()

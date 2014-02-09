@@ -19,9 +19,7 @@ int main(int argc, char * argv[])
     track_library::TrackModel * track=sr.loadTrack(RESOURCE_DIRECTORY "tracks/simple-circle.xml");
 
     view.setTrackModel(track);
-    view.resize(800,600);
-    view.show();
-    view.raise();
+
     SimulationRunner * sr_ptr=&sr;
     application.connect(&view, &GlobalRenderer::startSimulation, [sr_ptr]() {
         qDebug()<<"Starting simulation...";

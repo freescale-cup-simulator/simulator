@@ -9,7 +9,7 @@ SimulationRunner::SimulationRunner(GlobalRenderer * renderer,QObject *parent)
 {
     setAutoDelete(false);
     connect(m_renderer,&GlobalRenderer::queryExit,this,&SimulationRunner::stop);
-    connect(this,&SimulationRunner::simulationStopped,m_renderer,&GlobalRenderer::close);
+    //connect(this,&SimulationRunner::simulationStopped,m_renderer,&GlobalRenderer::close);
 }
 
 bool SimulationRunner::loadAlgorithmFile(const QString &file)

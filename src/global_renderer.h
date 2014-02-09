@@ -6,6 +6,9 @@
 #include <QtQuick/QQuickView>
 #include <QSemaphore>
 #include <QList>
+#include <QQuickWindow>
+#include <QQmlApplicationEngine>
+#include <QUrl>
 
 #include <ogre_engine.h>
 #include <camera_grabber.h>
@@ -18,7 +21,7 @@
 
 using namespace track_library;
 
-class GlobalRenderer : public QQuickView
+class GlobalRenderer : public QQmlApplicationEngine
 {
     Q_OBJECT
 
@@ -36,13 +39,16 @@ signals:
     void startSimulation();
     void ogreInitialized();
     void queryExit();
+    void contextObjectsSet();
 
 public slots:
 
     void initializeOgre();
-    void addContent();
     void onStatusChanged(QQuickView::Status status);
     void updateScene();
+
+private slots:
+    void setContextObjects();
 
 protected:
     bool event(QEvent *event);
@@ -60,6 +66,7 @@ private:
     DataSet m_local_dataset;
     QMutex m_local_dataset_locker;
     bool m_closing;
+    QQuickWindow * m_root_window;
 };
 
 #endif
