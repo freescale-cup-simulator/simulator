@@ -28,8 +28,11 @@ bool ControlAlgorithm::loadFile(const QString &file)
     lua_pushvalue(m_lua_state, -1);
     lua_pcall(m_lua_state, 0, 0, 0);
 
-    lua_pushnumber(m_lua_state, m_interval);
-    lua_setglobal(m_lua_state, "g_run_interval");
+    QFileInfo file_info(file);
+    m_current_file = file_info.baseName();
+
+    lua_pushnumber(m_lua_state, 0);
+    lua_setglobal(m_lua_state, "g_world_time");
 
     qDebug() << "Script successfully loaded";
     return true;
@@ -37,7 +40,7 @@ bool ControlAlgorithm::loadFile(const QString &file)
 
 QString ControlAlgorithm::getId()
 {
-    return "Lua Control algoritgm (file: " + m_current_file + ")";
+    return m_current_file;
 }
 
 void ControlAlgorithm::process(DataSet & d)

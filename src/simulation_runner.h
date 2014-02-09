@@ -5,7 +5,7 @@
 #include <QRunnable>
 #include <QThread>
 #include <QSemaphore>
-#include <QFileInfo>
+#include <QDateTime>
 
 #include <global_renderer.h>
 #include <control_algorithm.h>

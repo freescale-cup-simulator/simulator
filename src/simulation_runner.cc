@@ -3,8 +3,8 @@
 SimulationRunner::SimulationRunner(GlobalRenderer * renderer,QObject *parent)
     : QObject(parent)
     , m_running(false)
-    , m_control_interval(0.001)
-    , m_physics_timestep(5e-4)
+    , m_control_interval(0.01)
+    , m_physics_timestep(0.001)
     , m_renderer(renderer)
 {
     setAutoDelete(false);
@@ -24,8 +24,9 @@ bool SimulationRunner::loadAlgorithmFile(const QString &file)
         return false;
     }
 
-    QFileInfo info(file);
-    m_logger.setFileName(info.baseName() + ".dat");
+    m_logger.setFileName(ca->getId() + "_"
+                         + QDateTime::currentDateTime().toString("hhmmssddMMyyyy")
+                         + ".dat");
 
     m_control_algorithm = QSharedPointer<ControlAlgorithm>(ca);
     return true;

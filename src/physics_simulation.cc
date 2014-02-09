@@ -274,8 +274,6 @@ void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
     QVector3D v = {0, 0, 1};
     v = body.rotatedVector(v);
 
-    qDebug() << v;
-
     for (int i = 0; i < MAX_CONTACTS; i++)
     {
         contacts[i].surface.mode = dContactSoftCFM | dContactSoftERP
