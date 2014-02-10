@@ -8,6 +8,7 @@ GlobalRenderer::GlobalRenderer(QWindow *parent)
     , m_root(0)
     , m_track_model(0)
     , m_closing(false)
+    , m_camera_simulator(0)
 {
     connect(this, &GlobalRenderer::beforeRendering, this, &GlobalRenderer::initializeOgre, Qt::DirectConnection);
     connect(this, &GlobalRenderer::ogreInitialized, this, &GlobalRenderer::addContent);
@@ -65,6 +66,16 @@ void GlobalRenderer::attachCamToGUI(quint32 index)
     qobject_cast<CameraGrabber *>(viewGrabber)->setCamera(grabber->camera());
 }
 
+OgreEngine *GlobalRenderer::getOgreEngine()
+{
+    return m_ogre_engine;
+}
+
+Ogre::SceneManager *GlobalRenderer::getSceneManager()
+{
+    return m_scene_manager;
+}
+
 void GlobalRenderer::initializeOgre()
 {
     Q_ASSERT(m_track_model);
@@ -92,7 +103,6 @@ void GlobalRenderer::initializeOgre()
     m_camera_controller=new OgreBites::SdkCameraMan(camera);
     m_camera_controller->setTopSpeed(10);
     m_user_camera=new Camera(camera,m_camera_controller);
-
     Ogre::Entity * ent;
 
     ent = m_scene_manager->createEntity("car", "car_body.mesh");

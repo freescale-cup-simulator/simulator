@@ -14,9 +14,12 @@
 #include <config.h>
 #include <common.h>
 #include <track_model.h>
+#include <camera_simulator.h>
 #include <QMutex>
 
 using namespace track_library;
+
+class CameraSimulator;
 
 class GlobalRenderer : public QQuickView
 {
@@ -31,6 +34,8 @@ public:
     CameraGrabber * createCameraGrabber(QSemaphore * sync);
     void process(DataSet & data);
     void attachCamToGUI(quint32 index);
+    OgreEngine * getOgreEngine();
+    Ogre::SceneManager * getSceneManager();
 
 signals:
     void startSimulation();
@@ -60,6 +65,7 @@ private:
     DataSet m_local_dataset;
     QMutex m_local_dataset_locker;
     bool m_closing;
+    CameraSimulator * m_camera_simulator;
 };
 
 #endif

@@ -58,11 +58,12 @@ void SimulationRunner::run()
         qWarning("Control algorithm not loaded, will not run");
         return;
     }
-    CameraGrabber * camGrab=m_renderer->createCameraGrabber(&m_cameras_syncronizator);
+    /*CameraGrabber * camGrab=m_renderer->createCameraGrabber(&m_cameras_syncronizator);
     Camera * cameraObj=qobject_cast<Camera *>(camGrab->camera());
-    SharedImage * shBuffer=qobject_cast<SharedImage *>(camGrab->sharedImage());
+    SharedImage * shBuffer=qobject_cast<SharedImage *>(camGrab->sharedImage());*/
 
-    auto cs = new CameraSimulator(cameraObj->get(),shBuffer);
+    auto cs = new CameraSimulator(m_renderer);
+
     auto ps = new PhysicsSimulation(m_track_model);
     auto vm = new VehicleModel;
     m_camera_simulator = QSharedPointer<CameraSimulator>(cs);
@@ -79,7 +80,7 @@ void SimulationRunner::run()
     dataset.control_interval = m_control_interval;
     dataset.line_position=64;
 
-    m_cameras_syncronizator.acquire(VIRTUAL_CAMERAS_COUNT);
+    //m_cameras_syncronizator.acquire(VIRTUAL_CAMERAS_COUNT);
 
     Q_ASSERT(m_logger.beginWrite());
     while (m_running)
