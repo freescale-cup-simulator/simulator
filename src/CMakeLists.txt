@@ -32,7 +32,7 @@ set(qrc
     ${CMAKE_SOURCE_DIR}/../resources/resources.qrc
 )
 
-find_package(Qt5Quick REQUIRED)
+find_package(Qt5Quick REQUIRED Qt5Quick5.2.1)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Quick_EXECUTABLE_COMPILE_FLAGS}")
 
 include(ExternalProject)
