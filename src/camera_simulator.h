@@ -32,10 +32,9 @@ public:
 private slots:
     void onUpdate();
 private:
-
+    OgreEngine * m_engine;
     Ogre::RenderTexture * m_renderTarget;
     Ogre::Camera * m_camera;
-    OgreEngine * m_engine;
     quint8 * m_frame;
     QMutex m_frame_locker;
 };

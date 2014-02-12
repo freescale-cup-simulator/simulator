@@ -2,9 +2,9 @@
 
 CameraSimulator::CameraSimulator(GlobalRenderer * renderer, QObject *parent)
     : QObject(parent)
-    , m_camera(0)
     , m_engine(renderer->getOgreEngine())
     , m_renderTarget(0)
+    , m_camera(0)
 {
     m_camera=renderer->getSceneManager()->createCamera("CS_0");
     m_camera->setNearClipDistance(0.1);
@@ -12,6 +12,8 @@ CameraSimulator::CameraSimulator(GlobalRenderer * renderer, QObject *parent)
     m_camera->setAspectRatio(1);
     m_frame=new quint8[CAMERA_FRAME_LEN];
     memset(m_frame,0,CAMERA_FRAME_LEN);
+
+    // Qt::DirectConnection will run CameraSimulator::onUpdate in QML Rendering Thread
     connect(renderer,&GlobalRenderer::beforeRendering,this,&CameraSimulator::onUpdate,Qt::DirectConnection);
 }
 
