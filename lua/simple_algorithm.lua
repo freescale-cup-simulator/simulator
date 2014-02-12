@@ -1,8 +1,9 @@
+local pid = pid or require "pid"
+
 last_turn_angle = last_turn_angle or 0
 last_lCenter = last_lCenter or 999
 last_lWidth = last_lWidth or 999
 lCenter = lCenter or 0
-
 
 -- g_camera_frame is not set when Lua does a compile run
 if g_camera_frame then
@@ -85,38 +86,37 @@ function process_camera(camera_array)
 end
 
 function run()
-    -- print_array(g_camera_frame)
     local center = process_camera(g_camera_frame)
+    local angle = 0
 
-    -- print(center)
-
-    if center ~= -1 then
-        center = center - 64
-        last_turn_angle = center
+    if center == -1 then
+        angle = last_turn_angle
     else
-        center = last_turn_angle
+        -- angle = center - 64 
+        angle = pid.run(63, center)
+        last_turn_angle = angle
     end
 
 	local signals = {}
-	signals["angle"] = center
-	signals["lspeed"] = (1 - (math.abs(center) / 45)) * 10
+	signals["angle"] = angle
+	signals["lspeed"] = (1 - (math.abs(angle) / 45)) * 10
 	signals["rspeed"] = signals["lspeed"]
 	signals["linepos"] = center
 	return signals
 end
 
 function print_array(a)
-        local p
+    local p
 	for _,v in pairs(a) do
-	p = v
+        p = v
         if type(v) == "boolean" then
-                if p then
-                        p = 1
-                else
-                        p = 0
-                end
+            if p then
+                p = 1
+            else
+                p = 0
+            end
         end
-                io.write(p .. " ")
+        io.write(p .. " ")
 	end
 	print()
 end

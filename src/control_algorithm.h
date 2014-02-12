@@ -7,6 +7,7 @@
 
 #include <lua.hpp>
 #include <common.h>
+#include <config.h>
 
 class ControlAlgorithm : public QObject
 {
@@ -19,6 +20,8 @@ public:
     QString getId();
     void process(DataSet & data);
 private:
+    void appendToLuaPath(const QString &path);
+
     lua_State * m_lua_state;
     QString m_current_file;
     bool m_lua_loaded;
