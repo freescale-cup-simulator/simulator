@@ -9,8 +9,8 @@ import GUI 1.0
 ApplicationWindow {
     objectName: "rootWindow"
     title: qsTr("Freescale cup simulator")
-    minimumWidth: 1024
-    minimumHeight: 768
+    minimumWidth: 800
+    minimumHeight: 600
     visible: true
     menuBar: MenuStrip { id: menuStrip}
 
@@ -124,7 +124,7 @@ ApplicationWindow {
                     onReleased: { prevX = -1; prevY = -1 }
                 }
 
-                Rectangle {
+                /*Rectangle {
                     id: camViewContainer
                     objectName: "camViewContainer"
 
@@ -161,7 +161,7 @@ ApplicationWindow {
                         height: 128
                     }
 
-                }
+                }*/
 
             }
         }
