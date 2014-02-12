@@ -8,6 +8,7 @@ GlobalRenderer::GlobalRenderer(QWindow *parent)
     , m_root(0)
     , m_track_model(0)
     , m_closing(false)
+    , m_camera_simulator(0)
 {
     connect(this, &GlobalRenderer::beforeRendering, this, &GlobalRenderer::initializeOgre, Qt::DirectConnection);
     connect(this, &GlobalRenderer::ogreInitialized, this, &GlobalRenderer::addContent);
@@ -29,26 +30,6 @@ void GlobalRenderer::setTrackModel(TrackModel *model)
     m_track_model=model;
 }
 
-CameraGrabber *GlobalRenderer::createCameraGrabber(QSemaphore *sync)
-{
-    QString camera_name="CS_";
-    camera_name.append(QString::number(m_camera_grabbers.size()));
-    Ogre::Camera * camera=m_scene_manager->createCamera(camera_name.toStdString().c_str());
-    camera->setNearClipDistance(0.1);
-    camera->setFarClipDistance(99999);
-    camera->setAspectRatio(Ogre::Real(width()) / Ogre::Real(height()));
-    SharedImage * buffer=new SharedImage(sync);
-    Camera * cameraObject=new Camera(camera);
-    CameraGrabber * grabber=new CameraGrabber(m_ogre_engine,cameraObject,buffer);
-    m_camera_grabbers<< grabber;
-    grabber->setParentItem(this->rootObject());
-    grabber->setWidth(grabber->parentItem()->width());
-    grabber->setHeight(grabber->parentItem()->height());
-    grabber->setPosition(QPointF(-grabber->parentItem()->width(),0));
-    attachCamToGUI(0);
-    return grabber;
-}
-
 void GlobalRenderer::process(DataSet &data)
 {
     m_local_dataset_locker.tryLock();
@@ -56,13 +37,14 @@ void GlobalRenderer::process(DataSet &data)
     m_local_dataset_locker.unlock();
 }
 
-void GlobalRenderer::attachCamToGUI(quint32 index)
+OgreEngine *GlobalRenderer::getOgreEngine()
 {
-    CameraGrabber * grabber=m_camera_grabbers.at(index);
-    Q_ASSERT(grabber);
-    QObject * viewGrabber=this->rootObject()->findChild<QQuickItem *>("camViewContainer")->findChild<QObject *>("camView");
-    Q_ASSERT(viewGrabber);
-    qobject_cast<CameraGrabber *>(viewGrabber)->setCamera(grabber->camera());
+    return m_ogre_engine;
+}
+
+Ogre::SceneManager *GlobalRenderer::getSceneManager()
+{
+    return m_scene_manager;
 }
 
 void GlobalRenderer::initializeOgre()
@@ -92,7 +74,6 @@ void GlobalRenderer::initializeOgre()
     m_camera_controller=new OgreBites::SdkCameraMan(camera);
     m_camera_controller->setTopSpeed(10);
     m_user_camera=new Camera(camera,m_camera_controller);
-
     Ogre::Entity * ent;
 
     ent = m_scene_manager->createEntity("car", "car_body.mesh");
