@@ -35,6 +35,7 @@ public:
     void process(DataSet & data);
     OgreEngine * getOgreEngine();
     Ogre::SceneManager * getSceneManager();
+    QQuickWindow * getQuickWindow(){return m_root_window;}
 
 signals:
     void startSimulation();

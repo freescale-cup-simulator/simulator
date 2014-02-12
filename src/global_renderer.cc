@@ -81,6 +81,8 @@ void GlobalRenderer::initializeOgre()
     rm.addResourceLocation(RESOURCE_DIRECTORY "materials", "FileSystem");
     rm.addResourceLocation(RESOURCE_DIRECTORY "meshes", "FileSystem");
     rm.initialiseAllResourceGroups();
+    Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(Ogre::TFO_ANISOTROPIC);
+    Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(8);
 
     m_scene_manager = m_root->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
     m_scene_manager->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);

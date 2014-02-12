@@ -14,7 +14,7 @@ CameraSimulator::CameraSimulator(GlobalRenderer * renderer, QObject *parent)
     memset(m_frame,0,CAMERA_FRAME_LEN);
 
     // Qt::DirectConnection will run CameraSimulator::onUpdate in QML Rendering Thread
-    connect(renderer,&GlobalRenderer::beforeRendering,this,&CameraSimulator::onUpdate,Qt::DirectConnection);
+    connect(renderer->getQuickWindow(),&QQuickWindow::beforeRendering,this,&CameraSimulator::onUpdate,Qt::DirectConnection);
 }
 
 CameraSimulator::~CameraSimulator()
