@@ -6,6 +6,7 @@ ControlAlgorithm::ControlAlgorithm(QObject *parent)
     , m_lua_loaded(false)
 {
     luaL_openlibs(m_lua_state);
+    appendToLuaPath(LUA_DIRECTORY);
 }
 
 ControlAlgorithm::~ControlAlgorithm()
@@ -78,5 +79,19 @@ void ControlAlgorithm::process(DataSet & d)
     d.line_position = lua_tonumber(m_lua_state, -1);
     lua_pop(m_lua_state, 1);
 
+    lua_pop(m_lua_state, 1);
+}
+
+void ControlAlgorithm::appendToLuaPath(const QString & path)
+{
+    lua_getglobal(m_lua_state, "package");
+    lua_getfield(m_lua_state, -1, "path" );
+    QString current_path = lua_tostring(m_lua_state, -1);
+    current_path.append(';');
+    current_path.append(path);
+    current_path.append("?.lua");
+    lua_pop(m_lua_state, 1);
+    lua_pushstring(m_lua_state, current_path.toLocal8Bit().data());
+    lua_setfield(m_lua_state, -2, "path");
     lua_pop(m_lua_state, 1);
 }
