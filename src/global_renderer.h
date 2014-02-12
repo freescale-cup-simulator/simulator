@@ -13,14 +13,15 @@
 #include <ogre_engine.h>
 #include <camera_grabber.h>
 #include <camera.h>
-#include <shared_image.h>
 #include <config.h>
 #include <common.h>
 #include <track_model.h>
+#include <camera_simulator.h>
 #include <QMutex>
 
 using namespace track_library;
 
+class CameraSimulator;
 class GlobalRenderer : public QQmlApplicationEngine
 {
     Q_OBJECT
@@ -31,9 +32,9 @@ public:
     ~GlobalRenderer();
 
     void setTrackModel(TrackModel * model);
-    CameraGrabber * createCameraGrabber(QSemaphore * sync);
     void process(DataSet & data);
-    void attachCamToGUI(quint32 index);
+    OgreEngine * getOgreEngine();
+    Ogre::SceneManager * getSceneManager();
 
 signals:
     void startSimulation();
@@ -59,7 +60,6 @@ private:
     OgreEngine * m_ogre_engine;
     Ogre::SceneManager * m_scene_manager;
     Ogre::Root * m_root;
-    QList<CameraGrabber *> m_camera_grabbers;
     Ogre::SceneNode * m_car_body;
     Ogre::SceneNode * m_wheels[4];
     TrackModel * m_track_model;

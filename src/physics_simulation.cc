@@ -36,7 +36,7 @@ void PhysicsSimulation::process(DataSet & data)
     for (int i = 2; i < 4; i++)
     {
         dJointSetHinge2Param(m_wheels[i], dParamVel2, 25);
-        dJointSetHinge2Param(m_wheels[i], dParamFMax2, .001);
+        dJointSetHinge2Param(m_wheels[i], dParamFMax2, .002);
     }
 
     const float rad_angle = (data.current_wheel_angle / 180.0) * M_PI;
@@ -232,7 +232,7 @@ void PhysicsSimulation::createVehicle()
         }
 
         dJointSetHinge2Param(jid, dParamSuspensionERP, 0.35);
-        dJointSetHinge2Param(jid, dParamSuspensionCFM, 0.075);
+        dJointSetHinge2Param(jid, dParamSuspensionCFM, 0.025);
         m_wheels[i] = jid;
         m_wheel_bodies.append(id);
     }
@@ -253,48 +253,39 @@ void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
     if (!ground_collision)
         return;
 
-    const dReal * q = dBodyGetQuaternion(m_vehicle_body);
     dContact contacts[MAX_CONTACTS];
-    dReal roll_angle;
-    QVector3D v = {0, 0, 1};
     int wheel_index;
 
-    dBodyID ba = dGeomGetBody(ga), bb = dGeomGetBody(gb);
+    const dReal * q = dBodyGetQuaternion(m_vehicle_body);
+    QQuaternion body (q[0], q[1], q[2], q[3]);
 
+    dBodyID ba = dGeomGetBody(ga), bb = dGeomGetBody(gb);
     if (m_wheel_bodies.contains(ba))
         wheel_index = m_wheel_bodies.indexOf(ba);
     else
         wheel_index = m_wheel_bodies.indexOf(bb);
 
-    // rear wheels do not rotate relative to chasis
-    if (wheel_index > 1)
-        roll_angle = 0;
-    else
-        roll_angle = dJointGetHinge2Param(m_wheels[0], dParamLoStop1);
+    if (wheel_index <= 1)
+    {
+        dReal a = dJointGetHinge2Param(m_wheels[0], dParamLoStop1);
+        body *= QQuaternion::fromAxisAndAngle(0, 1, 0, (a / M_PI) * 180.0);
+    }
 
-    // sum angle relative to body and body around to Y axis
-    roll_angle += std::asin(2 * (q[0]*q[2] - q[3]*q[1]));
-    // convert to degrees for QQuaternion
-    roll_angle = (roll_angle / M_PI) * 180.0;
-
-    QQuaternion qv = QQuaternion::fromAxisAndAngle(0, 1, 0, roll_angle);
-    v = qv.rotatedVector(v);
-
-    qDebug() << v;
+    QVector3D v = {0, 0, 1};
+    v = body.rotatedVector(v);
 
     for (int i = 0; i < MAX_CONTACTS; i++)
     {
-
         contacts[i].surface.mode = dContactSoftCFM | dContactSoftERP
                 | dContactSlip1 | dContactSlip2 | dContactFDir1;
         contacts[i].surface.mu = dInfinity;
-        contacts[i].surface.soft_cfm = 5e-5;
+        contacts[i].surface.soft_cfm = 5e-4;
         contacts[i].surface.soft_erp = 0.5;
         contacts[i].fdir1[0] = v.x();
-        contacts[i].fdir1[1] = v.y();
+        contacts[i].fdir1[1] = 0;
         contacts[i].fdir1[2] = v.z();
-        contacts[i].surface.slip1 = 0;
-        contacts[i].surface.slip2 = .0002;
+        contacts[i].surface.slip1 = 0.01;
+        contacts[i].surface.slip2 = .0003;
     }
 
     int nc = dCollide(ga, gb, MAX_CONTACTS, &contacts[0].geom, sizeof(dContact));

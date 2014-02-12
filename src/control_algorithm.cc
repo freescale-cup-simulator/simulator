@@ -6,6 +6,7 @@ ControlAlgorithm::ControlAlgorithm(QObject *parent)
     , m_lua_loaded(false)
 {
     luaL_openlibs(m_lua_state);
+    appendToLuaPath(LUA_DIRECTORY);
 }
 
 ControlAlgorithm::~ControlAlgorithm()
@@ -28,8 +29,11 @@ bool ControlAlgorithm::loadFile(const QString &file)
     lua_pushvalue(m_lua_state, -1);
     lua_pcall(m_lua_state, 0, 0, 0);
 
-    lua_pushnumber(m_lua_state, m_interval);
-    lua_setglobal(m_lua_state, "g_run_interval");
+    QFileInfo file_info(file);
+    m_current_file = file_info.baseName();
+
+    lua_pushnumber(m_lua_state, 0);
+    lua_setglobal(m_lua_state, "g_world_time");
 
     qDebug() << "Script successfully loaded";
     return true;
@@ -37,7 +41,7 @@ bool ControlAlgorithm::loadFile(const QString &file)
 
 QString ControlAlgorithm::getId()
 {
-    return "Lua Control algoritgm (file: " + m_current_file + ")";
+    return m_current_file;
 }
 
 void ControlAlgorithm::process(DataSet & d)
@@ -75,5 +79,19 @@ void ControlAlgorithm::process(DataSet & d)
     d.line_position = lua_tonumber(m_lua_state, -1);
     lua_pop(m_lua_state, 1);
 
+    lua_pop(m_lua_state, 1);
+}
+
+void ControlAlgorithm::appendToLuaPath(const QString & path)
+{
+    lua_getglobal(m_lua_state, "package");
+    lua_getfield(m_lua_state, -1, "path" );
+    QString current_path = lua_tostring(m_lua_state, -1);
+    current_path.append(';');
+    current_path.append(path);
+    current_path.append("?.lua");
+    lua_pop(m_lua_state, 1);
+    lua_pushstring(m_lua_state, current_path.toLocal8Bit().data());
+    lua_setfield(m_lua_state, -2, "path");
     lua_pop(m_lua_state, 1);
 }

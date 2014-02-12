@@ -8,26 +8,35 @@
 #include <QString>
 #include <QDebug>
 #include <QRgb>
+#include <QMutex>
+#include <QMutexLocker>
 
 #include <OgreCamera.h>
-
-#include <shared_image.h>
+#include <OgreHardwarePixelBuffer.h>
+#include <global_renderer.h>
+#include <ogre_engine.h>
 #include <cmath>
 #include <common.h>
+
+class GlobalRenderer;
 
 class CameraSimulator : public QObject
 {
     Q_OBJECT
 public:
-    explicit CameraSimulator(Ogre::Camera *camera, SharedImage *buffer, QObject *parent = 0);
-    ~CameraSimulator();
 
+    explicit CameraSimulator(GlobalRenderer * renderer, QObject *parent = 0);
+    ~CameraSimulator();
     void process(DataSet & data);
 
+private slots:
+    void onUpdate();
 private:
-
+    OgreEngine * m_engine;
+    Ogre::RenderTexture * m_renderTarget;
     Ogre::Camera * m_camera;
-    SharedImage * m_buffer;
+    quint8 * m_frame;
+    QMutex m_frame_locker;
 };
 
 #endif // CAMERASIMULATOR_H
