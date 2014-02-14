@@ -20,6 +20,7 @@ PhysicsSimulation::PhysicsSimulation(const track_library::TrackModel &model,
 
 PhysicsSimulation::~PhysicsSimulation()
 {
+    qDebug()<<"Physics destructor";
     dJointGroupDestroy(m_contact_group);
     dSpaceDestroy(m_space);
     dWorldDestroy(m_world);

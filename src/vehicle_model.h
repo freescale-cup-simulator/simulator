@@ -10,6 +10,7 @@ class VehicleModel : public QObject
     Q_OBJECT
 public:
     VehicleModel(QObject * parent = nullptr);
+    ~VehicleModel();
     void process(DataSet & data);
 private:
     // for Futaba FUTM0032 servo

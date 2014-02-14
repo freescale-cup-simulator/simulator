@@ -4,21 +4,36 @@
 #include <QSharedPointer>
 #include <QRunnable>
 #include <QThread>
-#include <QSemaphore>
+#include <QWaitCondition>
 #include <QDateTime>
+
 
 #include <global_renderer.h>
 #include <control_algorithm.h>
 #include <physics_simulation.h>
 #include <camera_simulator.h>
 #include <vehicle_model.h>
+#include <car3d.h>
 #include <logger.h>
 #include <track_io.h>
 #include <config.h>
 
+class GlobalRenderer;
+class CameraSimulator;
+class Car3D;
 
-#define VIRTUAL_CAMERAS_COUNT 1
-
+class ResumeWaitCondition : public QObject
+{
+    Q_OBJECT
+public:
+    ResumeWaitCondition(){}
+    static ResumeWaitCondition * instance();
+    bool wait();
+    void wake();
+private:
+    QMutex m_mutex;
+    QWaitCondition m_condition;
+};
 class SimulationRunner : public QObject, public QRunnable
 {
     Q_OBJECT
@@ -29,6 +44,7 @@ class SimulationRunner : public QObject, public QRunnable
                WRITE setPhysicsTimeStep
                NOTIFY physicsTimeStepChanged)
 public:
+    enum SimulationState {Stopped,Paused,Started};
     explicit SimulationRunner(GlobalRenderer * renderer,QObject * parent = nullptr);
     bool loadAlgorithmFile(const QString & file);
     track_library::TrackModel * loadTrack(const QString & track_path);
@@ -48,7 +64,14 @@ public:
         m_physics_timestep = v;
         physicsTimeStepChanged();
     }
+    inline void setCar(Car3D * car)
+    {
+        m_car=car;
+    }
+    inline SimulationState getState(){return m_state;}
 public slots:
+    void pause();
+    void resume();
     void stop();
 
 signals:
@@ -58,7 +81,7 @@ signals:
     void simulationStopped();
 
 private:
-    bool m_running;
+    SimulationState m_state;
     float m_control_interval;
     float m_physics_timestep;
 
@@ -69,7 +92,7 @@ private:
     QSharedPointer<VehicleModel> m_vehicle_model;
     GlobalRenderer * m_renderer;
     Logger m_logger;
-    QSemaphore m_cameras_syncronizator;
+    Car3D * m_car;
 };
 
 #endif // SIMULATION_RUNNER_H

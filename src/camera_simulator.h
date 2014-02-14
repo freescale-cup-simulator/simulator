@@ -36,7 +36,9 @@ private:
     Ogre::RenderTexture * m_renderTarget;
     Ogre::Camera * m_camera;
     quint8 * m_frame;
-    QMutex m_frame_locker;
+    QMutex m_frame_locker,m_safe_destruct;
+    Ogre::SceneManager * m_manager;
+    GlobalRenderer * m_renderer;
 };
 
 #endif // CAMERASIMULATOR_H

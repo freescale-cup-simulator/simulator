@@ -10,10 +10,12 @@ MenuBar {
         MenuItem {
             id: openTrack
             text: qsTr("Open track...")
+            onTriggered: guiController.openTrack()
         }
         MenuItem {
             id: openAlgorithm
             text: qsTr("Open algorithm...")
+            onTriggered: guiController.openAlgorithm()
         }
         MenuSeparator { }
         MenuItem {
@@ -29,6 +31,7 @@ MenuBar {
             id: quit
             text: "Quit"
             shortcut: "Ctrl+Q"
+            onTriggered: guiController.queryQuit()
         }
     }
 
@@ -39,15 +42,19 @@ MenuBar {
             id: run
             text: qsTr("Run simulation")
             shortcut: "Ctrl+R"
+            onTriggered: guiController.runSimulation()
         }
         MenuItem {
             id: pause
-            text: qsTr("Pause")
+            text: qsTr("Pause/Resume")
             shortcut: "Pause"
+            onTriggered: guiController.pauseSimulation()
         }
         MenuItem {
             id: stop
             text: qsTr("Stop")
+            shortcut: "Ctrl+Break"
+            onTriggered: guiController.stopSimulation()
         }
     }
     Menu {
@@ -55,22 +62,38 @@ MenuBar {
         ExclusiveGroup { id: viewGroup }
         MenuItem {
             id: freeCam
+            objectName:"free"
             text: qsTr("Free camera view")
             checkable: true
-            checked:true
+            checked: true
             exclusiveGroup: viewGroup
+            onToggled:{
+                if(checked)
+                    guiController.viewSwitched(this)
+            }
+
         }
         MenuItem {
             id: chasingCam
+            objectName:"chasing"
             text: qsTr("Chasing camera view")
             checkable: true
             exclusiveGroup: viewGroup
+            onToggled:{
+                if(checked)
+                    guiController.viewSwitched(this)
+            }
         }
         MenuItem {
             id: fixedCam
+            objectName:"fixed"
             text: qsTr("Car camera view")
             checkable: true
             exclusiveGroup: viewGroup
+            onToggled:{
+                if(checked)
+                    guiController.viewSwitched(this)
+            }
         }
     }
 

@@ -6,17 +6,17 @@ GlobalRenderer::GlobalRenderer(QWindow *parent)
     , m_camera_controller(0)
     , m_ogre_engine(0)
     , m_root(0)
-    , m_track_model(0)
     , m_closing(false)
     , m_root_window(nullptr)
 {
     qmlRegisterType<CameraGrabber>("OgreTypes", 1, 0, "CameraGrabber");
     qmlRegisterType<GlobalRenderer>("OgreTypes", 1, 0, "GlobalRenderer");
     qmlRegisterType<OgreEngine>("OgreTypes", 1, 0, "OgreEngine");
-
+    qmlRegisterType<GuiController>("OgreTypes", 1, 0, "GuiController");
     addImportPath(":/qml/gui/");
     addImportPath(":/qml/");
     rootContext()->setContextProperty("globalRenderer", this);
+    rootContext()->setContextProperty("guiController", new GuiController(this));
     load(QUrl("qrc:/qml/gui.qml"));
 
     m_root_window = qobject_cast<QQuickWindow *>(rootObjects().at(0));
@@ -24,7 +24,6 @@ GlobalRenderer::GlobalRenderer(QWindow *parent)
 
     connect(m_root_window, &QQuickWindow::beforeRendering, this, &GlobalRenderer::initializeOgre, Qt::DirectConnection);
     connect(this, &GlobalRenderer::ogreInitialized, this, &GlobalRenderer::setContextObjects);
-
     //connect(this, &GlobalRenderer::beforeRendering, this, &GlobalRenderer::initializeOgre, Qt::DirectConnection);
     //connect(this, &GlobalRenderer::ogreInitialized, this, &GlobalRenderer::addContent);
     //connect(this,&GlobalRenderer::statusChanged,this,&GlobalRenderer::onStatusChanged);
@@ -46,19 +45,6 @@ GlobalRenderer::~GlobalRenderer()
         m_root->destroySceneManager(m_scene_manager);
 }
 
-void GlobalRenderer::setTrackModel(TrackModel *model)
-{
-    m_track_model=model;
-}
-
-
-void GlobalRenderer::process(DataSet &data)
-{
-    m_local_dataset_locker.tryLock();
-    m_local_dataset=data;
-    m_local_dataset_locker.unlock();
-}
-
 OgreEngine *GlobalRenderer::getOgreEngine()
 {
     return m_ogre_engine;
@@ -71,7 +57,7 @@ Ogre::SceneManager *GlobalRenderer::getSceneManager()
 
 void GlobalRenderer::initializeOgre()
 {
-    Q_ASSERT(m_track_model);
+    //Q_ASSERT(m_track_model);
     disconnect(m_root_window, &QQuickWindow::beforeRendering, this, &GlobalRenderer::initializeOgre);
     m_ogre_engine=new OgreEngine(m_root_window);
     m_root=m_ogre_engine->startEngine(RESOURCE_DIRECTORY "plugins.cfg");
@@ -82,7 +68,7 @@ void GlobalRenderer::initializeOgre()
     rm.addResourceLocation(RESOURCE_DIRECTORY "meshes", "FileSystem");
     rm.initialiseAllResourceGroups();
     Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(Ogre::TFO_ANISOTROPIC);
-    Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(8);
+    Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(4);
 
     m_scene_manager = m_root->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
     m_scene_manager->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
@@ -96,8 +82,10 @@ void GlobalRenderer::initializeOgre()
                                             Ogre::Vector3::UNIT_X));
     m_camera_controller=new OgreBites::SdkCameraMan(camera);
     m_camera_controller->setTopSpeed(10);
+    //m_camera_controller->setStyle(OgreBites::CS_ORBIT);
+    //m_camera_controller->setYawPitchDist(Ogre::Radian(Ogre::Degree(45)),Ogre::Radian(Ogre::Degree(45)),5);
     m_user_camera=new Camera(camera,m_camera_controller);
-    Ogre::Entity * ent;
+    /*Ogre::Entity * ent;
 
     ent = m_scene_manager->createEntity("car", "car_body.mesh");
     m_car_body = m_scene_manager->getRootSceneNode()->createChildSceneNode();
@@ -139,20 +127,10 @@ void GlobalRenderer::initializeOgre()
         node->attachObject(current);
         node->setPosition(-tile.x() + 0.5, 0, tile.y() + 0.5);
         node->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(-tile.rotation() - 180));
-    }
+    }*/
 
     m_ogre_engine->doneOgreContext();
-
-    connect(m_root_window, &QQuickWindow::beforeRendering,this,&GlobalRenderer::updateScene,Qt::DirectConnection);
     emit ogreInitialized();
-}
-
-void GlobalRenderer::onStatusChanged(QQuickView::Status status)
-{
-    /*disconnect(m_root_window, &QQuickWindow::statusChanged, this,
-               &GlobalRenderer::onStatusChanged);
-    if(status==QQuickView::Ready)
-        emit startSimulation();*/
 }
 
 bool GlobalRenderer::event(QEvent *event)
@@ -165,30 +143,5 @@ bool GlobalRenderer::event(QEvent *event)
         return false;
     }
     return QQmlEngine::event(event);
-}
-
-void GlobalRenderer::updateScene()
-{
-    m_local_dataset_locker.lock();
-    m_ogre_engine->activateOgreContext();
-
-    m_car_body->setPosition(m_local_dataset.vehicle.p.x(), m_local_dataset.vehicle.p.y(),
-                            m_local_dataset.vehicle.p.z());
-    Ogre::Quaternion q(m_local_dataset.vehicle.q.scalar(), m_local_dataset.vehicle.q.x(),
-                       m_local_dataset.vehicle.q.y(), m_local_dataset.vehicle.q.z());
-    m_car_body->setOrientation(q);
-    m_car_body->_updateBounds();
-
-    for (int i = 0; i < 4; i++)
-    {
-        m_wheels[i]->setPosition(m_local_dataset.wheels[i].p.x(), m_local_dataset.wheels[i].p.y(),
-                                 m_local_dataset.wheels[i].p.z());
-        Ogre::Quaternion q(m_local_dataset.wheels[i].q.scalar(), m_local_dataset.wheels[i].q.x(),
-                           m_local_dataset.wheels[i].q.y(), m_local_dataset.wheels[i].q.z());
-        m_wheels[i]->setOrientation(q);
-        m_wheels[i]->_updateBounds();
-    }
-    m_ogre_engine->doneOgreContext();
-    m_local_dataset_locker.unlock();
 }
 

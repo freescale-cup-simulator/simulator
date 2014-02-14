@@ -12,6 +12,7 @@ ControlAlgorithm::ControlAlgorithm(QObject *parent)
 ControlAlgorithm::~ControlAlgorithm()
 {
     lua_close(m_lua_state);
+    qDebug()<<getId()<<" destructed";
 }
 
 bool ControlAlgorithm::loadFile(const QString &file)

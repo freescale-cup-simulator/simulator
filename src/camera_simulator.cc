@@ -5,6 +5,8 @@ CameraSimulator::CameraSimulator(GlobalRenderer * renderer, QObject *parent)
     , m_engine(renderer->getOgreEngine())
     , m_renderTarget(0)
     , m_camera(0)
+    , m_manager(renderer->getSceneManager())
+    , m_renderer(renderer)
 {
     m_camera=renderer->getSceneManager()->createCamera("CS_0");
     m_camera->setNearClipDistance(0.1);
@@ -19,7 +21,12 @@ CameraSimulator::CameraSimulator(GlobalRenderer * renderer, QObject *parent)
 
 CameraSimulator::~CameraSimulator()
 {
+    QMutexLocker locker(&m_safe_destruct);
+    disconnect(m_renderer->getQuickWindow(),&QQuickWindow::beforeRendering,this,&CameraSimulator::onUpdate);
+
+    qDebug()<<"Camera destructor";
     delete[] m_frame;
+    m_manager->destroyCamera(m_camera);
 }
 
 void CameraSimulator::process(DataSet & data)
@@ -45,7 +52,8 @@ void CameraSimulator::onUpdate()
     // this code is executed in QML Rendering Thread
 
     Q_ASSERT(m_engine);
-
+    if(!m_safe_destruct.tryLock())
+        return;
     m_engine->activateOgreContext();
     /*Rendering code*/
     if (m_renderTarget)
@@ -89,5 +97,6 @@ void CameraSimulator::onUpdate()
     m_frame_locker.unlock();
     pixelBuffer->unlock();
     m_engine->doneOgreContext();
+    m_safe_destruct.unlock();
     /*END rendering code*/
 }

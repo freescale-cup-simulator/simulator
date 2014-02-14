@@ -1,11 +1,29 @@
 #include <simulation_runner.h>
 
+Q_GLOBAL_STATIC(ResumeWaitCondition,staticResumeWaitCondition)
+
+ResumeWaitCondition *ResumeWaitCondition::instance()
+{
+    return staticResumeWaitCondition;
+}
+
+bool ResumeWaitCondition::wait()
+{
+    return m_condition.wait(&m_mutex);
+}
+
+void ResumeWaitCondition::wake()
+{
+    m_condition.wakeAll();
+}
+
 SimulationRunner::SimulationRunner(GlobalRenderer * renderer,QObject *parent)
     : QObject(parent)
-    , m_running(false)
+    , m_state(SimulationRunner::Stopped)
     , m_control_interval(0.01)
     , m_physics_timestep(0.001)
     , m_renderer(renderer)
+    , m_car(0)
 {
     setAutoDelete(false);
     connect(m_renderer,&GlobalRenderer::queryExit,this,&SimulationRunner::stop);
@@ -14,9 +32,10 @@ SimulationRunner::SimulationRunner(GlobalRenderer * renderer,QObject *parent)
 
 bool SimulationRunner::loadAlgorithmFile(const QString &file)
 {
-    if (m_running)
+    if (m_state==SimulationRunner::Started||m_state==SimulationRunner::Paused)
         return false;
-
+    if (!m_control_algorithm.isNull())
+        m_control_algorithm.clear();
     auto ca = new ControlAlgorithm (this);
     if (!ca->loadFile(file))
     {
@@ -34,7 +53,7 @@ bool SimulationRunner::loadAlgorithmFile(const QString &file)
 
 TrackModel *SimulationRunner::loadTrack(const QString &track_path)
 {
-    if (m_running)
+    if (m_state==SimulationRunner::Started||m_state==SimulationRunner::Paused)
     {
         qWarning("Will not change track while running");
         return 0;
@@ -59,9 +78,7 @@ void SimulationRunner::run()
         qWarning("Control algorithm not loaded, will not run");
         return;
     }
-    /*CameraGrabber * camGrab=m_renderer->createCameraGrabber(&m_cameras_syncronizator);
-    Camera * cameraObj=qobject_cast<Camera *>(camGrab->camera());
-    SharedImage * shBuffer=qobject_cast<SharedImage *>(camGrab->sharedImage());*/
+    Q_ASSERT(m_car);
 
     auto cs = new CameraSimulator(m_renderer);
 
@@ -70,8 +87,7 @@ void SimulationRunner::run()
     m_camera_simulator = QSharedPointer<CameraSimulator>(cs);
     m_physics_simulation = QSharedPointer<PhysicsSimulation>(ps);
     m_vehicle_model = QSharedPointer<VehicleModel>(vm);
-
-    m_running = true;
+    m_state=SimulationRunner::Started;
     DataSet dataset;
     float physics_runtime;
 
@@ -81,12 +97,12 @@ void SimulationRunner::run()
     dataset.control_interval = m_control_interval;
     dataset.line_position=64;
 
-    //m_cameras_syncronizator.acquire(VIRTUAL_CAMERAS_COUNT);
-
     Q_ASSERT(m_logger.beginWrite());
-    while (m_running)
+    while (m_state!=SimulationRunner::Stopped)
     {
         m_logger<<dataset;
+        if(m_state==SimulationRunner::Paused)
+            ResumeWaitCondition::instance()->wait();
         physics_runtime = 0;
         while (physics_runtime < m_control_interval)
         {
@@ -95,19 +111,30 @@ void SimulationRunner::run()
             physics_runtime += m_physics_timestep;
         }
         m_camera_simulator->process(dataset);
-        m_renderer->process(dataset);
+        m_car->process(dataset);
         m_control_algorithm->process(dataset);
-//        if(dataset.line_position!=-1)
-//            qDebug()<<"Line offset: "<<(64-dataset.line_position);
-//        else
-//            qDebug()<<"Line offset: ?";
     }
     m_logger.endWrite();
     emit simulationStopped();
     qDebug("Simulation done!");
+    m_camera_simulator.clear();
+    m_vehicle_model.clear();
+    m_physics_simulation.clear();
+}
+
+void SimulationRunner::pause()
+{
+    m_state=SimulationRunner::Paused;
+}
+
+void SimulationRunner::resume()
+{
+    m_state=SimulationRunner::Started;
+    ResumeWaitCondition::instance()->wake();
 }
 
 void SimulationRunner::stop()
 {
-    m_running = false;
+    m_state=SimulationRunner::Stopped;
+    ResumeWaitCondition::instance()->wake();
 }

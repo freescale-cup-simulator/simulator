@@ -5,6 +5,11 @@ VehicleModel::VehicleModel(QObject * parent)
 {
 }
 
+VehicleModel::~VehicleModel()
+{
+    qDebug()<<"VehicleModel destructor";
+}
+
 void VehicleModel::process(DataSet & d)
 {
     const float dps = DEGREES_PER_SECOND * d.physics_timestep;
