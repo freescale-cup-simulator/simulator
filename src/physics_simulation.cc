@@ -179,6 +179,8 @@ void PhysicsSimulation::createVehicle()
 
     Ogre::MeshManager * mm = Ogre::MeshManager::getSingletonPtr();
     Ogre::MeshPtr mesh = mm->getByName("car_body.mesh");
+    Ogre::Quaternion start_rotation_ (m_start_rotation_q[0], m_start_rotation_q[1],
+            m_start_rotation_q[2], m_start_rotation_q[3]);
     auto skeleton = mesh->getSkeleton();
 
     auto cp = skeleton->getBone("cam")->_getDerivedPosition();
@@ -200,6 +202,7 @@ void PhysicsSimulation::createVehicle()
     for (int i = 0; i < nwheels; i++)
     {
         auto v = skeleton->getBone(wn[i])->_getDerivedPosition();
+        v = start_rotation_ * v;
         v.x += sp[0];
         v.y += sp[1];
         v.z += sp[2];
@@ -209,6 +212,7 @@ void PhysicsSimulation::createVehicle()
         dMassSetSphereTotal(&m, 0.3, radius);
         dBodySetMass(id, &m);
         dBodySetPosition(id, v[0], v[1], v[2]);
+        dBodySetQuaternion(id, m_start_rotation_q);
         dGeomSetBody(gid, id);
 
         jid = dJointCreateHinge2(m_world, 0);
