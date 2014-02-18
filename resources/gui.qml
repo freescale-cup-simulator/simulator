@@ -52,7 +52,7 @@ ApplicationWindow {
 
 
     Component.onCompleted: {
-        globalRenderer.onContextObjectsSet.connect(loadCamera)
+        globalRenderer.onContextObjectsSet.connect(loadCamera);
     }
 
     function loadCamera() {
@@ -77,14 +77,24 @@ ApplicationWindow {
             CameraGrabber {
                 id: grabber
                 objectName: "freeCamView"
-                anchors.fill: parent
-
+                anchors.fill: parent                
                 Component.onCompleted: {
-                    camera = userCamera
-                    ogreEngine = ogreEngineInstance
-                    keyboardArea.forceActiveFocus()
+                    camera = userCamera;
+                    ogreEngine = ogreEngineInstance;
+                    keyboardArea.forceActiveFocus();
+                    guiController.onCameraSimulatorCreated.connect(loadCamSimulatorViewport);
+                    guiController.onCameraSimulatorDestroyed.connect(hideCamSimulatorViewport);
                     //camView.ogreEngine = ogreEngineInstance
                 }
+                function loadCamSimulatorViewport(cam) {
+                    camSimulatorViewportLoader.active=true;
+                }
+
+                function hideCamSimulatorViewport()
+                {
+                    camSimulatorViewportLoader.active=false;
+                }
+
                 FocusScope {
                     x: keyboardArea.x; y: keyboardArea.y
                     width: keyboardArea.width; height: keyboardArea.height
@@ -124,20 +134,22 @@ ApplicationWindow {
                     onReleased: { prevX = -1; prevY = -1 }
                 }
 
-                /*Rectangle {
+
+
+                Rectangle {
                     id: camViewContainer
                     objectName: "camViewContainer"
 
                     x: parent.width - width
                     y: parent.height - height
 
-                    width: parent.width/4
+                    width: 132
                     height: width
 
                     visible: menuStrip.showCameraView.checked
 
                     border.width: 4
-                    border.color: "#1a1a1a"
+                    border.color: "#cccccc"
                     clip: false
 
                     MouseArea {
@@ -148,21 +160,35 @@ ApplicationWindow {
                         drag.minimumY: 0
                         drag.maximumY: cameraLoader.height - height
                     }
-
-                    CameraGrabber
+                    Component
                     {
-                        id: camView
-                        objectName: "camView"
-                        anchors.left: camViewContainer.left
-                        anchors.leftMargin: 4
-                        anchors.top: camViewContainer.top
-                        anchors.topMargin: 4
-                        width: 128
-                        height: 128
+                        id: camSimulatorViewportComponent
+                        CameraGrabber
+                        {
+                            id: camSimulatorViewport
+                            objectName: "camSimulatorViewport"
+                            //anchors.fill: parent
+                            anchors.left: parent.left
+                            anchors.leftMargin: 2
+                            anchors.top: parent.top
+                            anchors.topMargin: 2
+                            width: 128
+                            height: 128
+                            Component.onCompleted: {
+                                camera=carCamera;
+                                ogreEngine=ogreEngineInstance;
+                            }
+                        }
+
                     }
-
-                }*/
-
+                    Loader {
+                        id: camSimulatorViewportLoader
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        sourceComponent: camSimulatorViewportComponent
+                        active: false
+                    }
+                }
             }
         }
 

@@ -7,23 +7,31 @@ CameraSimulator::CameraSimulator(GlobalRenderer * renderer, QObject *parent)
     , m_camera(0)
     , m_manager(renderer->getSceneManager())
     , m_renderer(renderer)
+    , m_camera_object(0)
 {
     m_camera=renderer->getSceneManager()->createCamera("CS_0");
     m_camera->setNearClipDistance(0.1);
     m_camera->setFarClipDistance(99999);
     m_camera->setAspectRatio(1);
+    m_camera->setFOVy(Ogre::Radian(Ogre::Degree(110)));
+
+    m_camera_object=new Camera(m_camera,this);
+
     m_frame=new quint8[CAMERA_FRAME_LEN];
     memset(m_frame,0,CAMERA_FRAME_LEN);
-
     // Qt::DirectConnection will run CameraSimulator::onUpdate in QML Rendering Thread
-    connect(renderer->getQuickWindow(),&QQuickWindow::beforeRendering,this,&CameraSimulator::onUpdate,Qt::DirectConnection);
+    connect(renderer->getQuickWindow(),&QQuickWindow::beforeRendering,this,&CameraSimulator::onUpdate,Qt::DirectConnection);   
+    connect(this,&CameraSimulator::created,renderer->getGuiController(),&GuiController::cameraSimulatorCreated);
+    connect(this,&CameraSimulator::destroyed,renderer->getGuiController(),&GuiController::cameraSimulatorDestroyed);
+    renderer->rootContext()->setContextProperty("carCamera",m_camera_object);
+    emit created(m_camera_object);
 }
 
 CameraSimulator::~CameraSimulator()
 {
     QMutexLocker locker(&m_safe_destruct);
     disconnect(m_renderer->getQuickWindow(),&QQuickWindow::beforeRendering,this,&CameraSimulator::onUpdate);
-
+    emit destroyed();
     qDebug()<<"Camera destructor";
     delete[] m_frame;
     m_manager->destroyCamera(m_camera);
@@ -39,7 +47,7 @@ void CameraSimulator::process(DataSet & data)
     Ogre::Quaternion q(data.camera.q.scalar(), data.camera.q.x(),
                        data.camera.q.y(), data.camera.q.z());
     Ogre::Quaternion ry(Ogre::Radian(M_PI), Ogre::Vector3::UNIT_Y);
-    Ogre::Quaternion rx(Ogre::Radian(-M_PI_4), Ogre::Vector3::UNIT_X);
+    Ogre::Quaternion rx(Ogre::Radian(Ogre::Degree(-45)), Ogre::Vector3::UNIT_X);
 
     m_camera->setOrientation(q*ry*rx);
     m_frame_locker.lock();

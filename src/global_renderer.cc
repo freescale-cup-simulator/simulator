@@ -8,6 +8,7 @@ GlobalRenderer::GlobalRenderer(QWindow *parent)
     , m_root(0)
     , m_closing(false)
     , m_root_window(nullptr)
+    , m_gui_controller(new GuiController(this))
 {
     qmlRegisterType<CameraGrabber>("OgreTypes", 1, 0, "CameraGrabber");
     qmlRegisterType<GlobalRenderer>("OgreTypes", 1, 0, "GlobalRenderer");
@@ -16,7 +17,7 @@ GlobalRenderer::GlobalRenderer(QWindow *parent)
     addImportPath(":/qml/gui/");
     addImportPath(":/qml/");
     rootContext()->setContextProperty("globalRenderer", this);
-    rootContext()->setContextProperty("guiController", new GuiController(this));
+    rootContext()->setContextProperty("guiController", m_gui_controller);
     load(QUrl("qrc:/qml/gui.qml"));
 
     m_root_window = qobject_cast<QQuickWindow *>(rootObjects().at(0));
