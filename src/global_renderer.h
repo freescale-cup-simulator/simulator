@@ -35,6 +35,7 @@ public:
     OgreEngine * getOgreEngine();
     Ogre::SceneManager * getSceneManager();
     QQuickWindow * getQuickWindow(){return m_root_window;}
+    GuiController * getGuiController(){return m_gui_controller;}
 
 signals:
     void startSimulation();
@@ -59,6 +60,7 @@ private:
     Ogre::Root * m_root;
     bool m_closing;
     QQuickWindow * m_root_window;
+    GuiController * m_gui_controller;
 };
 
 #endif

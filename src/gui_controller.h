@@ -20,6 +20,10 @@ public:
     GuiController(){}
     GuiController(GlobalRenderer * renderer);
 
+signals:
+    void cameraSimulatorCreated(Camera * camera_object);
+    void cameraSimulatorDestroyed();
+
 public slots:
     void openTrack();
     void openAlgorithm();

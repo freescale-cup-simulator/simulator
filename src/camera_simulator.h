@@ -13,6 +13,7 @@
 
 #include <OgreCamera.h>
 #include <OgreHardwarePixelBuffer.h>
+#include <camera.h>
 #include <global_renderer.h>
 #include <ogre_engine.h>
 #include <cmath>
@@ -29,6 +30,10 @@ public:
     ~CameraSimulator();
     void process(DataSet & data);
 
+signals:
+    void created(Camera * camera);
+    void destroyed();
+
 private slots:
     void onUpdate();
 private:
@@ -39,6 +44,7 @@ private:
     QMutex m_frame_locker,m_safe_destruct;
     Ogre::SceneManager * m_manager;
     GlobalRenderer * m_renderer;
+    Camera * m_camera_object;
 };
 
 #endif // CAMERASIMULATOR_H

@@ -15,10 +15,12 @@ Car3D::Car3D(GlobalRenderer *renderer)
     for (int i = 0; i < 4; i++)
     {
         m_wheels[i] = m_scene_manager->getRootSceneNode()->createChildSceneNode();
-        ent = m_scene_manager->createEntity("wheel_h.mesh");
+        ent = m_scene_manager->createEntity((i < 2) ? "wheel_h.mesh"
+                                                    : "wheel_r.mesh");
         m_wheels[i]->attachObject(ent);
         m_wheels[i]->setVisible(false);
     }
+
     m_engine->doneOgreContext();
 }
 
@@ -64,6 +66,12 @@ void Car3D::update()
                                  m_local_dataset.wheels[i].p.z());
         Ogre::Quaternion q(m_local_dataset.wheels[i].q.scalar(), m_local_dataset.wheels[i].q.x(),
                            m_local_dataset.wheels[i].q.y(), m_local_dataset.wheels[i].q.z());
+
+        // we use same models for left/right side, so rotate wheels on the right
+        // side to face outwards
+        if (i % 2 == 0)
+            q = q * Ogre::Quaternion(Ogre::Radian(M_PI), Ogre::Vector3(0, 1, 0));
+
         m_wheels[i]->setOrientation(q);
         m_wheels[i]->_updateBounds();
     }
