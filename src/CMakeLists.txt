@@ -17,6 +17,7 @@ set(project_sources
     gui_controller.cc
     car3d.cc
     mesh_manager.cc
+    scene.cc
 )
 
 set(project_headers
@@ -32,6 +33,7 @@ set(project_headers
     gui_controller.h
     car3d.h
     mesh_manager.h
+    scene.h
 )
 
 set(qrc

@@ -1,6 +1,7 @@
 #include <mesh_manager.h>
 
 MeshManager::MeshManager(QObject *parent)
+    : QObject(parent)
 {
     dInitODE();
 }

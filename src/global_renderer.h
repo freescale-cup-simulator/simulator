@@ -30,15 +30,11 @@ class GlobalRenderer : public QQmlApplicationEngine
 public:
 
     explicit GlobalRenderer(QWindow *parent = 0);
-    ~GlobalRenderer();
 
-    OgreEngine * getOgreEngine();
-    Ogre::SceneManager * getSceneManager();
-    QQuickWindow * getQuickWindow(){return m_root_window;}
-    GuiController * getGuiController(){return m_gui_controller;}
+    inline OgreEngine * ogreEngine(){return m_ogre_engine;}
+    inline QQuickWindow * rootWindow(){return m_root_window;}
 
 signals:
-    void startSimulation();
     void ogreInitialized();
     void queryExit();
     void contextObjectsSet();
@@ -49,16 +45,9 @@ public slots:
 private slots:
     void setContextObjects();
 
-protected:
-    bool event(QEvent *event);
 private:
 
-    Camera * m_user_camera;
-    OgreBites::SdkCameraMan * m_camera_controller;
-    OgreEngine * m_ogre_engine;
-    Ogre::SceneManager * m_scene_manager;
-    Ogre::Root * m_root;
-    bool m_closing;
+    OgreEngine * m_ogre_engine;    
     QQuickWindow * m_root_window;
     GuiController * m_gui_controller;
 };

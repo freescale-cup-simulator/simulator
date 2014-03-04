@@ -7,7 +7,9 @@
 #include <QMessageBox>
 #include <QDebug>
 
+#include <mesh_manager.h>
 #include <simulation_runner.h>
+#include <scene.h>
 #include <car3d.h>
 
 class GlobalRenderer;
@@ -19,6 +21,13 @@ class GuiController : public QObject
 public:
     GuiController(){}
     GuiController(GlobalRenderer * renderer);
+    ~GuiController();
+
+    inline void setOgreEngine(OgreEngine * engine)
+    {
+        m_ogre_engine=engine;
+        m_scene_manager=Ogre::Root::getSingleton().createSceneManager(Ogre::ST_GENERIC, "SceneManager");
+    }
 
 signals:
     void cameraSimulatorCreated(Camera * camera_object);
@@ -36,11 +45,16 @@ public slots:
     void initScene();
 
 private:
-    GlobalRenderer * m_renderer;
-    SimulationRunner * m_simulation_runner;
-    track_library::TrackModel * m_track;
-    QSettings m_settings;
+    GlobalRenderer * m_global_renderer;
+    QQmlContext * m_root_context;
+    OgreEngine * m_ogre_engine;
+    MeshManager * m_mesh_manager;
+    Ogre::SceneManager * m_scene_manager;
+    Scene * m_scene;
     Car3D * m_car;
+    SimulationRunner * m_simulation_runner;
+
+    QSettings m_settings;
 };
 
 #endif

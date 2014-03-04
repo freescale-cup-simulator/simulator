@@ -21,9 +21,14 @@ struct WorldObject
 class MeshManager : public QObject
 {
 public:
-    MeshManager(QObject * parent);
+    MeshManager(QObject * parent=0);
     ~MeshManager();
     bool importModel(const QString & key, const QString & mesh_name,bool create_ogre_entity=true);
+    inline WorldObject getWorldObject(const QString & key)
+    {
+        return m_world_objects.value(key,WorldObject());
+    }
+
 private:
 
     void getOgreMeshData(const Ogre::Mesh * const mesh,

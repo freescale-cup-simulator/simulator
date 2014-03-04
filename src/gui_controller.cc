@@ -1,10 +1,19 @@
 #include "gui_controller.h"
 
 GuiController::GuiController(GlobalRenderer *renderer)
-    : m_renderer(renderer)
-    , m_simulation_runner(new SimulationRunner(renderer,this))
-    , m_track(0)
+    : m_global_renderer(renderer)
+    , m_root_context(renderer->rootContext())
+    , m_ogre_engine(0)
+    , m_mesh_manager(new MeshManager(this))
+    , m_scene_manager(0)
+    , m_scene(0)
     , m_car(0)
+    , m_simulation_runner(new SimulationRunner(renderer,this))
+{
+
+}
+
+GuiController::~GuiController()
 {
 
 }
