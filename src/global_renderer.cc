@@ -14,10 +14,13 @@ GlobalRenderer::GlobalRenderer(QWindow *parent)
     qmlRegisterType<GlobalRenderer>("OgreTypes", 1, 0, "GlobalRenderer");
     qmlRegisterType<OgreEngine>("OgreTypes", 1, 0, "OgreEngine");
     qmlRegisterType<GuiController>("OgreTypes", 1, 0, "GuiController");
+//    qmlRegisterType<SettingsModel>("OgreTypes", 1, 0, "SettingsModel");
     addImportPath(":/qml/gui/");
     addImportPath(":/qml/");
     rootContext()->setContextProperty("globalRenderer", this);
     rootContext()->setContextProperty("guiController", m_gui_controller);
+    rootContext()->setContextProperty("settingsModel",
+                                      getSettingsModelInstance());
     load(QUrl("qrc:/qml/gui.qml"));
 
     m_root_window = qobject_cast<QQuickWindow *>(rootObjects().at(0));
@@ -36,6 +39,7 @@ void GlobalRenderer::setContextObjects()
     rootContext()->setContextProperty("rootWindow", m_root_window);
     rootContext()->setContextProperty("userCamera", m_user_camera);
     rootContext()->setContextProperty("ogreEngineInstance", m_ogre_engine);
+
     qDebug() << "done";
     emit contextObjectsSet();
 }
