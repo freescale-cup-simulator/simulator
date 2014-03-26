@@ -18,6 +18,7 @@
 #include <common.h>
 #include <track_model.h>
 #include <gui_controller.h>
+#include <property_model.h>
 
 using namespace track_library;
 

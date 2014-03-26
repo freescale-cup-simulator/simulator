@@ -124,19 +124,8 @@ MenuBar {
             text: qsTr("Show Camera View")
             checkable: true
             checked: true
-
-//            onToggled: {
-//                if (settingsColumn.state == ''){
-//                    settingsColumn.state = 'closed';
-//                    this.checked = false;
-//                }
-//                else {
-//                    settingsColumn.state = '';
-//                    this.checked = true;
-//                }
-
-//            }
         }
+
         MenuItem {
             id: showSettings
             text: qsTr("Show Settings")
@@ -151,7 +140,6 @@ MenuBar {
                     settingsColumn.state = '';
                     this.checked = true;
                 }
-
             }
         }
 

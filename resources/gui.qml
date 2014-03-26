@@ -202,9 +202,9 @@ ApplicationWindow {
         }
     }
 
-    GroupBox {
+    Rectangle {
         id: settingsColumn
-        width: 160
+        width: 180
 
         anchors.topMargin: 10
         anchors.bottomMargin: 8
@@ -213,32 +213,40 @@ ApplicationWindow {
         anchors.rightMargin: 8
         anchors.top: parent.top
 
-        Label {
-            id: label1
+        TableView {
+            id: view
 
-            text: "Settings"
-            anchors.horizontalCenter: parent.horizontalCenter
-        }
+            anchors.margins: 10
+            anchors.fill: parent
+            model: settingsModel
+            clip: true
 
-        GroupBox {
-            id: row1
+            TableViewColumn {
+                width: 80
+                title: "Property"
+                role: "name"
 
-            anchors.top: label1.bottom
-            anchors.topMargin: 10
-            anchors.right: parent.right
-            anchors.left: parent.left
-
-            Label {
-                id: speedLabel
-                text: "Speed"
+            }
+            TableViewColumn {
+                width: 80
+                title: "Value"
+                role: "value"
+                delegate: SpinBox {
+                    value: styleData.value
+                    decimals: 4
+                    maximumValue: 1000000
+                    minimumValue: -1000000
+                    stepSize: 0.01
+                    onValueChanged: settingsModel.valueChanged(value, view.currentRow)
+                }
             }
 
-            SpinBox {
-                id: spinbox1
-                x: 40
-                width: 90
-                minimumValue: 0
-                decimals: 1
+            itemDelegate: Item {
+                Text {
+                    anchors.centerIn: parent
+                    renderType: Text.NativeRendering
+                    text: styleData.value
+                }
             }
         }
 

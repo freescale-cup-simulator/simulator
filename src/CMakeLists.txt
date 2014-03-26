@@ -16,6 +16,8 @@ set(project_sources
     logger.cc
     gui_controller.cc
     car3d.cc
+    property.cc
+    property_model.cc
 )
 
 set(project_headers
@@ -30,6 +32,8 @@ set(project_headers
     logger.h
     gui_controller.h
     car3d.h
+    property.h
+    property_model.h
 )
 
 set(qrc
