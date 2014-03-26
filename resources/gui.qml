@@ -77,7 +77,7 @@ ApplicationWindow {
             CameraGrabber {
                 id: grabber
                 objectName: "freeCamView"
-                anchors.fill: parent                
+                anchors.fill: parent
                 Component.onCompleted: {
                     camera = userCamera;
                     ogreEngine = ogreEngineInstance;
@@ -232,12 +232,13 @@ ApplicationWindow {
                 title: "Value"
                 role: "value"
                 delegate: SpinBox {
-                    value: styleData.value
+                    value: styleData.value.x
                     decimals: 4
-                    maximumValue: 1000000
-                    minimumValue: -1000000
-                    stepSize: 0.01
-                    onValueChanged: settingsModel.valueChanged(value, view.currentRow)
+                    activeFocusOnPress: true
+                    maximumValue: Infinity
+                    minimumValue: -Infinity
+                    stepSize: styleData.value.y
+                    onValueChanged: settingsModel.valueChanged(value, styleData.row)
                 }
             }
 

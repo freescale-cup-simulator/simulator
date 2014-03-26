@@ -1,4 +1,4 @@
-#include "property_model.h"
+#include <property_model.h>
 
 SettingsModel * getSettingsModelInstance()
 {
@@ -15,53 +15,52 @@ SettingsModel::SettingsModel(QObject *parent) :
                      Qt::QueuedConnection);
 }
 
-int SettingsModel::rowCount(const QModelIndex &parent) const
+int SettingsModel::rowCount(const QModelIndex &) const
 {
         return m_props.count();
 }
 
-int SettingsModel::columnCount(const QModelIndex &parent) const
+int SettingsModel::columnCount(const QModelIndex &) const
 {
     return 2;
 }
 
 QVariant SettingsModel::data(const QModelIndex &index, int role) const
 {
-    if(!index.isValid())
+    if (!index.isValid())
         return QVariant();
-    const Property &prop = m_props[index.row()];
+
+    const Property & prop = m_props[index.row()];
     if (role == NameRole)
         return prop.name();
     else if (role == ValueRole)
-        return prop.value();
+        return QVector2D(prop.value(), prop.value_step());
+
     return QVariant();
 }
 
-bool SettingsModel::setData(const QModelIndex &index, const QVariant &value, int role)
+QHash<int, QByteArray> SettingsModel::roleNames() const
 {
-    qDebug() << "SetData";
-    return false;
-}
+    static QHash<int, QByteArray> roles
+    {
+        { NameRole,  "name"  },
+        { ValueRole, "value" }
+    };
 
-QHash<int, QByteArray> SettingsModel::roleNames() const {
-    QHash<int, QByteArray> roles;
-    roles[NameRole] = "name";
-    roles[ValueRole] = "value";
     return roles;
 }
 
-
 Qt::ItemFlags SettingsModel::flags(const QModelIndex &index) const
 {
-    if(index.column()==0)
+    if (index.column() == 0)
         return Qt::ItemIsEnabled;
     else
-        return Qt::ItemIsEnabled|Qt::ItemIsEditable|Qt::ItemIsSelectable;
+        return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
 }
 
 void SettingsModel::addProperty(Property prop)
 {
-    if(!m_props.contains(prop))
+    if (!m_props.contains(prop))
         emit internalAddPropSignal(prop);
 }
 
@@ -72,25 +71,25 @@ void SettingsModel::internalAddPropSlot(Property prop)
     endInsertRows();
 }
 
-void SettingsModel::deleteProperty(QString propName)
+void SettingsModel::deleteProperty(const QString & propName)
 {
     beginRemoveRows(QModelIndex(), rowCount(), rowCount());
-    for(int i = 0; i < m_props.count(); i++)
-        if(m_props.at(i).name() == propName)
+    for (int i = 0; i < m_props.count(); i++)
+        if (m_props.at(i).name() == propName)
             m_props.removeAt(i);
 
     endRemoveRows();
 }
 
-double SettingsModel::getPropertyValue(QString propName)
+double SettingsModel::getPropertyValue(const QString & propName)
 {
-    for(int i = 0; i < m_props.count(); i++)
-        if(m_props.at(i).name() == propName)
+    for (int i = 0; i < m_props.count(); i++)
+        if (m_props.at(i).name() == propName)
             return m_props.at(i).value();
 }
 
 void SettingsModel::valueChanged(double value, int row)
 {
-    qDebug() << "value: " << value << "row: " << row; //<< endl;
+    qDebug() << row << value;
     m_props[row].setValue(value);
 }
