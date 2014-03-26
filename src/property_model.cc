@@ -1,31 +1,31 @@
 #include <property_model.h>
 
-SettingsModel * getSettingsModelInstance()
+PropertyModel * getPropertyModelInstance()
 {
-    static SettingsModel model;
+    static PropertyModel model;
 
     return &model;
 }
 
-SettingsModel::SettingsModel(QObject *parent) :
+PropertyModel::PropertyModel(QObject *parent) :
     QAbstractTableModel(parent)
 {
-    QObject::connect(this, &SettingsModel::internalAddPropSignal,
-                     this, &SettingsModel::internalAddPropSlot,
+    QObject::connect(this, &PropertyModel::internalAddPropSignal,
+                     this, &PropertyModel::internalAddPropSlot,
                      Qt::QueuedConnection);
 }
 
-int SettingsModel::rowCount(const QModelIndex &) const
+int PropertyModel::rowCount(const QModelIndex &) const
 {
         return m_props.count();
 }
 
-int SettingsModel::columnCount(const QModelIndex &) const
+int PropertyModel::columnCount(const QModelIndex &) const
 {
     return 2;
 }
 
-QVariant SettingsModel::data(const QModelIndex &index, int role) const
+QVariant PropertyModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
@@ -39,7 +39,7 @@ QVariant SettingsModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-QHash<int, QByteArray> SettingsModel::roleNames() const
+QHash<int, QByteArray> PropertyModel::roleNames() const
 {
     static QHash<int, QByteArray> roles
     {
@@ -50,7 +50,7 @@ QHash<int, QByteArray> SettingsModel::roleNames() const
     return roles;
 }
 
-Qt::ItemFlags SettingsModel::flags(const QModelIndex &index) const
+Qt::ItemFlags PropertyModel::flags(const QModelIndex &index) const
 {
     if (index.column() == 0)
         return Qt::ItemIsEnabled;
@@ -58,20 +58,20 @@ Qt::ItemFlags SettingsModel::flags(const QModelIndex &index) const
         return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
 }
 
-void SettingsModel::addProperty(Property prop)
+void PropertyModel::addProperty(Property prop)
 {
     if (!m_props.contains(prop))
         emit internalAddPropSignal(prop);
 }
 
-void SettingsModel::internalAddPropSlot(Property prop)
+void PropertyModel::internalAddPropSlot(Property prop)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_props << prop;
     endInsertRows();
 }
 
-void SettingsModel::deleteProperty(const QString & propName)
+void PropertyModel::deleteProperty(const QString & propName)
 {
     beginRemoveRows(QModelIndex(), rowCount(), rowCount());
     for (int i = 0; i < m_props.count(); i++)
@@ -81,14 +81,14 @@ void SettingsModel::deleteProperty(const QString & propName)
     endRemoveRows();
 }
 
-double SettingsModel::getPropertyValue(const QString & propName)
+double PropertyModel::getPropertyValue(const QString & propName)
 {
     for (int i = 0; i < m_props.count(); i++)
         if (m_props.at(i).name() == propName)
             return m_props.at(i).value();
 }
 
-void SettingsModel::valueChanged(double value, int row)
+void PropertyModel::valueChanged(double value, int row)
 {
     qDebug() << row << value;
     m_props[row].setValue(value);

@@ -7,15 +7,15 @@
 
 #include <property.h>
 
-class SettingsModel;
+class PropertyModel;
 
-SettingsModel * getSettingsModelInstance();
+PropertyModel * getPropertyModelInstance();
 
-class SettingsModel : public QAbstractTableModel
+class PropertyModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit SettingsModel(QObject *parent = nullptr);
+    explicit PropertyModel(QObject *parent = nullptr);
     enum PropertyRoles
     {
         NameRole = Qt::UserRole + 1,
