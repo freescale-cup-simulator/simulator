@@ -19,6 +19,8 @@
 #include <config.h>
 #include <common.h>
 #include <libtrack/track_model.h>
+#include <property.h>
+#include <property_model.h>
 
 namespace tl = track_library;
 
