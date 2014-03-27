@@ -16,6 +16,13 @@ PhysicsSimulation::PhysicsSimulation(const track_library::TrackModel &model,
     importModel("car_body.mesh", "car");
     buildTrack();
     createVehicle();
+
+    auto s = getPropertyModelInstance();
+
+    s->addProperty(Property("cfm", 5e-4, 1e-4));
+    s->addProperty(Property("erp", 0.5, 0.1));
+    s->addProperty(Property("slip1", 0.01, 0.0001));
+    s->addProperty(Property("slip2", 0.0003, 0.0001));
 }
 
 PhysicsSimulation::~PhysicsSimulation()
@@ -279,18 +286,25 @@ void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
     QVector3D v = {0, 0, 1};
     v = body.rotatedVector(v);
 
+    auto s = getPropertyModelInstance();
+
+    double cfm = s->getPropertyValue("cfm");
+    double erp = s->getPropertyValue("erp");
+    double slip1 = s->getPropertyValue("slip1");
+    double slip2 = s->getPropertyValue("slip2");
+
     for (int i = 0; i < MAX_CONTACTS; i++)
     {
         contacts[i].surface.mode = dContactSoftCFM | dContactSoftERP
                 | dContactSlip1 | dContactSlip2 | dContactFDir1;
         contacts[i].surface.mu = dInfinity;
-        contacts[i].surface.soft_cfm = 5e-4;
-        contacts[i].surface.soft_erp = 0.5;
+        contacts[i].surface.soft_cfm = cfm;
+        contacts[i].surface.soft_erp = erp;
         contacts[i].fdir1[0] = v.x();
         contacts[i].fdir1[1] = 0;
         contacts[i].fdir1[2] = v.z();
-        contacts[i].surface.slip1 = 0.01;
-        contacts[i].surface.slip2 = .0003;
+        contacts[i].surface.slip1 = slip1;
+        contacts[i].surface.slip2 = slip2;
     }
 
     int nc = dCollide(ga, gb, MAX_CONTACTS, &contacts[0].geom, sizeof(dContact));

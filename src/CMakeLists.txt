@@ -47,12 +47,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Quick_EXECUTABLE_COMPILE_FLAGS}")
 include(ExternalProject)
 ExternalProject_Add(
   ODE
-  URL ${CMAKE_CURRENT_SOURCE_DIR}/deps/ode-0.12.tar.bz2
-  URL_MD5 48fdd41fae1a7e7831feeded09826599
+  URL ${CMAKE_CURRENT_SOURCE_DIR}/deps/ode-0.13.tar.bz2
+  URL_MD5 04b32c9645c147e18caff7a597a19f84
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --enable-static
     --disable-shared --enable-double-precision --with-trimesh=gimpact
-    --disable-demos --with-drawstuff=none --enable-libccd
+    --disable-demos --with-drawstuff=none --enable-libccd --disable-threading-intf
   BUILD_COMMAND make
   INSTALL_COMMAND make install
 )
@@ -71,7 +71,6 @@ include_directories(SYSTEM
 )
 
 link_directories(${INSTALL_DIR}/lib/)
-add_definitions(-DdDOUBLE)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug CACHE STRING

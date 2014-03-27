@@ -56,7 +56,7 @@ TrackModel *SimulationRunner::loadTrack(const QString &track_path)
     if (m_state==SimulationRunner::Started||m_state==SimulationRunner::Paused)
     {
         qWarning("Will not change track while running");
-        return 0;
+        return nullptr;
     }
 
     m_track_model.clear();
@@ -66,7 +66,7 @@ TrackModel *SimulationRunner::loadTrack(const QString &track_path)
     {
         qWarning("Failed to populate track from %s, aborting",
                  track_path.toLocal8Bit().data());
-        return 0;
+        return nullptr;
     }
     return &m_track_model;
 }

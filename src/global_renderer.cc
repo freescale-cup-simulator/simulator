@@ -20,7 +20,7 @@ GlobalRenderer::GlobalRenderer(QWindow *parent)
     rootContext()->setContextProperty("globalRenderer", this);
     rootContext()->setContextProperty("guiController", m_gui_controller);
     rootContext()->setContextProperty("settingsModel",
-                                      getSettingsModelInstance());
+                                      getPropertyModelInstance());
     load(QUrl("qrc:/qml/gui.qml"));
 
     m_root_window = qobject_cast<QQuickWindow *>(rootObjects().at(0));

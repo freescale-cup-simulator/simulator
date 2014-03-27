@@ -17,7 +17,14 @@ MenuBar {
             text: qsTr("Open algorithm...")
             onTriggered: guiController.openAlgorithm()
         }
+        MenuItem {
+            id: quickStart
+            text: qsTr("Quick start")
+            onTriggered: guiController.quickStart()
+        }
+
         MenuSeparator { }
+
         MenuItem {
             id: recentTracks
             text: qsTr("Recent tracks")

@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include <QDebug>
 
+
 #include <simulation_runner.h>
 #include <car3d.h>
 
@@ -25,8 +26,9 @@ signals:
     void cameraSimulatorDestroyed();
 
 public slots:
-    void openTrack();
-    void openAlgorithm();
+    void openTrack(QString filename = QString());
+    void openAlgorithm(QString filename = QString());
+    void quickStart();
     void queryQuit();
     void runSimulation();
     void pauseSimulation();

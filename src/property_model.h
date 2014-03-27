@@ -2,19 +2,22 @@
 #define MODEL_H
 
 #include <QAbstractTableModel>
+#include <QVector2D>
 #include <QDebug>
-#include "property.h"
 
-class SettingsModel;
+#include <property.h>
 
-SettingsModel * getSettingsModelInstance();
+class PropertyModel;
 
-class SettingsModel : public QAbstractTableModel
+PropertyModel * getPropertyModelInstance();
+
+class PropertyModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit SettingsModel(QObject *parent = 0);
-    enum PropertyRoles {
+    explicit PropertyModel(QObject *parent = nullptr);
+    enum PropertyRoles
+    {
         NameRole = Qt::UserRole + 1,
         ValueRole
     };
@@ -22,12 +25,11 @@ public:
     int rowCount(const QModelIndex &parent  = QModelIndex()) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
     QHash<int, QByteArray> roleNames() const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
-
-    void deleteProperty(QString propName);
-    double getPropertyValue(QString propName);
+    void deleteProperty(const QString &propName);
+    double getPropertyValue(const QString &propName);
     void addProperty(Property prop);
 
 public slots:
@@ -39,14 +41,9 @@ signals:
 private slots:
     void internalAddPropSlot(Property prop);
 
-
-
 private:
     QVector<Property> m_props;
 
-    // QAbstractItemModel interface
-public:
-    Qt::ItemFlags flags(const QModelIndex &index) const;
 };
 
 #endif // MODEL_H

@@ -58,6 +58,7 @@ ApplicationWindow {
     function loadCamera() {
         cameraLoader.active = true
     }
+
     SplitView{
         anchors.fill: parent
         orientation: Qt.Horizontal
@@ -65,7 +66,6 @@ ApplicationWindow {
 
         GridLayout {
             id: mainWindowColumn
-
             Layout.fillWidth: true
 
             Component {
@@ -130,8 +130,6 @@ ApplicationWindow {
                         onReleased: { prevX = -1; prevY = -1 }
                     }
 
-
-
                     Rectangle {
                         id: camViewContainer
                         objectName: "camViewContainer"
@@ -156,6 +154,7 @@ ApplicationWindow {
                             drag.minimumY: 0
                             drag.maximumY: cameraLoader.height - height
                         }
+
                         Component
                         {
                             id: camSimulatorViewportComponent
@@ -198,8 +197,6 @@ ApplicationWindow {
         }
 
 
-
-
         Rectangle {
             id: settingsColumn
 
@@ -224,15 +221,15 @@ ApplicationWindow {
                     title: "Value"
                     role: "value"
                     delegate: SpinBox {
-                        value: styleData.value
+                        value: styleData.value.x
                         decimals: 4
-                        maximumValue: 1000000
-                        minimumValue: -1000000
-                        stepSize: 0.01
-                        onValueChanged: settingsModel.valueChanged(value, view.currentRow)
+                        activeFocusOnPress: true
+                        maximumValue: Infinity
+                        minimumValue: -Infinity
+                        stepSize: styleData.value.y
+                        onValueChanged: settingsModel.valueChanged(value, styleData.row)
                     }
                 }
-
                 itemDelegate: Item {
                     Text {
                         anchors.centerIn: parent
@@ -240,19 +237,20 @@ ApplicationWindow {
                         text: styleData.value
                     }
                 }
+
+
+                states: [
+                    State {
+                        name: "closed"
+                        PropertyChanges {
+                            target: settingsColumn
+                            width: 0
+                            opacity: 0
+                        }
+                    }
+                ]
             }
 
-            states: [
-                State {
-                    name: "closed"
-                    PropertyChanges {
-                        target: settingsColumn
-                        width: 0
-                        opacity: 0
-                    }
-                }
-            ]
         }
-
     }
 }
