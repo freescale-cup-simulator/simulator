@@ -2,7 +2,15 @@
 #include <QThreadPool>
 
 #include <global_renderer.h>
+#include <ogre_engine.h>
+#include <camera_grabber.h>
+#include <scene.h>
+#include <car3d.h>
+#include <asset_manager.h>
+#include <simulation_runner.h>
+#include <physics_simulation.h>
 #include <config.h>
+#include <common.h>
 
 int main(int argc, char * argv[])
 {
@@ -11,9 +19,21 @@ int main(int argc, char * argv[])
     QCoreApplication::setApplicationName("Freescale Simulator");
 
     qRegisterMetaType<DataSet>();
+    qmlRegisterType<CameraGrabber>("OgreTypes", 1, 0, "CameraGrabber");
+    qmlRegisterType<GlobalRenderer>("OgreTypes", 1, 0, "GlobalRenderer");
+    qmlRegisterType<OgreEngine>("OgreTypes", 1, 0, "OgreEngine");
 
     QApplication application (argc, argv);
-    GlobalRenderer view;
+    GlobalRenderer view; // ok
+    QQmlContext * qmlContext=view.rootContext();
+    OgreEngine * engine=view.ogreEngine();
+    PhysicsSimulation physics; // need cleanup
+    AssetManager asset_manager(physics.world(),physics.space(),engine->sceneManager()); // ok
+    Scene scene(engine->sceneManager());
+    //Car3D car();
+    SimulationRunner simulation_runner(&view);
+
+
     /*SimulationRunner sr(&view);
 
     if(sr.loadAlgorithmFile(LUA_DIRECTORY "/simple_algorithm.lua"))

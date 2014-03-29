@@ -1,11 +1,25 @@
 #include <scene.h>
 
-Scene::Scene(QObject *parent)
+Scene::Scene(Ogre::SceneManager * manager,QObject *parent)
+    : m_scene_manager(manager)
 {
 
 }
 
-Scene *Scene::init(MeshManager *mesh_manager, OgreEngine *engine, track_library::TrackModel *track_model)
+bool Scene::loadTrack(const QString &file)
+{
+    m_track.clear();
+    if(track_library::io::populateTrackFromFile(m_track,
+                                                file.toStdString()))
+    {
+        qWarning("Failed to populate track from %s, aborting",
+                 file.toLocal8Bit().data());
+        return false;
+    }
+
+}
+
+void Scene::redraw()
 {
 
 }

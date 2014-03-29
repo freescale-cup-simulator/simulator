@@ -1,21 +1,52 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
+import QtQuick.Dialogs 1.0
+
 
 MenuBar {
-    property alias showCameraView: showCameraView
 
+    property alias showCameraView: showCameraView
     Menu {
         title: qsTr("File")
-
-        MenuItem {
-            id: openTrack
-            text: qsTr("Open track...")
-            onTriggered: guiController.openTrack()
+        FileDialog {
+            id: openTrackDialog
+            title: "Please choose track file"
+            nameFilters: [ "Track files (*.xml)" ]
+            selectExisting : true
+            selectMultiple : false
+            onAccepted: {
+                sceneInstance.loadTrack(openTrackDialog.fileUrl)
+            }
+        }
+        FileDialog {
+            id: openAlgoDialog
+            title: "Please choosealgorithm file"
+            nameFilters: [ "Lua algorithm files (*.lua)" ]
+            selectExisting : true
+            selectMultiple : false
+            onAccepted: {
+                controlAlgorithm.loadFile(openAlgoDialog.fileUrl)
+            }
         }
         MenuItem {
+
+            id: openTrack
+            text: qsTr("Open track...")
+            onTriggered:
+            {
+                if(simulationRunner.isStopped())
+                    openTrackDialog.open();
+            }
+        }
+        MenuItem {
+
             id: openAlgorithm
             text: qsTr("Open algorithm...")
-            onTriggered: guiController.openAlgorithm()
+            onTriggered:
+            {
+                if(simulationRunner.isStopped())
+                    openAlgoDialog.open();
+            }
         }
         MenuSeparator { }
         MenuItem {
@@ -31,7 +62,7 @@ MenuBar {
             id: quit
             text: "Quit"
             shortcut: "Ctrl+Q"
-            onTriggered: guiController.queryQuit()
+            onTriggered: Qt.quit()
         }
     }
 
@@ -42,19 +73,19 @@ MenuBar {
             id: run
             text: qsTr("Run simulation")
             shortcut: "Ctrl+R"
-            onTriggered: guiController.runSimulation()
+            onTriggered: simulationRunner.run()
         }
         MenuItem {
             id: pause
             text: qsTr("Pause/Resume")
             shortcut: "Pause"
-            onTriggered: guiController.pauseSimulation()
+            onTriggered: simulationRunner.pause()
         }
         MenuItem {
             id: stop
             text: qsTr("Stop")
             shortcut: "Ctrl+Break"
-            onTriggered: guiController.stopSimulation()
+            onTriggered: simulationRunner.stop()
         }
     }
     Menu {
@@ -68,8 +99,8 @@ MenuBar {
             checked: true
             exclusiveGroup: viewGroup
             onToggled:{
-                if(checked)
-                    guiController.viewSwitched(this)
+                /*if(checked)
+                    guiController.viewSwitched(this)*/
             }
 
         }
@@ -80,8 +111,8 @@ MenuBar {
             checkable: true
             exclusiveGroup: viewGroup
             onToggled:{
-                if(checked)
-                    guiController.viewSwitched(this)
+                /*if(checked)
+                    guiController.viewSwitched(this)*/
             }
         }
         MenuItem {
@@ -91,8 +122,8 @@ MenuBar {
             checkable: true
             exclusiveGroup: viewGroup
             onToggled:{
-                if(checked)
-                    guiController.viewSwitched(this)
+                /*if(checked)
+                    guiController.viewSwitched(this)*/
             }
         }
     }

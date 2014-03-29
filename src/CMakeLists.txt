@@ -14,9 +14,9 @@ set(project_sources
     camera_simulator.cc
     global_renderer.cc
     logger.cc
-    gui_controller.cc
+    #gui_controller.cc
     car3d.cc
-    mesh_manager.cc
+    asset_manager.cc
     scene.cc
 )
 
@@ -30,9 +30,9 @@ set(project_headers
     camera_simulator.h
     global_renderer.h
     logger.h
-    gui_controller.h
+    #gui_controller.h
     car3d.h
-    mesh_manager.h
+    asset_manager.h
     scene.h
 )
 

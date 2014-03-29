@@ -26,7 +26,7 @@ SimulationRunner::SimulationRunner(GlobalRenderer * renderer,QObject *parent)
     , m_car(0)
 {
     setAutoDelete(false);
-    connect(m_renderer,&GlobalRenderer::queryExit,this,&SimulationRunner::stop);
+    //connect(m_renderer,&GlobalRenderer::queryExit,this,&SimulationRunner::stop);
     //connect(this,&SimulationRunner::simulationStopped,m_renderer,&GlobalRenderer::close);
 }
 
@@ -51,7 +51,7 @@ bool SimulationRunner::loadAlgorithmFile(const QString &file)
     return true;
 }
 
-TrackModel *SimulationRunner::loadTrack(const QString &track_path)
+/*TrackModel *SimulationRunner::loadTrack(const QString &track_path)
 {
     if (m_state==SimulationRunner::Started||m_state==SimulationRunner::Paused)
     {
@@ -69,7 +69,7 @@ TrackModel *SimulationRunner::loadTrack(const QString &track_path)
         return 0;
     }
     return &m_track_model;
-}
+}*/
 
 void SimulationRunner::run()
 {
@@ -82,7 +82,7 @@ void SimulationRunner::run()
 
     auto cs = new CameraSimulator(m_renderer);
 
-    auto ps = new PhysicsSimulation(m_track_model);
+    auto ps = new PhysicsSimulation();
     auto vm = new VehicleModel;
     m_camera_simulator = QSharedPointer<CameraSimulator>(cs);
     m_physics_simulation = QSharedPointer<PhysicsSimulation>(ps);

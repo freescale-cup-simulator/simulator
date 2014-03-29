@@ -2,14 +2,14 @@
 
 CameraSimulator::CameraSimulator(GlobalRenderer * renderer, QObject *parent)
     : QObject(parent)
-    , m_engine(renderer->getOgreEngine())
+    , m_engine(renderer->ogreEngine())
     , m_renderTarget(0)
     , m_camera(0)
-    , m_manager(renderer->getSceneManager())
+    , m_manager(m_engine->sceneManager())
     , m_renderer(renderer)
     , m_camera_object(0)
 {
-    m_camera=renderer->getSceneManager()->createCamera("CS_0");
+    m_camera=m_manager->createCamera("CS_0");
     m_camera->setNearClipDistance(0.1);
     m_camera->setFarClipDistance(99999);
     m_camera->setAspectRatio(1);
@@ -20,9 +20,9 @@ CameraSimulator::CameraSimulator(GlobalRenderer * renderer, QObject *parent)
     m_frame=new quint8[CAMERA_FRAME_LEN];
     memset(m_frame,0,CAMERA_FRAME_LEN);
     // Qt::DirectConnection will run CameraSimulator::onUpdate in QML Rendering Thread
-    connect(renderer->getQuickWindow(),&QQuickWindow::beforeRendering,this,&CameraSimulator::onUpdate,Qt::DirectConnection);   
-    connect(this,&CameraSimulator::created,renderer->getGuiController(),&GuiController::cameraSimulatorCreated);
-    connect(this,&CameraSimulator::destroyed,renderer->getGuiController(),&GuiController::cameraSimulatorDestroyed);
+    connect(renderer->rootWindow(),&QQuickWindow::beforeRendering,this,&CameraSimulator::onUpdate,Qt::DirectConnection);
+    //connect(this,&CameraSimulator::created,renderer->getGuiController(),&GuiController::cameraSimulatorCreated);
+    //connect(this,&CameraSimulator::destroyed,renderer->getGuiController(),&GuiController::cameraSimulatorDestroyed);
     renderer->rootContext()->setContextProperty("carCamera",m_camera_object);
     emit created(m_camera_object);
 }
@@ -30,7 +30,7 @@ CameraSimulator::CameraSimulator(GlobalRenderer * renderer, QObject *parent)
 CameraSimulator::~CameraSimulator()
 {
     QMutexLocker locker(&m_safe_destruct);
-    disconnect(m_renderer->getQuickWindow(),&QQuickWindow::beforeRendering,this,&CameraSimulator::onUpdate);
+    disconnect(m_renderer->rootWindow(),&QQuickWindow::beforeRendering,this,&CameraSimulator::onUpdate);
     emit destroyed();
     qDebug()<<"Camera destructor";
     delete[] m_frame;

@@ -1,35 +1,46 @@
 #include <physics_simulation.h>
 
-PhysicsSimulation::PhysicsSimulation(const track_library::TrackModel &model,
-                                     QObject * parent)
+PhysicsSimulation::PhysicsSimulation(QObject * parent)
     : QObject(parent)
-    , m_track_model(model)
-    , m_start_position(nullptr)
+    , m_world(0)
+    , m_space(0)
+    , m_contact_group(0)
 {
     dInitODE();
-    m_world = dWorldCreate();
-    m_space = dSimpleSpaceCreate(nullptr);
-    m_contact_group = dJointGroupCreate(0);
-    dWorldSetGravity(m_world, 0, GRAVITY_CONSTANT, 0);
 
-    importModel("line.mesh", "tile");
+    /*importModel("line.mesh", "tile");
     importModel("car_body.mesh", "car");
     buildTrack();
-    createVehicle();
+    createVehicle();*/
 }
 
 PhysicsSimulation::~PhysicsSimulation()
 {
     qDebug()<<"Physics destructor";
-    dJointGroupDestroy(m_contact_group);
-    dSpaceDestroy(m_space);
-    dWorldDestroy(m_world);
-    dCloseODE();
-    for (auto pair : m_allocated_memory)
+    if(m_world)
     {
-        delete pair.first;
-        delete pair.second;
+        dJointGroupDestroy(m_contact_group);
+        dSpaceDestroy(m_space);
+        dWorldDestroy(m_world);
     }
+    dCloseODE();
+}
+
+void PhysicsSimulation::createWorld()
+{
+    if(m_world)
+    {
+        dJointGroupDestroy(m_contact_group);
+        dSpaceDestroy(m_space);
+        dWorldDestroy(m_world);
+        m_world=0;
+        m_space=0;
+        m_contact_group=0;
+    }
+    m_world = dWorldCreate();
+    m_space = dSimpleSpaceCreate(nullptr);
+    m_contact_group = dJointGroupCreate(0);
+    dWorldSetGravity(m_world, 0, GRAVITY_CONSTANT, 0);
 }
 
 void PhysicsSimulation::process(DataSet & data)
@@ -73,32 +84,11 @@ void PhysicsSimulation::process(DataSet & data)
 #endif
 }
 
-void PhysicsSimulation::importModel(const QString & mesh_name,
-                                    const QString & name)
-{
-    Ogre::MeshManager * mm = Ogre::MeshManager::getSingletonPtr();
-    Ogre::MeshPtr mesh = mm->getByName(mesh_name.toLocal8Bit().data());
-
-    if (mesh.isNull())
-        qFatal("Cannot find requested mesh for physics simulation!");
-
-    size_t vertex_count, index_count;
-    float * vertices;
-    unsigned int * indices;
-    getOgreMeshData(mesh.get(), vertex_count, vertices, index_count, indices);
-
-    dTriMeshDataID id = dGeomTriMeshDataCreate();
-    dGeomTriMeshDataBuildSingle(id, vertices, sizeof(float) * 3, vertex_count,
-                                indices, index_count, sizeof(int) * 3);
-    m_trimesh_data.insert(name, id);
-    m_allocated_memory.append({vertices, indices});
-}
-
 void PhysicsSimulation::buildTrack()
 {
     int rotation;
 
-    for (const tl::Tile & tile : m_track_model.tiles())
+    /*for (const tl::Tile & tile : m_track_model.tiles())
     {
         dGeomID id = dCreateTriMesh(m_space, m_trimesh_data["tile"], 0, 0, 0);
         dQuaternion rotation_q;
@@ -159,7 +149,7 @@ void PhysicsSimulation::createVehicle()
     constexpr dReal mass = 1.27;
 
     dBodyID id = dBodyCreate(m_world);
-    dGeomID gid = dCreateTriMesh(m_space, m_trimesh_data["car"], 0, 0, 0);
+    /*dGeomID gid = dCreateTriMesh(m_space, m_trimesh_data["car"], 0, 0, 0);
     dJointID jid;
     dMass m;
     dVector3 sp = {m_start_position[0], m_start_position[1] + spawn_height,
@@ -246,7 +236,7 @@ void PhysicsSimulation::createVehicle()
     {
         dJointSetHinge2Param(m_wheels[i], dParamLoStop, -1e-3);
         dJointSetHinge2Param(m_wheels[i], dParamHiStop, 1e-3);
-    }
+    }*/
 }
 
 void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
@@ -305,117 +295,6 @@ void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
 void PhysicsSimulation::nearCallbackWrapper(void * i, dGeomID a, dGeomID b)
 {
     static_cast<PhysicsSimulation *>(i)->nearCallback(nullptr, a, b);
-}
-
-// originally found on Ogre Wiki
-void PhysicsSimulation::getOgreMeshData(const Ogre::Mesh * const mesh,
-                                        size_t & vertex_count,
-                                        float * & vertices, size_t & index_count,
-                                        unsigned int * & indices)
-{
-    bool added_shared = false;
-    size_t current_offset = 0;
-    size_t shared_offset = 0;
-    size_t next_offset = 0;
-    size_t index_offset = 0;
-
-    vertex_count = index_count = 0;
-
-    // Calculate how many vertices and indices we're going to need
-    for ( unsigned short i = 0; i < mesh->getNumSubMeshes(); ++i)
-    {
-        Ogre::SubMesh* submesh = mesh->getSubMesh(i);
-        // We only need to add the shared vertices once
-        if(submesh->useSharedVertices)
-        {
-            if( !added_shared )
-            {
-                vertex_count += mesh->sharedVertexData->vertexCount;
-                added_shared = true;
-            }
-        }
-        else
-        {
-            vertex_count += submesh->vertexData->vertexCount;
-        }
-        // Add the indices
-        index_count += submesh->indexData->indexCount;
-    }
-
-    // Allocate space for the vertices and indices
-    vertices = new float[vertex_count * 3];
-    indices = new unsigned int[index_count];
-
-    added_shared = false;
-
-    // Run through the submeshes again, adding the data into the arrays
-    for (unsigned short i = 0; i < mesh->getNumSubMeshes(); ++i)
-    {
-        Ogre::SubMesh* submesh = mesh->getSubMesh(i);
-
-        Ogre::VertexData* vertex_data = submesh->useSharedVertices ? mesh->sharedVertexData : submesh->vertexData;
-
-        if ((!submesh->useSharedVertices) || (submesh->useSharedVertices && !added_shared))
-        {
-            if(submesh->useSharedVertices)
-            {
-                added_shared = true;
-                shared_offset = current_offset;
-            }
-
-            const Ogre::VertexElement* posElem =
-                    vertex_data->vertexDeclaration->findElementBySemantic(Ogre::VES_POSITION);
-
-            Ogre::HardwareVertexBufferSharedPtr vbuf =
-                    vertex_data->vertexBufferBinding->getBuffer(posElem->getSource());
-
-            unsigned char* vertex =
-                    static_cast<unsigned char*>(vbuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
-
-            float* pReal;
-
-            for( size_t j = 0; j < vertex_data->vertexCount; j++, vertex += vbuf->getVertexSize())
-            {
-                posElem->baseVertexPointerToElement(vertex, &pReal);
-                vertices[current_offset + j*3]     = pReal[0];
-                vertices[current_offset + j*3 + 1] = pReal[1];
-                vertices[current_offset + j*3 + 2] = pReal[2];
-            }
-
-            vbuf->unlock();
-            next_offset += vertex_data->vertexCount;
-        }
-
-        Ogre::IndexData* index_data = submesh->indexData;
-        size_t numTris = index_data->indexCount / 3;
-        Ogre::HardwareIndexBufferSharedPtr ibuf = index_data->indexBuffer;
-
-        bool use32bitindexes = (ibuf->getType() == Ogre::HardwareIndexBuffer::IT_32BIT);
-
-        unsigned long* pLong = static_cast<unsigned long*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
-        unsigned short* pShort = reinterpret_cast<unsigned short*>(pLong);
-
-        size_t offset = (submesh->useSharedVertices)? shared_offset : current_offset;
-
-        if ( use32bitindexes )
-        {
-            for ( size_t k = 0; k < numTris*3; ++k)
-            {
-                indices[index_offset++] = pLong[k] + static_cast<unsigned int>(offset);
-            }
-        }
-        else
-        {
-            for ( size_t k = 0; k < numTris*3; ++k)
-            {
-                indices[index_offset++] = static_cast<unsigned int>(pShort[k]) +
-                        static_cast<unsigned int>(offset);
-            }
-        }
-
-        ibuf->unlock();
-        current_offset = next_offset;
-    }
 }
 
 void PhysicsSimulation::updateBodyData(DataSet & d)

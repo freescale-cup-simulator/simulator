@@ -1,8 +1,8 @@
 #include <car3d.h>
 
 Car3D::Car3D(GlobalRenderer *renderer)
-    : m_scene_manager(renderer->getSceneManager())
-    , m_engine(renderer->getOgreEngine())
+    : m_engine(renderer->ogreEngine())
+    , m_scene_manager(m_engine->sceneManager())
     , m_car_body(0)
     , m_renderer(renderer)
 {
@@ -27,7 +27,7 @@ Car3D::Car3D(GlobalRenderer *renderer)
 Car3D::~Car3D()
 {
     QMutexLocker locker(&m_safe_destruct);
-    disconnect(m_renderer->getQuickWindow(),&QQuickWindow::beforeRendering,this,&Car3D::update);
+    disconnect(m_renderer->rootWindow(),&QQuickWindow::beforeRendering,this,&Car3D::update);
 }
 
 void Car3D::process(DataSet &d)

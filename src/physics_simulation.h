@@ -5,12 +5,6 @@
 
 #include <ode/ode.h>
 
-#include <OGRE/OgreMesh.h>
-#include <OGRE/OgreSubMesh.h>
-#include <OGRE/OgreBone.h>
-#include <OGRE/OgreVertexIndexData.h>
-#include <OGRE/OgreMeshManager.h>
-
 #include <QObject>
 #include <QHash>
 #include <QVector3D>
@@ -26,11 +20,20 @@ class PhysicsSimulation : public QObject
 {
     Q_OBJECT
 public:
-    PhysicsSimulation(const track_library::TrackModel & model,
-                      QObject * parent = nullptr);
+    PhysicsSimulation(QObject * parent = nullptr);
     ~PhysicsSimulation();
+    inline dWorldID world(){
+        return m_world;
+    }
+    inline dSpaceID space(){
+        return m_space;
+    }
 
     void process(DataSet & data);
+
+public slots:
+    void createWorld();
+
 private:
     enum StartDirection {Up = 0, Right, Down, Left};
 
@@ -47,21 +50,15 @@ private:
         };
         dGeomTriMeshSetLastTransform(id, transform);
     }
-
-    void importModel(const QString & mesh_name, const QString & name);
     void buildTrack();
     void createVehicle();
     void nearCallback(void *, dGeomID a, dGeomID b);
     static void nearCallbackWrapper(void * i, dGeomID a, dGeomID b);
-    void getOgreMeshData(const Ogre::Mesh * const mesh, size_t & vertex_count,
-                         float * & vertices, size_t & index_count,
-                         unsigned int * & indices);
     void updateBodyData(DataSet & d);
 
     static constexpr dReal GRAVITY_CONSTANT = -9.81;
     static constexpr int MAX_CONTACTS = 128;
 
-    const track_library::TrackModel & m_track_model;
     const dReal * m_start_position;
     dQuaternion m_start_rotation_q;
     StartDirection m_start_direction;
@@ -76,9 +73,6 @@ private:
     dWorldID m_world;
     dSpaceID m_space;
     dJointGroupID m_contact_group;
-    QHash<QString, dTriMeshDataID> m_trimesh_data;
-
-    QVector<QPair<float *, unsigned int *>> m_allocated_memory;
 };
 
 #endif

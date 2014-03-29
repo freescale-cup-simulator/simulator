@@ -3,26 +3,18 @@
 
 #include <QCoreApplication>
 #include <QtQml/QQmlContext>
-#include <QtQuick/QQuickView>
-#include <QSemaphore>
-#include <QList>
 #include <QQuickWindow>
 #include <QQmlApplicationEngine>
 #include <QUrl>
-#include <QMutex>
+#include <QEventLoop>
 
 #include <ogre_engine.h>
-#include <camera_grabber.h>
 #include <camera.h>
 #include <config.h>
-#include <common.h>
-#include <track_model.h>
-#include <gui_controller.h>
 
-using namespace track_library;
 
-class GuiController;
-
+// Loads GUI and OgreEngine
+// Sets QML context property ogreEngineInstance
 class GlobalRenderer : public QQmlApplicationEngine
 {
     Q_OBJECT
@@ -36,7 +28,6 @@ public:
 
 signals:
     void ogreInitialized();
-    void queryExit();
     void contextObjectsSet();
 
 public slots:
@@ -46,10 +37,9 @@ private slots:
     void setContextObjects();
 
 private:
-
     OgreEngine * m_ogre_engine;    
     QQuickWindow * m_root_window;
-    GuiController * m_gui_controller;
+    Camera * m_user_camera;
 };
 
 #endif

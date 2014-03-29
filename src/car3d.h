@@ -7,6 +7,8 @@
 #include <global_renderer.h>
 #include <common.h>
 
+#include <OGRE/OgreEntity.h>
+
 class GlobalRenderer;
 
 class Car3D : public QObject
@@ -22,8 +24,8 @@ public slots:
     void update();
 
 private:
-    Ogre::SceneManager * m_scene_manager;
     OgreEngine * m_engine;
+    Ogre::SceneManager * m_scene_manager;
     Ogre::SceneNode * m_car_body;
     Ogre::SceneNode * m_wheels[4];
     DataSet m_local_dataset;
