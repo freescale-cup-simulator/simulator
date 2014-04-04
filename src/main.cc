@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QThreadPool>
+#include <QOpenGLContext>
 
 #include <global_renderer.h>
 #include <ogre_engine.h>
@@ -28,10 +29,18 @@ int main(int argc, char * argv[])
     QQmlContext * qmlContext=view.rootContext();
     OgreEngine * engine=view.ogreEngine();
     PhysicsSimulation physics; // need cleanup
-    AssetManager asset_manager(physics.world(),physics.space(),engine->sceneManager()); // ok
-    Scene scene(engine->sceneManager());
+    QOpenGLContext * m_gl_context=new QOpenGLContext();
+    m_gl_context->setShareContext(engine->ogreContext());
+    Q_ASSERT(m_gl_context->create());
+    TrimeshDataManager trimesh_manager(view.rootWindow(),m_gl_context,engine->sceneManager());
+    AssetFactory asset_factory(physics.world(),physics.space(),&trimesh_manager,engine->sceneManager());
+    //AssetManager asset_manager(physics.world(),physics.space(),engine->sceneManager()); // ok
+    Scene scene(engine->sceneManager(),&asset_factory);
     //Car3D car();
     SimulationRunner simulation_runner(&view);
+    qmlContext->setContextProperty("sceneInstance",&scene);
+    qmlContext->setContextProperty("simulationRunner",&simulation_runner);
+    //QObject::connect(view.rootWindow(),&QQuickWindow::beforeRendering,&scene,&Scene::update,Qt::DirectConnection);
 
 
     /*SimulationRunner sr(&view);

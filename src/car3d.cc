@@ -1,33 +1,12 @@
 #include <car3d.h>
 
-Car3D::Car3D(GlobalRenderer *renderer)
-    : m_engine(renderer->ogreEngine())
-    , m_scene_manager(m_engine->sceneManager())
-    , m_car_body(0)
-    , m_renderer(renderer)
+Car3D::Car3D()
 {
-    m_engine->activateOgreContext();
-    Ogre::Entity * ent;
-    ent = m_scene_manager->createEntity("car", "car_body.mesh");
-    m_car_body = m_scene_manager->getRootSceneNode()->createChildSceneNode();
-    m_car_body->attachObject(ent);
-    m_car_body->setVisible(false);
-    for (int i = 0; i < 4; i++)
-    {
-        m_wheels[i] = m_scene_manager->getRootSceneNode()->createChildSceneNode();
-        ent = m_scene_manager->createEntity((i < 2) ? "wheel_h.mesh"
-                                                    : "wheel_r.mesh");
-        m_wheels[i]->attachObject(ent);
-        m_wheels[i]->setVisible(false);
-    }
-
-    m_engine->doneOgreContext();
 }
 
 Car3D::~Car3D()
 {
-    QMutexLocker locker(&m_safe_destruct);
-    disconnect(m_renderer->rootWindow(),&QQuickWindow::beforeRendering,this,&Car3D::update);
+
 }
 
 void Car3D::process(DataSet &d)

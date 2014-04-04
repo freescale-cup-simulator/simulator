@@ -47,13 +47,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Quick_EXECUTABLE_COMPILE_FLAGS}")
 include(ExternalProject)
 ExternalProject_Add(
   ODE
-  URL ${CMAKE_CURRENT_SOURCE_DIR}/deps/ode-0.12.tar.bz2
-  URL_MD5 48fdd41fae1a7e7831feeded09826599
+  URL ${CMAKE_CURRENT_SOURCE_DIR}/deps/ode-0.13.tar.bz2
+  URL_MD5 04b32c9645c147e18caff7a597a19f84
   BUILD_IN_SOURCE 1
+  BUILD_COMMAND make
   CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --enable-static
     --disable-shared --enable-double-precision --with-trimesh=gimpact
     --disable-demos --with-drawstuff=none --enable-libccd
-  BUILD_COMMAND make
+  CXXFLAGS=-O0\ -ggdb3
   INSTALL_COMMAND make install
 )
 
@@ -147,4 +148,5 @@ target_link_libraries(freescale_simulator
                       ${Boost_LIBRARIES}
                       ${Qt5Quick_LIBRARIES}
                       ${Qt5Widgets_LIBRARIES}
+                      pthread
 )

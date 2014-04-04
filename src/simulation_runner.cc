@@ -138,3 +138,8 @@ void SimulationRunner::stop()
     m_state=SimulationRunner::Stopped;
     ResumeWaitCondition::instance()->wake();
 }
+
+bool SimulationRunner::isStopped()
+{
+    return (m_state!=SimulationRunner::Started) && (m_state!=SimulationRunner::Paused);
+}

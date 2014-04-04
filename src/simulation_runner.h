@@ -73,6 +73,7 @@ public slots:
     void pause();
     void resume();
     void stop();
+    bool isStopped();
 
 signals:
 
