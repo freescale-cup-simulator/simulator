@@ -27,7 +27,6 @@ SimulationRunner::SimulationRunner(GlobalRenderer * renderer,QObject *parent)
 {
     setAutoDelete(false);
     connect(m_renderer,&GlobalRenderer::queryExit,this,&SimulationRunner::stop);
-    //connect(this,&SimulationRunner::simulationStopped,m_renderer,&GlobalRenderer::close);
 }
 
 bool SimulationRunner::loadAlgorithmFile(const QString &file)
@@ -80,6 +79,26 @@ void SimulationRunner::run()
     }
     Q_ASSERT(m_car);
 
+    // temporary: add physics settings
+
+    auto s = getPropertyModelInstance();
+
+    s->addProperty(Property("slip1", 0.00001, 0.000001));
+    s->addProperty(Property("slip2", 0.0002, 1e-9));
+    s->addProperty(Property("mu", 1000, 100));
+    s->addProperty(Property("rho", 0.01, 0.0001));
+
+    s->addProperty(Property("vel2", 100, 1));
+    s->addProperty(Property("fmax", 0.0, 0.01));
+
+    s->addProperty(Property("spring_k", 150000.0, 1000.0));
+    s->addProperty(Property("spring_damping", 200.0, 10.0));
+
+    s->addProperty(Property("tire_k", 30000.0, 1000.0));
+    s->addProperty(Property("tire_damping", 400.0, 10.0));
+
+    //
+
     auto cs = new CameraSimulator(m_renderer);
 
     auto ps = new PhysicsSimulation(m_track_model);
@@ -98,11 +117,14 @@ void SimulationRunner::run()
     dataset.line_position=64;
 
     Q_ASSERT(m_logger.beginWrite());
-    while (m_state!=SimulationRunner::Stopped)
+
+    while (m_state != SimulationRunner::Stopped)
     {
         m_logger<<dataset;
-        if(m_state==SimulationRunner::Paused)
+
+        if (m_state==SimulationRunner::Paused)
             ResumeWaitCondition::instance()->wait();
+
         physics_runtime = 0;
         while (physics_runtime < m_control_interval)
         {
@@ -110,10 +132,12 @@ void SimulationRunner::run()
             m_physics_simulation->process(dataset);
             physics_runtime += m_physics_timestep;
         }
+
         m_camera_simulator->process(dataset);
         m_car->process(dataset);
         m_control_algorithm->process(dataset);
     }
+
     m_logger.endWrite();
     emit simulationStopped();
     qDebug("Simulation done!");

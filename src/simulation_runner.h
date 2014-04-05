@@ -7,7 +7,6 @@
 #include <QWaitCondition>
 #include <QDateTime>
 
-
 #include <global_renderer.h>
 #include <control_algorithm.h>
 #include <physics_simulation.h>
@@ -17,6 +16,7 @@
 #include <logger.h>
 #include <track_io.h>
 #include <config.h>
+#include <property_model.h>
 
 class GlobalRenderer;
 class CameraSimulator;

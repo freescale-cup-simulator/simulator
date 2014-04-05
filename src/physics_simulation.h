@@ -27,12 +27,17 @@ namespace tl = track_library;
 class PhysicsSimulation : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(qreal vehicleVelocity READ vehicleVelocity NOTIFY vehicleVelocityChanged)
 public:
     PhysicsSimulation(const track_library::TrackModel & model,
                       QObject * parent = nullptr);
     ~PhysicsSimulation();
 
     void process(DataSet & data);
+
+    qreal vehicleVelocity();
+signals:
+    void vehicleVelocityChanged();
 private:
     enum StartDirection {Up = 0, Right, Down, Left};
 
@@ -59,14 +64,15 @@ private:
                          float * & vertices, size_t & index_count,
                          unsigned int * & indices);
     void updateBodyData(DataSet & d);
+    void updateERPandCFM(const DataSet & d);
 
     static constexpr dReal GRAVITY_CONSTANT = -9.81;
-    static constexpr int MAX_CONTACTS = 128;
+    static constexpr int MAX_CONTACTS = 256;
 
     const track_library::TrackModel & m_track_model;
     const dReal * m_start_position;
     dQuaternion m_start_rotation_q;
-    StartDirection m_start_direction;
+    QVector3D m_start_rotation_v;
 
     dGeomID m_vehicle_geom;
     dBodyID m_vehicle_body;
@@ -81,6 +87,10 @@ private:
     QHash<QString, dTriMeshDataID> m_trimesh_data;
 
     QVector<QPair<float *, unsigned int *>> m_allocated_memory;
+
+    qreal m_vehicleVelocity;
+    dReal m_surfaceERP;
+    dReal m_surfaceCFM;
 };
 
 #endif
