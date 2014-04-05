@@ -200,7 +200,7 @@ ApplicationWindow {
         Rectangle {
             id: settingsColumn
 
-            Layout.minimumWidth: 200
+            Layout.minimumWidth: 255
 
             TableView {
                 id: view
@@ -217,12 +217,12 @@ ApplicationWindow {
 
                 }
                 TableViewColumn {
-                    width: 80
+                    width: 155
                     title: "Value"
                     role: "value"
                     delegate: SpinBox {
                         value: styleData.value.x
-                        decimals: 4
+                        decimals: 8
                         activeFocusOnPress: true
                         maximumValue: Infinity
                         minimumValue: -Infinity

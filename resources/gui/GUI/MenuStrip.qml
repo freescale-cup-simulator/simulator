@@ -10,30 +10,24 @@ MenuBar {
         MenuItem {
             id: openTrack
             text: qsTr("Open track...")
+            shortcut: "Ctrl+T"
             onTriggered: guiController.openTrack()
         }
         MenuItem {
             id: openAlgorithm
             text: qsTr("Open algorithm...")
+            shortcut: "Ctrl+A"
             onTriggered: guiController.openAlgorithm()
         }
         MenuItem {
             id: quickStart
             text: qsTr("Quick start")
+            shortcut: "Ctrl+S"
             onTriggered: guiController.quickStart()
         }
 
         MenuSeparator { }
 
-        MenuItem {
-            id: recentTracks
-            text: qsTr("Recent tracks")
-        }
-        MenuItem {
-            id: recentAlgorithm
-            text: qsTr("Recent algorithms")
-        }
-        MenuSeparator { }
         MenuItem {
             id: quit
             text: "Quit"
@@ -48,19 +42,19 @@ MenuBar {
         MenuItem {
             id: run
             text: qsTr("Run simulation")
-            shortcut: "Ctrl+R"
+            shortcut: "Alt+R"
             onTriggered: guiController.runSimulation()
         }
         MenuItem {
             id: pause
             text: qsTr("Pause/Resume")
-            shortcut: "Pause"
+            shortcut: "Alt+P"
             onTriggered: guiController.pauseSimulation()
         }
         MenuItem {
             id: stop
             text: qsTr("Stop")
-            shortcut: "Ctrl+Break"
+            shortcut: "Alt+S"
             onTriggered: guiController.stopSimulation()
         }
     }
