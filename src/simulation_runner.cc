@@ -111,7 +111,7 @@ void SimulationRunner::run()
             physics_runtime += m_physics_timestep;
         }
         m_camera_simulator->process(dataset);
-        m_car->process(dataset);
+        //m_car->process(dataset);
         m_control_algorithm->process(dataset);
     }
     m_logger.endWrite();

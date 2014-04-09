@@ -32,7 +32,8 @@ private:
     AssetFactory * m_asset_factory;
     QList<Asset *> m_tile_assets;
     QUrl m_file_url;
-    bool m_is_dirty;
+    Ogre::Vector3 * m_start_position;
+    Ogre::Quaternion m_start_rotation_q;
 };
 
 #endif

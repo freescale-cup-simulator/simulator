@@ -3,9 +3,8 @@
 Scene::Scene(Ogre::SceneManager * manager, AssetFactory *asset_factory, QObject *parent)
     : m_scene_manager(manager)
     , m_asset_factory(asset_factory)
-    , m_is_dirty(false)
+    , m_start_position(0)
 {
-
 }
 
 Scene::~Scene()
@@ -28,6 +27,8 @@ bool Scene::loadTrack(const QUrl &file)
                  file_path.toLocal8Bit().data());
         return false;
     }
+    double x=0.0,z=0.0;
+    Ogre::Quaternion q;
     for (const Tile & tile : m_track.tiles())
     {
         QString mesh_name;
@@ -61,10 +62,21 @@ bool Scene::loadTrack(const QUrl &file)
         }
 
         Asset * t=m_asset_factory->createAsset(
-                    AssetFactory::Body3D|AssetFactory::MeshGeometry,
+                    AssetFactory::SceneNode |
+                    AssetFactory::Body3D |
+                    AssetFactory::MeshGeometry,
                     mesh_name);
-        t->setPosition(-tile.x() + 0.5, 0, tile.y() + 0.5);
-        t->rotate(Ogre::Quaternion(Ogre::Degree(-tile.rotation() - 180),Ogre::Vector3::UNIT_Y));
+
+        x=-tile.x() + 0.5;
+        z=tile.y() + 0.5;
+        q=Ogre::Quaternion(Ogre::Degree(-tile.rotation() - 180),Ogre::Vector3::UNIT_Y);
+        if (tile.type()==track_library::Tile::Start)
+        {
+            m_start_position=new Ogre::Vector3(x,0.0f,z);
+            m_start_rotation_q=q;
+        }
+        t->setPosition(x, 0, z);
+        t->rotate(q);
         t->setVisible(true);
         m_tile_assets<<t;
     }
@@ -77,4 +89,6 @@ void Scene::cleanup()
     m_track.clear();
     qDeleteAll(m_tile_assets);
     m_tile_assets.clear();
+    delete m_start_position;
+    m_start_position=0;
 }

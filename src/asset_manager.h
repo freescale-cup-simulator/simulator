@@ -33,11 +33,11 @@ public:
     void setMass(dReal m);
     void setVisible(bool visible);
 
-private:
     Ogre::SceneNode * node3d;
     dBodyID body;
     dGeomID geometry;
     dMass mass;
+    Ogre::Mesh * mesh;
     bool m_is_dirty;
 };
 
@@ -72,10 +72,11 @@ class AssetFactory
 {
 public:
     enum CreateAssetFlags{
-        Body3D=1,
-        MeshGeometry=2,
-        PhyBody=4,
-        CustomGeometry=8
+        SceneNode=1,
+        Body3D=2,
+        MeshGeometry=4,
+        PhyBody=8,
+        CustomGeometry=16
     };
     typedef std::function<dGeomID(dWorldID,dSpaceID)> GeomFunction;
     AssetFactory(dWorldID world,

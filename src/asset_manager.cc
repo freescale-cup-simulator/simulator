@@ -216,22 +216,24 @@ Asset *AssetFactory::createAsset(int flags, const QString & mesh_name, GeomFunct
         if ((flags & CustomGeometry) && geometry_func)
             gid=geometry_func(m_world,m_space);
     if (flags & PhyBody)
-    {
-        qDebug()<<"ololo";
         bid=dBodyCreate(m_world);
-    }
     if (gid!=0)
         dGeomSetBody(gid, bid);
     if (flags & Body3D)
     {
         m_gl_context->makeCurrent(m_surface);
-        node3d=m_scene_manager->getRootSceneNode()->createChildSceneNode();
-        Ogre::Entity* ent=m_scene_manager->createEntity(mesh_name.toStdString().c_str());
-        node3d->attachObject(ent);
-        node3d->setVisible(false,true);
+        if(flags & SceneNode)
+        {
+            node3d=m_scene_manager->getRootSceneNode()->createChildSceneNode();
+            node3d->setVisible(false,true);
+        }
+        if((flags & SceneNode) && (flags & Body3D))
+        {
+            Ogre::Entity* ent=m_scene_manager->createEntity(mesh_name.toStdString().c_str());
+            node3d->attachObject(ent);
+        }
         m_gl_context->doneCurrent();
     }
-    qDebug()<<bid;
     return new Asset(node3d,bid,gid);
 }
 
@@ -240,21 +242,29 @@ Asset::Asset(Ogre::SceneNode *scene_node, dBodyID phy_body, dGeomID phy_geometry
     : node3d(scene_node)
     , body(phy_body)
     , geometry(phy_geometry)
-    , m_is_dirty(true)
+    , mesh(0)
 {
+    if(node3d)
+    {
+        if(node3d->numAttachedObjects()>0)
+        {
+            Ogre::MovableObject * mo=node3d->getAttachedObject(0);
+            if(mo->getMovableType()=="Entity")
+                this->mesh=(dynamic_cast<Ogre::Entity *>(mo))->getMesh().getPointer();
+        }
+    }
     dMassSetZero(&mass);
-    //qDebug()<<body;
 }
 
 Asset::~Asset()
 {
-    //qDebug()<<body;
     if(body)
         dBodyDestroy(body);
     if(geometry)
         dGeomDestroy(geometry);
     if(node3d)
     {
+        // TODO: if not entity?
         // attached entity cleanup
         Ogre::SceneNode::ObjectIterator it = node3d->getAttachedObjectIterator();
         while (it.hasMoreElements())
