@@ -10,15 +10,22 @@ GlobalRenderer::GlobalRenderer(QWindow *parent)
     addImportPath(":/qml/gui/");
     addImportPath(":/qml/");
     rootContext()->setContextProperty("globalRenderer", this);
+}
+
+void GlobalRenderer::create()
+{
     load(QUrl("qrc:/qml/gui.qml"));
 
     m_root_window = qobject_cast<QQuickWindow *>(rootObjects().at(0));
     Q_ASSERT(m_root_window->objectName() == "rootWindow");
 
-    connect(m_root_window, &QQuickWindow::beforeRendering, this, &GlobalRenderer::initializeOgre, Qt::DirectConnection);
-    connect(this, &GlobalRenderer::ogreInitialized, this, &GlobalRenderer::setContextObjects);
+    connect(m_root_window, &QQuickWindow::beforeRendering, this,
+            &GlobalRenderer::initializeOgre, Qt::DirectConnection);
+    connect(this, &GlobalRenderer::ogreInitialized, this,
+            &GlobalRenderer::setContextObjects);
+
     QEventLoop loop;
-    connect(this,&GlobalRenderer::contextObjectsSet,&loop,&QEventLoop::quit);
+    connect (this, &GlobalRenderer::contextObjectsSet, &loop, &QEventLoop::quit);
     loop.exec();
 }
 

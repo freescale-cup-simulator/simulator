@@ -19,7 +19,7 @@ class Scene : public QObject
 {
     Q_OBJECT
 public:
-    Scene(Ogre::SceneManager * manager,AssetFactory * asset_factory,QObject * parent=0);
+    Scene(AssetFactory * asset_factory, QObject * parent = nullptr);
     ~Scene();
 public slots:
     bool loadTrack(const QUrl &file);
@@ -28,7 +28,7 @@ private:
     void cleanup();
 
     track_library::TrackModel m_track;
-    Ogre::SceneManager * m_scene_manager;
+//    Ogre::SceneManager * m_scene_manager;
     AssetFactory * m_asset_factory;
     QList<Asset *> m_tile_assets;
     QUrl m_file_url;

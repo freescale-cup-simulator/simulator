@@ -1,7 +1,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
 import QtQuick.Dialogs 1.0
-
+import Simulator 1.0
 
 MenuBar {
 
@@ -14,41 +14,33 @@ MenuBar {
             nameFilters: [ "Track files (*.xml)" ]
             selectExisting : true
             selectMultiple : false
-            onAccepted: {
-                sceneInstance.loadTrack(openTrackDialog.fileUrl)
-            }
+            onAccepted: sceneInstance.loadTrack(openTrackDialog.fileUrl)
         }
+
         FileDialog {
             id: openAlgoDialog
-            title: "Please choosealgorithm file"
+            title: "Please choose algorithm file"
             nameFilters: [ "Lua algorithm files (*.lua)" ]
             selectExisting : true
             selectMultiple : false
-            onAccepted: {
-                controlAlgorithm.loadFile(openAlgoDialog.fileUrl)
-            }
+            onAccepted: simulationRunner.loadAlgorithmFile(openAlgoDialog.fileUrl)
         }
         MenuItem {
-
             id: openTrack
             text: qsTr("Open track...")
-            onTriggered:
-            {
-                if(simulationRunner.isStopped())
-                    openTrackDialog.open();
-            }
+            enabled: simulationRunner.simulationState === SimulationRuner.Stopped
+            onTriggered: openTrackDialog.open()
         }
         MenuItem {
 
             id: openAlgorithm
             text: qsTr("Open algorithm...")
-            onTriggered:
-            {
-                if(simulationRunner.isStopped())
-                    openAlgoDialog.open();
-            }
+            enabled: simulationRunner.simulationState === SimulationRuner.Stopped
+            onTriggered: openAlgoDialog.open();
         }
+
         MenuSeparator { }
+
         MenuItem {
             id: recentTracks
             text: qsTr("Recent tracks")

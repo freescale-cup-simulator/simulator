@@ -1,7 +1,7 @@
 #include <scene.h>
 
-Scene::Scene(Ogre::SceneManager * manager, AssetFactory *asset_factory, QObject *parent)
-    : m_scene_manager(manager)
+Scene::Scene(AssetFactory *asset_factory, QObject * parent)
+    : QObject(parent)
     , m_asset_factory(asset_factory)
     , m_start_position(0)
 {

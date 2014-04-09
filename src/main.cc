@@ -10,8 +10,18 @@
 #include <asset_manager.h>
 #include <simulation_runner.h>
 #include <physics_simulation.h>
+#include <control_algorithm.h>
 #include <config.h>
 #include <common.h>
+
+void register_types()
+{
+    qRegisterMetaType<DataSet>();
+    qmlRegisterType<CameraGrabber>("OgreTypes", 1, 0, "CameraGrabber");
+    qmlRegisterType<GlobalRenderer>("OgreTypes", 1, 0, "GlobalRenderer");
+    qmlRegisterType<OgreEngine>("OgreTypes", 1, 0, "OgreEngine");
+    qmlRegisterType<SimulationRunner>("Simulator", 1, 0, "SimulationRuner");
+}
 
 int main(int argc, char * argv[])
 {
@@ -19,27 +29,38 @@ int main(int argc, char * argv[])
     QCoreApplication::setOrganizationDomain("");
     QCoreApplication::setApplicationName("Freescale Simulator");
 
-    qRegisterMetaType<DataSet>();
-    qmlRegisterType<CameraGrabber>("OgreTypes", 1, 0, "CameraGrabber");
-    qmlRegisterType<GlobalRenderer>("OgreTypes", 1, 0, "GlobalRenderer");
-    qmlRegisterType<OgreEngine>("OgreTypes", 1, 0, "OgreEngine");
-
     QApplication application (argc, argv);
-    GlobalRenderer view; // ok
-    QQmlContext * qmlContext=view.rootContext();
-    OgreEngine * engine=view.ogreEngine();
-    PhysicsSimulation physics; // need cleanup
-    QOpenGLContext * m_gl_context=new QOpenGLContext();
-    m_gl_context->setShareContext(engine->ogreContext());
-    Q_ASSERT(m_gl_context->create());
-    TrimeshDataManager trimesh_manager(view.rootWindow(),m_gl_context,engine->sceneManager());
-    AssetFactory asset_factory(physics.world(),physics.space(),&trimesh_manager,engine->sceneManager());
-    //AssetManager asset_manager(physics.world(),physics.space(),engine->sceneManager()); // ok
-    Scene scene(engine->sceneManager(),&asset_factory);
+
+    register_types();
+
+    GlobalRenderer view;
+    SimulationRunner simulation_runner;
+    PhysicsSimulation physics;
+    TrimeshDataManager trimesh_manager;
+    AssetFactory asset_factory(physics.world(), physics.space(), &trimesh_manager);
+    Scene scene(&asset_factory);
+
+    QQmlContext * qmlContext = view.rootContext();
+
+    qmlContext->setContextProperty("simulationRunner", &simulation_runner);
+    qmlContext->setContextProperty("sceneInstance", &scene);
+
+    view.create();
+
+    GlobalRenderer::RenderingInstances rendering_instances(&view);
+    Q_ASSERT(rendering_instances.gl_context->create());
+
+    simulation_runner.setRenderer(&view);
+    trimesh_manager.setRenderingInstances(&rendering_instances);
+    asset_factory.setRenderingInstances(&rendering_instances);
+
+
+
+
     //Car3D car();
-    SimulationRunner simulation_runner(&view);
-    qmlContext->setContextProperty("sceneInstance",&scene);
-    qmlContext->setContextProperty("simulationRunner",&simulation_runner);
+
+//    ControlAlgorithm control_algorithm
+
     //QObject::connect(view.rootWindow(),&QQuickWindow::beforeRendering,&scene,&Scene::update,Qt::DirectConnection);
 
 

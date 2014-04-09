@@ -19,6 +19,7 @@
 
 #include <functional>
 #include <physics_simulation.h>
+#include <global_renderer.h>
 
 class Asset
 {
@@ -45,13 +46,19 @@ class TrimeshDataManager
 {
 
 public:
-    TrimeshDataManager(QQuickWindow *surface,QOpenGLContext * context, Ogre::SceneManager *scene_manager);
+    TrimeshDataManager();
     ~TrimeshDataManager();
 
     const dTriMeshDataID & value(const QString & key);
     const dTriMeshDataID & operator[](const QString & key);
-    QOpenGLContext * context(){return m_gl_context;}
-    QQuickWindow * surface(){return m_surface;}
+
+    inline void setRenderingInstances(GlobalRenderer::RenderingInstances * i)
+    {
+        m_rendering_instances = i;
+        // get MeshManager at this point because this method is called after
+        // rendering has been initialised
+        m_mesh_man = Ogre::MeshManager::getSingletonPtr();
+    }
 
 private:
     dTriMeshDataID & append(const QString & key);
@@ -63,9 +70,8 @@ private:
     QVector<QPair<float *, unsigned int *>> m_allocated_memory;
     Ogre::MeshManager * m_mesh_man;
     QHash<QString,dTriMeshDataID>  m_container;
-    Ogre::SceneManager * m_scene_manager;
-    QQuickWindow * m_surface;
-    QOpenGLContext * m_gl_context;
+
+    GlobalRenderer::RenderingInstances * m_rendering_instances;
 };
 
 class AssetFactory
@@ -79,21 +85,22 @@ public:
         CustomGeometry=16
     };
     typedef std::function<dGeomID(dWorldID,dSpaceID)> GeomFunction;
-    AssetFactory(dWorldID world,
-                    dSpaceID space,
-                    TrimeshDataManager * trimesh_manager,
-                    Ogre::SceneManager * scene_manager);
+    AssetFactory(dWorldID world, dSpaceID space, TrimeshDataManager * trimesh_manager);
 
     Asset * createAsset(int flags,const QString & mesh_name, GeomFunction geometry_func=nullptr);
+
+    inline void setRenderingInstances(GlobalRenderer::RenderingInstances * i)
+    {
+        m_rendering_instances = i;
+    }
 
 private:
 
     dWorldID m_world;
     dSpaceID m_space;
     TrimeshDataManager * m_trimesh_manager;
-    Ogre::SceneManager * m_scene_manager;
-    QOpenGLContext * m_gl_context;
-    QQuickWindow * m_surface;
+
+    GlobalRenderer::RenderingInstances * m_rendering_instances;
 };
 
 

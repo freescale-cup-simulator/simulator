@@ -1,12 +1,8 @@
 #include <asset_manager.h>
 
-TrimeshDataManager::TrimeshDataManager(QQuickWindow *surface,QOpenGLContext * context, Ogre::SceneManager *scene_manager)
-    : m_mesh_man(0)
-    , m_scene_manager(scene_manager)
-    , m_surface(surface)
-    , m_gl_context(context)
+TrimeshDataManager::TrimeshDataManager()
+    : m_mesh_man(nullptr)
 {
-    m_mesh_man=Ogre::MeshManager::getSingletonPtr();
 }
 
 TrimeshDataManager::~TrimeshDataManager()
@@ -38,12 +34,14 @@ const dTriMeshDataID &TrimeshDataManager::operator[](const QString &key)
 
 dTriMeshDataID & TrimeshDataManager::append(const QString &key)
 {
+    Q_ASSERT(m_rendering_instances);
+
     dTriMeshDataID tid;
     if (!m_mesh_man)
         qFatal("Null reference to ogre mesh manager.");
     glPopAttrib();
     glPopClientAttrib();
-    m_gl_context->makeCurrent(m_surface);
+    m_rendering_instances->gl_context->makeCurrent(m_rendering_instances->surface);
     /*auto it=m_mesh_man;
     while(it.hasMoreElements())
     {
@@ -65,9 +63,11 @@ dTriMeshDataID & TrimeshDataManager::append(const QString &key)
     dGeomTriMeshDataBuildSingle(tid, vertices, sizeof(float) * 3, vertex_count,
                                 indices, index_count, sizeof(int) * 3);
     m_allocated_memory.append({vertices, indices});
-    m_gl_context->doneCurrent();
+
+    m_rendering_instances->gl_context->doneCurrent();
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+
     return m_container.insert(key,tid).value();
 }
 
@@ -180,17 +180,11 @@ void TrimeshDataManager::getOgreMeshData(const Ogre::Mesh * const mesh, size_t &
 
 
 AssetFactory::AssetFactory(dWorldID world,
-                            dSpaceID space,
-                            TrimeshDataManager *trimesh_manager,
-                            Ogre::SceneManager *scene_manager)
+                            dSpaceID space, TrimeshDataManager * trimesh_manager)
     : m_world(world)
     , m_space(space)
     , m_trimesh_manager(trimesh_manager)
-    , m_scene_manager(scene_manager)
-    , m_gl_context(m_trimesh_manager->context())
-    , m_surface(m_trimesh_manager->surface())
 {
-
 }
 /*
  * enum CreateAssetFlags{
@@ -221,18 +215,18 @@ Asset *AssetFactory::createAsset(int flags, const QString & mesh_name, GeomFunct
         dGeomSetBody(gid, bid);
     if (flags & Body3D)
     {
-        m_gl_context->makeCurrent(m_surface);
+        m_rendering_instances->gl_context->makeCurrent(m_rendering_instances->surface);
         if(flags & SceneNode)
         {
-            node3d=m_scene_manager->getRootSceneNode()->createChildSceneNode();
+            node3d=m_rendering_instances->scene_manager->getRootSceneNode()->createChildSceneNode();
             node3d->setVisible(false,true);
         }
         if((flags & SceneNode) && (flags & Body3D))
         {
-            Ogre::Entity* ent=m_scene_manager->createEntity(mesh_name.toStdString().c_str());
+            Ogre::Entity* ent=m_rendering_instances->scene_manager->createEntity(mesh_name.toStdString().c_str());
             node3d->attachObject(ent);
         }
-        m_gl_context->doneCurrent();
+        m_rendering_instances->gl_context->doneCurrent();
     }
     return new Asset(node3d,bid,gid);
 }
