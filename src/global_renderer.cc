@@ -6,7 +6,6 @@ GlobalRenderer::GlobalRenderer(QWindow *parent)
     , m_root_window(nullptr)
     , m_user_camera(nullptr)
 {
-
     addImportPath(":/qml/gui/");
     addImportPath(":/qml/");
     rootContext()->setContextProperty("globalRenderer", this);
@@ -34,6 +33,7 @@ void GlobalRenderer::setContextObjects()
     rootContext()->setContextProperty("rootWindow", m_root_window);
     rootContext()->setContextProperty("ogreEngineInstance", m_ogre_engine);
     rootContext()->setContextProperty("userCamera",m_user_camera);
+
     qDebug() << "done";
     emit contextObjectsSet();
 }

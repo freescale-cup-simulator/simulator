@@ -1,5 +1,27 @@
 #include <physics_simulation.h>
 
+// utility functions
+namespace
+{
+
+inline QVector3D dv2qv (const dReal * dv)
+{
+    return QVector3D (dv[0], dv[1], dv[2]);
+}
+
+inline QQuaternion dq2qq(const dReal * q)
+{
+    return QQuaternion (q[0], q[1], q[2], q[3]);
+}
+
+inline qreal anglev (const QVector3D & a, const QVector3D & b)
+{
+    const qreal v = QVector3D::dotProduct(a, b) / (a.length() * b.length());
+    return (std::acos(v) / M_PI) * 180.0;
+}
+
+}
+
 PhysicsSimulation::PhysicsSimulation(QObject * parent)
     : QObject(parent)
     , m_world(0)
@@ -45,10 +67,12 @@ void PhysicsSimulation::createWorld()
 
 void PhysicsSimulation::process(DataSet & data)
 {
+    updateERPandCFM(data);
+
     for (int i = 2; i < 4; i++)
     {
-        dJointSetHinge2Param(m_wheels[i], dParamVel2, 25);
-        dJointSetHinge2Param(m_wheels[i], dParamFMax2, .002);
+        dJointSetHinge2Param(m_wheels[i], dParamVel2, getPropertyModelInstance()->getPropertyValue("vel2"));
+        dJointSetHinge2Param(m_wheels[i], dParamFMax2, getPropertyModelInstance()->getPropertyValue("fmax"));
     }
 
     const float rad_angle = (data.current_wheel_angle / 180.0) * M_PI;
@@ -56,6 +80,11 @@ void PhysicsSimulation::process(DataSet & data)
     {
         dJointSetHinge2Param(m_wheels[i], dParamLoStop1, rad_angle * 1.0 - 1e-3);
         dJointSetHinge2Param(m_wheels[i], dParamHiStop1, rad_angle * 1.0 + 1e-3);
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        dBodySetFiniteRotationAxis(m_wheel_bodies[i], 0, 0, 0);
     }
 
     dSpaceCollide(m_space, this, &PhysicsSimulation::nearCallbackWrapper);
@@ -69,19 +98,13 @@ void PhysicsSimulation::process(DataSet & data)
 
     updateBodyData(data);
 
-#if 0
-    const dReal * q = dBodyGetQuaternion(m_wheel_bodies[3]);
-    const float a = std::asin(2 * (q[0]*q[2] - q[3]*q[1]));
-    qDebug() << "wheel angle: " << a;
+    m_vehicleVelocity = dv2qv(dBodyGetLinearVel(m_vehicle_body)).length();
+    vehicleVelocityChanged();
+}
 
-    const dReal * velocity_v = dBodyGetLinearVel(m_vehicle_body);
-    const float velocity = std::sqrt(velocity_v[0]*velocity_v[0]
-            + velocity_v[1]*velocity_v[1]
-            + velocity_v[2]*velocity_v[2]);
-
-    qDebug("position %.3f, %.3f, %.3f; rotation %.4f, l.v.m. %.3f",
-           position_v[0], position_v[1], position_v[2], chasis_angle, velocity);
-#endif
+qreal PhysicsSimulation::vehicleVelocity()
+{
+    return m_vehicleVelocity;
 }
 
 void PhysicsSimulation::buildTrack()
@@ -122,31 +145,16 @@ void PhysicsSimulation::buildTrack()
     qDebug("Start location: (%.1f,%.1f,%.1f)", m_start_position[0],
             m_start_position[1], m_start_position[2]);
 
-    const char * d[] = {"Up", "Right", "Down", "Left"};
+    QQuaternion q = QQuaternion::fromAxisAndAngle(0, 1, 0, rotation);
+    m_start_rotation_v = q.rotatedVector({1, 0, 0});
 
-    switch(rotation)
-    {
-    case 0:
-        m_start_direction = Up;
-        break;
-    case 90:
-        m_start_direction = Right;
-        break;
-    case 180:
-        m_start_direction = Down;
-        break;
-    case 270:
-        m_start_direction = Left;
-        break;
-    }
-
-    qDebug("Start direction: %s", d[m_start_direction]);
+    qDebug() << "Start direction: " << m_start_rotation_v;
 }
 
 void PhysicsSimulation::createVehicle()
 {
     constexpr dReal spawn_height = 0.1;
-    constexpr dReal mass = 1.27;
+    constexpr dReal mass = 2;
 
     dBodyID id = dBodyCreate(m_world);
     /*dGeomID gid = dCreateTriMesh(m_space, m_trimesh_data["car"], 0, 0, 0);
@@ -174,6 +182,7 @@ void PhysicsSimulation::createVehicle()
     auto skeleton = mesh->getSkeleton();
 
     auto cp = skeleton->getBone("cam")->_getDerivedPosition();
+    cp = start_rotation_ * cp;
     jid = dJointCreateFixed(m_world, 0);
     m_camera_body = dBodyCreate(m_world);
 
@@ -199,35 +208,20 @@ void PhysicsSimulation::createVehicle()
 
         id = dBodyCreate(m_world);
         gid = dCreateSphere(m_space, radius);
-        dMassSetSphereTotal(&m, 0.3, radius);
+        dMassSetSphereTotal(&m, 0.5, radius);
         dBodySetMass(id, &m);
         dBodySetPosition(id, v[0], v[1], v[2]);
         dBodySetQuaternion(id, m_start_rotation_q);
         dGeomSetBody(gid, id);
+        dBodySetFiniteRotationMode(id, 1);
 
         jid = dJointCreateHinge2(m_world, 0);
         dJointAttach(jid, m_vehicle_body, id);
         dJointSetHinge2Anchor(jid, v[0], v[1], v[2]);
         dJointSetHinge2Axis1(jid, 0, 1, 0);
+        dJointSetHinge2Axis2(jid, -m_start_rotation_v.x(), 0,
+                             -m_start_rotation_v.z());
 
-        switch(m_start_direction)
-        {
-        case Up:
-            dJointSetHinge2Axis2(jid, -1, 0, 0);
-            break;
-        case Down:
-            dJointSetHinge2Axis2(jid, 1, 0, 0);
-            break;
-        case Left:
-            dJointSetHinge2Axis2(jid, 0, 0, 1);
-            break;
-        case Right:
-            dJointSetHinge2Axis2(jid, 0, 0, -1);
-            break;
-        }
-
-        dJointSetHinge2Param(jid, dParamSuspensionERP, 0.35);
-        dJointSetHinge2Param(jid, dParamSuspensionCFM, 0.025);
         m_wheels[i] = jid;
         m_wheel_bodies.append(id);
     }
@@ -242,53 +236,57 @@ void PhysicsSimulation::createVehicle()
 void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
 {
     // we only want vehicle-track collisions
-    const bool cga = m_track_geoms.contains(ga);
-    const bool cgb = m_track_geoms.contains(gb);
-    const bool ground_collision = (cga && !cgb) || (!cga && cgb);
-    if (!ground_collision)
+    if (!(m_track_geoms.contains(ga) ^ m_track_geoms.contains(gb)))
         return;
 
-    dContact contacts[MAX_CONTACTS];
-    int wheel_index;
-
-    const dReal * q = dBodyGetQuaternion(m_vehicle_body);
-    QQuaternion body (q[0], q[1], q[2], q[3]);
-
     dBodyID ba = dGeomGetBody(ga), bb = dGeomGetBody(gb);
-    if (m_wheel_bodies.contains(ba))
-        wheel_index = m_wheel_bodies.indexOf(ba);
-    else
-        wheel_index = m_wheel_bodies.indexOf(bb);
+    dContact contacts[MAX_CONTACTS];
+    QQuaternion body_q (dq2qq(dBodyGetQuaternion(m_vehicle_body)));
 
-    if (wheel_index <= 1)
     {
-        dReal a = dJointGetHinge2Param(m_wheels[0], dParamLoStop1);
-        body *= QQuaternion::fromAxisAndAngle(0, 1, 0, (a / M_PI) * 180.0);
+        int wheel_index = m_wheel_bodies.contains(ba) ? m_wheel_bodies.indexOf(ba)
+                                                      : m_wheel_bodies.indexOf(bb);
+        if (wheel_index <= 1 && wheel_index >= 0)
+        {
+            dReal a = dJointGetHinge2Param(m_wheels[wheel_index], dParamLoStop1);
+            body_q *= QQuaternion::fromAxisAndAngle(0, 1, 0, (-a / M_PI) * 180.0);
+        }
     }
 
-    QVector3D v = {0, 0, 1};
-    v = body.rotatedVector(v);
+    QVector3D fdir1_v = body_q.rotatedVector( { -m_start_rotation_v.z(),
+                                                0,
+                                                m_start_rotation_v.x() });
+    fdir1_v.normalize();
+
+    auto s       = getPropertyModelInstance();
+    double slip1 = s->getPropertyValue("slip1");
+    double slip2 = s->getPropertyValue("slip2");
+    double mu    = s->getPropertyValue("mu");
+    double rho   = s->getPropertyValue("rho");
 
     for (int i = 0; i < MAX_CONTACTS; i++)
     {
         contacts[i].surface.mode = dContactSoftCFM | dContactSoftERP
-                | dContactSlip1 | dContactSlip2 | dContactFDir1;
-        contacts[i].surface.mu = dInfinity;
-        contacts[i].surface.soft_cfm = 5e-4;
-        contacts[i].surface.soft_erp = 0.5;
-        contacts[i].fdir1[0] = v.x();
+                | dContactSlip1 | dContactSlip2 | dContactFDir1
+                | dContactApprox1 | dContactRolling;
+        contacts[i].surface.mu = mu;
+        contacts[i].surface.soft_cfm = m_surfaceCFM;
+        contacts[i].surface.soft_erp = m_surfaceERP;
+        contacts[i].surface.rho = rho;
+        contacts[i].surface.rho2 = rho;
+        contacts[i].surface.rhoN = rho;
+        contacts[i].fdir1[0] = fdir1_v.x();
         contacts[i].fdir1[1] = 0;
-        contacts[i].fdir1[2] = v.z();
-        contacts[i].surface.slip1 = 0.01;
-        contacts[i].surface.slip2 = .0003;
+        contacts[i].fdir1[2] = fdir1_v.z();
+        contacts[i].surface.slip1 = slip1 * m_vehicleVelocity;
+        contacts[i].surface.slip2 = slip2 * m_vehicleVelocity;
     }
 
     int nc = dCollide(ga, gb, MAX_CONTACTS, &contacts[0].geom, sizeof(dContact));
     for (int i = 0; i < nc; i++)
     {
-        dJointID c = dJointCreateContact (m_world, m_contact_group,
-                                          &contacts[i]);
-        dJointAttach (c, dGeomGetBody(ga), dGeomGetBody(gb));
+        dJointID c = dJointCreateContact(m_world, m_contact_group, &contacts[i]);
+        dJointAttach(c, dGeomGetBody(ga), dGeomGetBody(gb));
     }
 }
 
@@ -332,4 +330,29 @@ void PhysicsSimulation::updateBodyData(DataSet & d)
 #if defined(__GNUC__) && defined(dDOUBLE)
 #pragma GCC diagnostic warning "-Wnarrowing"
 #endif
+}
+
+void PhysicsSimulation::updateERPandCFM(const DataSet &d)
+{
+    auto s = getPropertyModelInstance();
+
+    const double spring_k = s->getPropertyValue("spring_k");
+    const double spring_damping = s->getPropertyValue("spring_damping");
+
+    const double tire_k = s->getPropertyValue("tire_k");
+    const double tire_damping = s->getPropertyValue("tire_damping");
+
+    const double dt = d.physics_timestep;
+
+    m_surfaceERP = dt * spring_k / (dt * spring_k + spring_damping);
+    m_surfaceCFM = 1.0 / (dt * spring_k + spring_damping);
+
+    dReal wERP = dt * tire_k / (dt * tire_k + tire_damping);
+    dReal wCFM = 1.0 / (dt * tire_k + tire_damping);
+
+    for (int i = 0; i < 4; i++)
+    {
+        dJointSetHinge2Param(m_wheels[i], dParamSuspensionERP, wERP);
+        dJointSetHinge2Param(m_wheels[i], dParamSuspensionCFM, wCFM);
+    }
 }

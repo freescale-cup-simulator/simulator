@@ -30,6 +30,7 @@ MenuBar {
             text: qsTr("Open track...")
             enabled: simulationRunner.simulationState === SimulationRuner.Stopped
             onTriggered: openTrackDialog.open()
+            shortcut: "Ctrl+T"
         }
         MenuItem {
 
@@ -37,19 +38,20 @@ MenuBar {
             text: qsTr("Open algorithm...")
             enabled: simulationRunner.simulationState === SimulationRuner.Stopped
             onTriggered: openAlgoDialog.open();
+            shortcut: "Ctrl+A"
         }
 
         MenuSeparator { }
 
         MenuItem {
-            id: recentTracks
-            text: qsTr("Recent tracks")
+            id: quickStart
+            text: qsTr("Quick start")
+            shortcut: "Ctrl+S"
+            onTriggered: guiController.quickStart()
         }
-        MenuItem {
-            id: recentAlgorithm
-            text: qsTr("Recent algorithms")
-        }
+
         MenuSeparator { }
+
         MenuItem {
             id: quit
             text: "Quit"
@@ -64,20 +66,20 @@ MenuBar {
         MenuItem {
             id: run
             text: qsTr("Run simulation")
-            shortcut: "Ctrl+R"
             onTriggered: simulationRunner.run()
+            shortcut: "Alt+R"
         }
         MenuItem {
             id: pause
             text: qsTr("Pause/Resume")
-            shortcut: "Pause"
             onTriggered: simulationRunner.pause()
+            shortcut: "Alt+P"
         }
         MenuItem {
             id: stop
             text: qsTr("Stop")
-            shortcut: "Ctrl+Break"
             onTriggered: simulationRunner.stop()
+            shortcut: "Alt+S"
         }
     }
     Menu {
@@ -140,19 +142,8 @@ MenuBar {
             text: qsTr("Show Camera View")
             checkable: true
             checked: true
-
-//            onToggled: {
-//                if (settingsColumn.state == ''){
-//                    settingsColumn.state = 'closed';
-//                    this.checked = false;
-//                }
-//                else {
-//                    settingsColumn.state = '';
-//                    this.checked = true;
-//                }
-
-//            }
         }
+
         MenuItem {
             id: showSettings
             text: qsTr("Show Settings")
@@ -167,7 +158,6 @@ MenuBar {
                     settingsColumn.state = '';
                     this.checked = true;
                 }
-
             }
         }
 

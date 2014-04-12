@@ -13,12 +13,15 @@
 #include <config.h>
 #include <common.h>
 #include <libtrack/track_model.h>
+#include <property.h>
+#include <property_model.h>
 
 namespace tl = track_library;
 
 class PhysicsSimulation : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(qreal vehicleVelocity READ vehicleVelocity NOTIFY vehicleVelocityChanged)
 public:
     PhysicsSimulation(QObject * parent = nullptr);
     ~PhysicsSimulation();
@@ -30,10 +33,13 @@ public:
     }
 
     void process(DataSet & data);
+    qreal vehicleVelocity();
 
 public slots:
     void createWorld();
 
+signals:
+    void vehicleVelocityChanged();
 private:
     enum StartDirection {Up = 0, Right, Down, Left};
 
@@ -55,13 +61,14 @@ private:
     void nearCallback(void *, dGeomID a, dGeomID b);
     static void nearCallbackWrapper(void * i, dGeomID a, dGeomID b);
     void updateBodyData(DataSet & d);
+    void updateERPandCFM(const DataSet & d);
 
     static constexpr dReal GRAVITY_CONSTANT = -9.81;
-    static constexpr int MAX_CONTACTS = 128;
+    static constexpr int MAX_CONTACTS = 256;
 
     const dReal * m_start_position;
     dQuaternion m_start_rotation_q;
-    StartDirection m_start_direction;
+    QVector3D m_start_rotation_v;
 
     dGeomID m_vehicle_geom;
     dBodyID m_vehicle_body;
@@ -73,6 +80,14 @@ private:
     dWorldID m_world;
     dSpaceID m_space;
     dJointGroupID m_contact_group;
+
+    QHash<QString, dTriMeshDataID> m_trimesh_data;
+
+    QVector<QPair<float *, unsigned int *>> m_allocated_memory;
+
+    qreal m_vehicleVelocity;
+    dReal m_surfaceERP;
+    dReal m_surfaceCFM;
 };
 
 #endif

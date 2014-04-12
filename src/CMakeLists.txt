@@ -19,6 +19,8 @@ set(project_sources
     scene.cc
     trimesh_data_manager.cc
     asset.cc
+    property.cc
+    property_model.cc
 )
 
 set(project_headers
@@ -36,6 +38,8 @@ set(project_headers
     scene.h
     trimesh_data_manager.h
     asset.h
+    property.h
+    property_model.h
 )
 
 set(qrc
@@ -55,8 +59,9 @@ ExternalProject_Add(
   BUILD_COMMAND make
   CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --enable-static
     --disable-shared --enable-double-precision --with-trimesh=gimpact
-    --disable-demos --with-drawstuff=none --enable-libccd
-  CXXFLAGS=-O0\ -ggdb3
+    --disable-demos --with-drawstuff=none --enable-libccd --disable-threading-intf
+# use for debugging
+# CXXFLAGS=-O0\ -ggdb3
   INSTALL_COMMAND make install
 )
 
@@ -74,7 +79,6 @@ include_directories(SYSTEM
 )
 
 link_directories(${INSTALL_DIR}/lib/)
-add_definitions(-DdDOUBLE)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug CACHE STRING

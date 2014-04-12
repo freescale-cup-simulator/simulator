@@ -12,7 +12,6 @@
 #include <camera.h>
 #include <config.h>
 
-
 // Loads GUI and OgreEngine
 // Sets QML context property ogreEngineInstance
 class GlobalRenderer : public QQmlApplicationEngine
