@@ -8,7 +8,7 @@
 #include <QUrl>
 
 #include <global_renderer.h>
-#include <asset_manager.h>
+#include <asset_factory.h>
 #include <ogre_engine.h>
 #include <track_io.h>
 #include <track_model.h>

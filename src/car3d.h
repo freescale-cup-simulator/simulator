@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QList>
-#include <asset_manager.h>
+#include <asset_factory.h>
 
 class GlobalRenderer;
 

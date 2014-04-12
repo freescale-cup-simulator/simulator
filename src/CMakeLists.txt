@@ -14,10 +14,11 @@ set(project_sources
     camera_simulator.cc
     global_renderer.cc
     logger.cc
-    #gui_controller.cc
     car3d.cc
-    asset_manager.cc
+    asset_factory.cc
     scene.cc
+    trimesh_data_manager.cc
+    asset.cc
 )
 
 set(project_headers
@@ -30,10 +31,11 @@ set(project_headers
     camera_simulator.h
     global_renderer.h
     logger.h
-    #gui_controller.h
     car3d.h
-    asset_manager.h
+    asset_factory.h
     scene.h
+    trimesh_data_manager.h
+    asset.h
 )
 
 set(qrc
@@ -148,5 +150,4 @@ target_link_libraries(freescale_simulator
                       ${Boost_LIBRARIES}
                       ${Qt5Quick_LIBRARIES}
                       ${Qt5Widgets_LIBRARIES}
-                      pthread
 )

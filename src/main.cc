@@ -7,7 +7,8 @@
 #include <camera_grabber.h>
 #include <scene.h>
 #include <car3d.h>
-#include <asset_manager.h>
+#include <asset_factory.h>
+#include <trimesh_data_manager.h>
 #include <simulation_runner.h>
 #include <physics_simulation.h>
 #include <control_algorithm.h>
