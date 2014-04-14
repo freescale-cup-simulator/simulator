@@ -15,6 +15,7 @@
 #include <physics_simulation.h>
 #include <control_algorithm.h>
 #include <property.h>
+#include <property_model.h>
 #include <config.h>
 #include <common.h>
 
@@ -28,6 +29,7 @@ void register_types()
     qmlRegisterType<GlobalRenderer>("OgreTypes", 1, 0, "GlobalRenderer");
     qmlRegisterType<OgreEngine>("OgreTypes", 1, 0, "OgreEngine");
     qmlRegisterType<SimulationRunner>("Simulator", 1, 0, "SimulationRuner");
+    qmlRegisterType<PhysicsSimulation>("Simulator", 1, 0, "PhysicsSimulation");
 }
 
 int main(int argc, char * argv[])
@@ -47,12 +49,15 @@ int main(int argc, char * argv[])
     AssetFactory asset_factory(physics.world(), physics.space(), &trimesh_manager);
     Scene scene(&asset_factory);
     UserSettings user_settings;
+    PropertyModel property_model;
 
     QQmlContext * qmlContext = view.rootContext();
 
     qmlContext->setContextProperty("simulationRunner", &simulation_runner);
     qmlContext->setContextProperty("sceneInstance", &scene);
     qmlContext->setContextProperty("userSettings", &user_settings);
+    qmlContext->setContextProperty("physicsSimulation", &physics);
+    qmlContext->setContextProperty("propertyModel", &property_model);
 
     view.create();
 

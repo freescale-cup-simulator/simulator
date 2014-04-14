@@ -27,6 +27,15 @@ PhysicsSimulation::PhysicsSimulation(QObject * parent)
     , m_world(0)
     , m_space(0)
     , m_contact_group(0)
+    , m_vehicleVelocity(0)
+    , m_slip1(0.00001)
+    , m_slip2(0.0002)
+    , m_mu(1000)
+    , m_rho(0.01)
+    , m_suspension_k(150000)
+    , m_suspension_damping(200)
+    , m_tire_k(30000)
+    , m_tire_damping(400)
 {
     dInitODE();
 
@@ -69,11 +78,12 @@ void PhysicsSimulation::process(DataSet & data)
 {
     updateERPandCFM(data);
 
-    for (int i = 2; i < 4; i++)
-    {
-        dJointSetHinge2Param(m_wheels[i], dParamVel2, getPropertyModelInstance()->getPropertyValue("vel2"));
-        dJointSetHinge2Param(m_wheels[i], dParamFMax2, getPropertyModelInstance()->getPropertyValue("fmax"));
-    }
+    // later, set some realistic Vel2 and FMax2 is controlled by algorithm
+//    for (int i = 2; i < 4; i++)
+//    {
+//        dJointSetHinge2Param(m_wheels[i], dParamVel2, getPropertyModelInstance()->getPropertyValue("vel2"));
+//        dJointSetHinge2Param(m_wheels[i], dParamFMax2, getPropertyModelInstance()->getPropertyValue("fmax"));
+//    }
 
     const float rad_angle = (data.current_wheel_angle / 180.0) * M_PI;
     for (int i = 0; i < 2; i++)
@@ -258,28 +268,22 @@ void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
                                                 m_start_rotation_v.x() });
     fdir1_v.normalize();
 
-    auto s       = getPropertyModelInstance();
-    double slip1 = s->getPropertyValue("slip1");
-    double slip2 = s->getPropertyValue("slip2");
-    double mu    = s->getPropertyValue("mu");
-    double rho   = s->getPropertyValue("rho");
-
     for (int i = 0; i < MAX_CONTACTS; i++)
     {
         contacts[i].surface.mode = dContactSoftCFM | dContactSoftERP
                 | dContactSlip1 | dContactSlip2 | dContactFDir1
                 | dContactApprox1 | dContactRolling;
-        contacts[i].surface.mu = mu;
+        contacts[i].surface.mu = m_mu;
         contacts[i].surface.soft_cfm = m_surfaceCFM;
         contacts[i].surface.soft_erp = m_surfaceERP;
-        contacts[i].surface.rho = rho;
-        contacts[i].surface.rho2 = rho;
-        contacts[i].surface.rhoN = rho;
+        contacts[i].surface.rho = m_rho;
+        contacts[i].surface.rho2 = m_rho;
+        contacts[i].surface.rhoN = m_rho;
         contacts[i].fdir1[0] = fdir1_v.x();
         contacts[i].fdir1[1] = 0;
         contacts[i].fdir1[2] = fdir1_v.z();
-        contacts[i].surface.slip1 = slip1 * m_vehicleVelocity;
-        contacts[i].surface.slip2 = slip2 * m_vehicleVelocity;
+        contacts[i].surface.slip1 = m_slip1 * m_vehicleVelocity;
+        contacts[i].surface.slip2 = m_slip2 * m_vehicleVelocity;
     }
 
     int nc = dCollide(ga, gb, MAX_CONTACTS, &contacts[0].geom, sizeof(dContact));
@@ -334,21 +338,13 @@ void PhysicsSimulation::updateBodyData(DataSet & d)
 
 void PhysicsSimulation::updateERPandCFM(const DataSet &d)
 {
-    auto s = getPropertyModelInstance();
-
-    const double spring_k = s->getPropertyValue("spring_k");
-    const double spring_damping = s->getPropertyValue("spring_damping");
-
-    const double tire_k = s->getPropertyValue("tire_k");
-    const double tire_damping = s->getPropertyValue("tire_damping");
-
     const double dt = d.physics_timestep;
 
-    m_surfaceERP = dt * spring_k / (dt * spring_k + spring_damping);
-    m_surfaceCFM = 1.0 / (dt * spring_k + spring_damping);
+    m_surfaceERP = dt * m_suspension_k / (dt * m_suspension_k + m_suspension_damping);
+    m_surfaceCFM = 1.0 / (dt * m_suspension_k + m_suspension_damping);
 
-    dReal wERP = dt * tire_k / (dt * tire_k + tire_damping);
-    dReal wCFM = 1.0 / (dt * tire_k + tire_damping);
+    dReal wERP = dt * m_tire_k / (dt * m_tire_k + m_tire_damping);
+    dReal wCFM = 1.0 / (dt * m_tire_k + m_tire_damping);
 
     for (int i = 0; i < 4; i++)
     {

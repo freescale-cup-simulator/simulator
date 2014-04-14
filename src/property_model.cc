@@ -1,12 +1,5 @@
 #include <property_model.h>
 
-PropertyModel * getPropertyModelInstance()
-{
-    static PropertyModel model;
-
-    return &model;
-}
-
 PropertyModel::PropertyModel(QObject *parent) :
     QAbstractTableModel(parent)
 {

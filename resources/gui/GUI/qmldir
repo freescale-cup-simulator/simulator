@@ -1,8 +1,4 @@
 module GUI
 MenuStrip	1.0	MenuStrip.qml
-RectangleDesign	1.0	RectangleDesign.qml
-RunButton	1.0	RunButton.qml
-RunButtonsPanel	1.0	RunButtonsPanel.qml
-SettingsButton	1.0	SettingsButton.qml
-
-
+SettingsPanel	1.0	SettingsPanel.qml
+PhysicsSetting	1.0	PhysicsSetting.qml

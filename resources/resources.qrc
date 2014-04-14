@@ -3,5 +3,7 @@
         <file>gui.qml</file>
         <file>gui/GUI/MenuStrip.qml</file>
         <file>gui/GUI/qmldir</file>
+        <file>gui/GUI/SettingsPanel.qml</file>
+        <file>gui/GUI/PhysicsSetting.qml</file>
     </qresource>
 </RCC>

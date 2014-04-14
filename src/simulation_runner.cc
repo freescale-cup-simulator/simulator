@@ -81,24 +81,6 @@ void SimulationRunner::run()
     m_state = SimulationRunner::Started;
     emit simulationStateChanged();
 
-    // temporary: add physics settings
-    auto s = getPropertyModelInstance();
-
-    s->addProperty(Property("slip1", 0.00001, 0.000001));
-    s->addProperty(Property("slip2", 0.0002, 1e-9));
-    s->addProperty(Property("mu", 1000, 100));
-    s->addProperty(Property("rho", 0.01, 0.0001));
-
-    s->addProperty(Property("vel2", 100, 1));
-    s->addProperty(Property("fmax", 0.0, 0.01));
-
-    s->addProperty(Property("spring_k", 150000.0, 1000.0));
-    s->addProperty(Property("spring_damping", 200.0, 10.0));
-
-    s->addProperty(Property("tire_k", 30000.0, 1000.0));
-    s->addProperty(Property("tire_damping", 400.0, 10.0));
-
-
     auto cs = new CameraSimulator(m_renderer);
     auto ps = new PhysicsSimulation();
     auto vm = new VehicleModel;

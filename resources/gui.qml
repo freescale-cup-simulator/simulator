@@ -196,61 +196,6 @@ ApplicationWindow {
             }
         }
 
-
-        Rectangle {
-            id: settingsColumn
-
-            Layout.minimumWidth: 255
-
-            TableView {
-                id: view
-
-                anchors.margins: 10
-                anchors.fill: parent
-                model: settingsModel
-                clip: true
-
-                TableViewColumn {
-                    width: 80
-                    title: "Property"
-                    role: "name"
-
-                }
-                TableViewColumn {
-                    width: 155
-                    title: "Value"
-                    role: "value"
-                    delegate: SpinBox {
-                        value: styleData.value.x
-                        decimals: 8
-                        activeFocusOnPress: true
-                        maximumValue: Infinity
-                        minimumValue: -Infinity
-                        stepSize: styleData.value.y
-                        onValueChanged: settingsModel.valueChanged(value, styleData.row)
-                    }
-                }
-                itemDelegate: Item {
-                    Text {
-                        anchors.centerIn: parent
-                        renderType: Text.NativeRendering
-                        text: styleData.value
-                    }
-                }
-
-
-                states: [
-                    State {
-                        name: "closed"
-                        PropertyChanges {
-                            target: settingsColumn
-                            width: 0
-                            opacity: 0
-                        }
-                    }
-                ]
-            }
-
-        }
+        SettingsPanel {}
     }
 }

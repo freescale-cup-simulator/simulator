@@ -7,10 +7,6 @@
 
 #include <property.h>
 
-class PropertyModel;
-
-PropertyModel * getPropertyModelInstance();
-
 class PropertyModel : public QAbstractTableModel
 {
     Q_OBJECT

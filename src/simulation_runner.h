@@ -16,7 +16,6 @@
 #include <logger.h>
 #include <track_io.h>
 #include <config.h>
-#include <property_model.h>
 
 class GlobalRenderer;
 class CameraSimulator;
