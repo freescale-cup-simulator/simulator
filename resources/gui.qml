@@ -15,39 +15,7 @@ ApplicationWindow {
     menuBar: MenuStrip { id: menuStrip}
 
     statusBar: StatusBar {
-        Column {
-            anchors.fill: parent
-            RowLayout{
-                id: footerRow
-
-                Label {
-                    id: stateLabel
-                    text: "State: "
-                }
-
-                Label {
-                    id: state
-                    text: "car state"
-                }
-            }
-
-
-            RowLayout {
-                id: progessBarRow
-
-                Label {
-                    id: progressLabel
-                    text: "Progress: "
-                }
-
-                ProgressBar {
-                    id: run_progress_bar
-                    Layout.fillWidth: true
-                    anchors.right: parent.right
-                    anchors.left: progressLabel.right
-                }
-            }
-        }
+        Label { text: "Vehicle velocity: " + physicsSimulation.vehicleVelocity + " m/s"}
     }
 
 
