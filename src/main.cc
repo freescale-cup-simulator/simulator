@@ -2,6 +2,8 @@
 #include <QThreadPool>
 #include <QOpenGLContext>
 
+#include <OgreLogManager.h>
+
 #include <global_renderer.h>
 #include <ogre_engine.h>
 #include <camera_grabber.h>
@@ -15,6 +17,8 @@
 #include <property.h>
 #include <config.h>
 #include <common.h>
+
+#include <user_settings.h>
 
 void register_types()
 {
@@ -42,11 +46,13 @@ int main(int argc, char * argv[])
     TrimeshDataManager trimesh_manager;
     AssetFactory asset_factory(physics.world(), physics.space(), &trimesh_manager);
     Scene scene(&asset_factory);
+    UserSettings user_settings;
 
     QQmlContext * qmlContext = view.rootContext();
 
     qmlContext->setContextProperty("simulationRunner", &simulation_runner);
     qmlContext->setContextProperty("sceneInstance", &scene);
+    qmlContext->setContextProperty("userSettings", &user_settings);
 
     view.create();
 

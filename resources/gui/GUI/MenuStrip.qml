@@ -14,7 +14,10 @@ MenuBar {
             nameFilters: [ "Track files (*.xml)" ]
             selectExisting : true
             selectMultiple : false
-            onAccepted: sceneInstance.loadTrack(openTrackDialog.fileUrl)
+            onAccepted: {
+                sceneInstance.loadTrack(openTrackDialog.fileUrl)
+                userSettings.setValue("LastOpenTrack", openTrackDialog.fileUrl)
+            }
         }
 
         FileDialog {
@@ -23,7 +26,10 @@ MenuBar {
             nameFilters: [ "Lua algorithm files (*.lua)" ]
             selectExisting : true
             selectMultiple : false
-            onAccepted: simulationRunner.loadAlgorithmFile(openAlgoDialog.fileUrl)
+            onAccepted: {
+                simulationRunner.loadAlgorithmFile(openAlgoDialog.fileUrl)
+                userSettings.setValue("LastOpenAlgorithm", openAlgoDialog.fileUrl)
+            }
         }
         MenuItem {
             id: openTrack
@@ -33,7 +39,6 @@ MenuBar {
             shortcut: "Ctrl+T"
         }
         MenuItem {
-
             id: openAlgorithm
             text: qsTr("Open algorithm...")
             enabled: simulationRunner.simulationState === SimulationRuner.Stopped
@@ -47,7 +52,20 @@ MenuBar {
             id: quickStart
             text: qsTr("Quick start")
             shortcut: "Ctrl+S"
-            onTriggered: guiController.quickStart()
+            onTriggered: {
+
+                var us = userSettings
+
+                if (us.contains("LastOpenAlgorithm"))
+                    simulationRunner.loadAlgorithmFile(us.value("LastOpenAlgorithm"))
+                else
+                    openAlgoDialog.open()
+
+                if (us.contains("LastOpenTrack"))
+                    sceneInstance.loadTrack(us.value("LastOpenTrack"))
+                else
+                    openTrackDialog.open()
+            }
         }
 
         MenuSeparator { }
@@ -92,10 +110,6 @@ MenuBar {
             checkable: true
             checked: true
             exclusiveGroup: viewGroup
-            onToggled:{
-                /*if(checked)
-                    guiController.viewSwitched(this)*/
-            }
 
         }
         MenuItem {

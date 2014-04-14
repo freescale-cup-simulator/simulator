@@ -40,6 +40,7 @@ set(project_headers
     asset.h
     property.h
     property_model.h
+    user_settings.h
 )
 
 set(qrc
