@@ -2,12 +2,12 @@ import QtQuick 2.1
 import QtQuick.Controls 1.1
 import QtQuick.Layouts 1.0
 
-RowLayout {
+ColumnLayout {
     property alias name: settingName.text
     property alias value: settingSpinbox.value
-    width: parent.width
+    Layout.fillWidth: true
 
-    Text { id: settingName }
+    Label { id: settingName }
     SpinBox {
         Layout.fillWidth: true
         id: settingSpinbox

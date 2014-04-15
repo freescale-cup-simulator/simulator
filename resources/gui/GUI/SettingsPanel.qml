@@ -45,28 +45,67 @@ TabView {
 
     Tab {
         title: "Physics Settings"
-        Column {
-            anchors.fill: parent
+        id: physicsTab
 
-            PhysicsSetting { name: "slip1"; value: physicsSimulation.slip1 }
-            PhysicsSetting { name: "slip2"; value: physicsSimulation.slip2 }
-            PhysicsSetting { name: "mu"; value: physicsSimulation.mu }
-            PhysicsSetting { name: "rho"; value: physicsSimulation.rho }
-            PhysicsSetting {
-                name: "suspension_k"
-                value: physicsSimulation.suspension_k
-            }
-            PhysicsSetting {
-                name: "suspension_damping"
-                value: physicsSimulation.suspension_damping
-            }
-            PhysicsSetting {
-                name: "tire_k"
-                value: physicsSimulation.tire_k
-            }
-            PhysicsSetting {
-                name: "tire_damping"
-                value: physicsSimulation.tire_damping
+        ScrollView {
+            anchors.fill: parent
+            ColumnLayout {
+                width: physicsTab.width - 15
+
+                GroupBox {
+                    title: "FDS"
+                    Layout.fillWidth: true
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        PhysicsSetting { name: "Direction 1"; value: physicsSimulation.slip1 }
+                        PhysicsSetting { name: "Direction 2"; value: physicsSimulation.slip2 }
+                    }
+                }
+
+                GroupBox {
+                    title: "Friction"
+                    Layout.fillWidth: true
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        PhysicsSetting { name: "Contact (μ)"; value: physicsSimulation.mu }
+                        PhysicsSetting { name: "Rolling (ρ)"; value: physicsSimulation.rho }
+                    }
+                }
+
+                GroupBox {
+                    title: "Suspension"
+                    Layout.fillWidth: true
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        PhysicsSetting {
+                            name: "Coefficient "
+                            value: physicsSimulation.suspension_k
+                        }
+                        PhysicsSetting {
+                            name: "Damping "
+                            value: physicsSimulation.suspension_damping
+                        }
+                    }
+                }
+
+                GroupBox {
+                    title: "Tires"
+                    Layout.fillWidth: true
+                    ColumnLayout {
+                        anchors.fill: parent
+                        PhysicsSetting {
+                            name: "Coefficient "
+                            value: physicsSimulation.tire_k
+                        }
+                        PhysicsSetting {
+                            name: "Damping "
+                            value: physicsSimulation.tire_damping
+                        }
+                    }
+                }
             }
         }
     }
