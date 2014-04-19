@@ -8,13 +8,12 @@ set(project_sources
 
     main.cc
     physics_simulation.cc
-    vehicle_model.cc
     simulation_runner.cc
     control_algorithm.cc
     camera_simulator.cc
     global_renderer.cc
     logger.cc
-    car3d.cc
+    vehicle.cc
     asset_factory.cc
     scene.cc
     trimesh_data_manager.cc
@@ -26,14 +25,13 @@ set(project_sources
 set(project_headers
 
     physics_simulation.h
-    vehicle_model.h
     simulation_runner.h
     control_algorithm.h
     common.h
     camera_simulator.h
     global_renderer.h
     logger.h
-    car3d.h
+    vehicle.h
     asset_factory.h
     scene.h
     trimesh_data_manager.h
@@ -41,6 +39,7 @@ set(project_headers
     property.h
     property_model.h
     user_settings.h
+    util.h
 )
 
 set(qrc

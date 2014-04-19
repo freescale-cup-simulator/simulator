@@ -5,6 +5,7 @@
 #include <QDataStream>
 #include <QVector>
 #include <QString>
+#include <QDebug>
 #include <exception>
 
 #include "common.h"

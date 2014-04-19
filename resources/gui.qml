@@ -15,7 +15,7 @@ ApplicationWindow {
     menuBar: MenuStrip { id: menuStrip}
 
     statusBar: StatusBar {
-        Label { text: "Vehicle velocity: " + physicsSimulation.vehicleVelocity + " m/s"}
+        Label { text: "Vehicle velocity: " + vehicle.vehicleVelocity.toFixed(3) + " m/s"}
     }
 
 

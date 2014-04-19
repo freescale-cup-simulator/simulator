@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QList>
 #include <QUrl>
+#include <QHash>
 
 #include <global_renderer.h>
 #include <asset_factory.h>
@@ -23,17 +24,14 @@ public:
     ~Scene();
 public slots:
     bool loadTrack(const QUrl &file);
+signals:
+    void startMoved(Ogre::Vector3 pos, Ogre::Quaternion rot);
 private:
-
     void cleanup();
 
     track_library::TrackModel m_track;
-//    Ogre::SceneManager * m_scene_manager;
     AssetFactory * m_asset_factory;
     QList<Asset *> m_tile_assets;
-    QUrl m_file_url;
-    Ogre::Vector3 * m_start_position;
-    Ogre::Quaternion m_start_rotation_q;
 };
 
 #endif

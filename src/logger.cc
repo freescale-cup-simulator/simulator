@@ -85,16 +85,16 @@ Logger & Logger::operator <<(DataSet &dataset)
         log("Can't write. Wrong openMode or closed file.");
         return *this;
     }
-    m_stream.writeRawData((char *)dataset.camera_pixels,CAMERA_FRAME_LEN);
-    m_stream<<dataset.camera.p;
-    m_stream<<dataset.camera.q;
-    m_stream<<dataset.control_interval;
-    m_stream<<dataset.current_wheel_angle;
-    m_stream<<dataset.desired_wheel_angle;
-    m_stream<<dataset.physics_timestep;
-    m_stream<<dataset.wheel_power_l;
-    m_stream<<dataset.wheel_power_r;
-    m_stream<<dataset.line_position;
+//    m_stream.writeRawData((char *)dataset.camera_pixels,CAMERA_FRAME_LEN);
+//    m_stream<<dataset.camera.p;
+//    m_stream<<dataset.camera.q;
+//    m_stream<<dataset.control_interval;
+//    m_stream<<dataset.current_wheel_angle;
+//    m_stream<<dataset.desired_wheel_angle;
+//    m_stream<<dataset.physics_timestep;
+//    m_stream<<dataset.wheel_power_l;
+//    m_stream<<dataset.wheel_power_r;
+//    m_stream<<dataset.line_position;
 
     m_written++;
 
@@ -109,8 +109,8 @@ Logger &Logger::operator >>(DataSet &dataset)
         return *this;
     }
     m_stream.readRawData((char *)dataset.camera_pixels,CAMERA_FRAME_LEN);
-    m_stream>>dataset.camera.p;
-    m_stream>>dataset.camera.q;
+//    m_stream>>dataset.camera.p;
+//    m_stream>>dataset.camera.q;
     m_stream>>dataset.control_interval;
     m_stream>>dataset.current_wheel_angle;
     m_stream>>dataset.desired_wheel_angle;

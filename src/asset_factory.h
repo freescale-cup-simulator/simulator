@@ -16,6 +16,7 @@
 #include <QVector>
 #include <QQuickWindow>
 #include <QOpenGLContext>
+#include <QFlags>
 
 #include <functional>
 #include <physics_simulation.h>
@@ -26,17 +27,21 @@
 class AssetFactory
 {
 public:
-    enum CreateAssetFlags{
-        SceneNode=1,
-        Body3D=2,
-        MeshGeometry=4,
-        PhyBody=8,
-        CustomGeometry=16
+    enum Flags_
+    {
+        SceneNode = 1,
+        Body3D = 2,
+        MeshGeometry = 4,
+        PhyBody = 8,
+        CustomGeometry = 16
     };
-    typedef std::function<dGeomID(dWorldID,dSpaceID)> GeomFunction;
+    Q_DECLARE_FLAGS(Flags, Flags_)
+
+    typedef std::function<dGeomID (dWorldID, dSpaceID)> GeomFunction;
     AssetFactory(dWorldID world, dSpaceID space, TrimeshDataManager * trimesh_manager);
 
-    Asset * createAsset(int flags,const QString & mesh_name, GeomFunction geometry_func=nullptr);
+    Asset * createAsset(Flags flags, const QString & mesh_name = QString(),
+                        GeomFunction geometry_func = nullptr);
 
     inline void setRenderingInstances(GlobalRenderer::RenderingInstances * i)
     {
@@ -51,5 +56,7 @@ private:
 
     GlobalRenderer::RenderingInstances * m_rendering_instances;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(AssetFactory::Flags)
 
 #endif // ASSET_FACTORY_H

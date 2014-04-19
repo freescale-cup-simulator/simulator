@@ -41,15 +41,15 @@ void CameraSimulator::process(DataSet & data)
 {
     // this code is executed in SimulationRunner thread
     Q_ASSERT(m_camera);
-    m_camera->setPosition(data.camera.p.x(), data.camera.p.y(),
-                          data.camera.p.z());
+//    m_camera->setPosition(data.camera.p.x(), data.camera.p.y(),
+//                          data.camera.p.z());
 
-    Ogre::Quaternion q(data.camera.q.scalar(), data.camera.q.x(),
-                       data.camera.q.y(), data.camera.q.z());
-    Ogre::Quaternion ry(Ogre::Radian(M_PI), Ogre::Vector3::UNIT_Y);
-    Ogre::Quaternion rx(Ogre::Radian(Ogre::Degree(-45)), Ogre::Vector3::UNIT_X);
+//    Ogre::Quaternion q(data.camera.q.scalar(), data.camera.q.x(),
+//                       data.camera.q.y(), data.camera.q.z());
+//    Ogre::Quaternion ry(Ogre::Radian(M_PI), Ogre::Vector3::UNIT_Y);
+//    Ogre::Quaternion rx(Ogre::Radian(Ogre::Degree(-45)), Ogre::Vector3::UNIT_X);
 
-    m_camera->setOrientation(q*ry*rx);
+//    m_camera->setOrientation(q*ry*rx);
     m_frame_locker.lock();
     memcpy(data.camera_pixels,m_frame,CAMERA_FRAME_LEN);
     m_frame_locker.unlock();

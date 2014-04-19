@@ -4,6 +4,7 @@
 #include <QSharedPointer>
 #include <QRunnable>
 #include <QThread>
+#include <QThreadPool>
 #include <QWaitCondition>
 #include <QDateTime>
 
@@ -12,14 +13,14 @@
 #include <physics_simulation.h>
 #include <camera_simulator.h>
 #include <vehicle_model.h>
-#include <car3d.h>
+#include <vehicle.h>
 #include <logger.h>
 #include <track_io.h>
 #include <config.h>
 
 class GlobalRenderer;
 class CameraSimulator;
-class Car3D;
+class Vehicle;
 
 class ResumeWaitCondition : public QObject
 {
@@ -43,13 +44,12 @@ class SimulationRunner : public QObject, public QRunnable
     Q_PROPERTY(float physicsTimeStep READ physicsTimeStep
                WRITE setPhysicsTimeStep
                NOTIFY physicsTimeStepChanged)
-    Q_PROPERTY(SimulationState simulationState READ getState NOTIFY simulationStateChanged)
+    Q_PROPERTY(SimulationState simulationState READ getState
+               NOTIFY simulationStateChanged)
     Q_ENUMS(SimulationState)
 public:
     enum SimulationState {Stopped, Paused, Started};
     explicit SimulationRunner(QObject * parent = nullptr);
-
-    track_library::TrackModel * loadTrack(const QString & track_path);
 
     Q_INVOKABLE bool loadAlgorithmFile(const QUrl & file);
 
@@ -68,20 +68,29 @@ public:
         physicsTimeStepChanged();
     }
 
-    inline void setCar(Car3D * car) { m_car = car; }
+    inline void setVehicle(Vehicle * v) { m_vehicle = v; }
     inline void setRenderer(GlobalRenderer * renderer) { m_renderer = renderer; }
 
     inline SimulationState getState() { return m_state; }
 
+    inline void setPhysicsSimulation(PhysicsSimulation *ps)
+    {
+        m_physics_simulation = ps;
+    }
+
+    Q_INVOKABLE void startThread()
+    {
+        QThreadPool::globalInstance()->start(this);
+    }
+
 public slots:
+    void setState(SimulationState state);
     void run();
-    void pause();
-    void resume();
-    void stop();
 signals:
     void controlIntervalChanged();
     void physicsTimeStepChanged();
     void simulationStateChanged();
+    void simulationStopped();
 private:
     SimulationState m_state;
 
@@ -89,13 +98,13 @@ private:
     float m_physics_timestep;
 
     track_library::TrackModel m_track_model;
-    QSharedPointer<PhysicsSimulation> m_physics_simulation;
     QSharedPointer<CameraSimulator> m_camera_simulator;
     QSharedPointer<ControlAlgorithm> m_control_algorithm;
-    QSharedPointer<VehicleModel> m_vehicle_model;
+
+    Vehicle * m_vehicle;
+    PhysicsSimulation * m_physics_simulation;
     GlobalRenderer * m_renderer;
     Logger m_logger;
-    Car3D * m_car;
 };
 
 #endif // SIMULATION_RUNNER_H

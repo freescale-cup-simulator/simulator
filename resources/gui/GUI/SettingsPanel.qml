@@ -58,8 +58,8 @@ TabView {
 
                     ColumnLayout {
                         anchors.fill: parent
-                        PhysicsSetting { name: "Direction 1"; value: physicsSimulation.slip1 }
-                        PhysicsSetting { name: "Direction 2"; value: physicsSimulation.slip2 }
+                        PhysicsSetting { name: "Direction 1"; value: vehicle.slip1 }
+                        PhysicsSetting { name: "Direction 2"; value: vehicle.slip2 }
                     }
                 }
 
@@ -69,8 +69,8 @@ TabView {
 
                     ColumnLayout {
                         anchors.fill: parent
-                        PhysicsSetting { name: "Contact (μ)"; value: physicsSimulation.mu }
-                        PhysicsSetting { name: "Rolling (ρ)"; value: physicsSimulation.rho }
+                        PhysicsSetting { name: "Contact (μ)"; value: vehicle.mu }
+                        PhysicsSetting { name: "Rolling (ρ)"; value: vehicle.rho }
                     }
                 }
 
@@ -82,11 +82,11 @@ TabView {
                         anchors.fill: parent
                         PhysicsSetting {
                             name: "Coefficient "
-                            value: physicsSimulation.suspension_k
+                            value: vehicle.suspension_k
                         }
                         PhysicsSetting {
                             name: "Damping "
-                            value: physicsSimulation.suspension_damping
+                            value: vehicle.suspension_damping
                         }
                     }
                 }
@@ -98,11 +98,11 @@ TabView {
                         anchors.fill: parent
                         PhysicsSetting {
                             name: "Coefficient "
-                            value: physicsSimulation.tire_k
+                            value: vehicle.tire_k
                         }
                         PhysicsSetting {
                             name: "Damping "
-                            value: physicsSimulation.tire_damping
+                            value: vehicle.tire_damping
                         }
                     }
                 }

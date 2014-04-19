@@ -84,19 +84,24 @@ MenuBar {
         MenuItem {
             id: run
             text: qsTr("Run simulation")
-            onTriggered: simulationRunner.run()
+            onTriggered: simulationRunner.startThread()
             shortcut: "Alt+R"
         }
         MenuItem {
             id: pause
-            text: qsTr("Pause/Resume")
-            onTriggered: simulationRunner.pause()
+            text: qsTr("Pause")
+            onTriggered: {
+                if (simulationRunner.simulationState == SimulationRuner.Paused)
+                    simulationRunner.setState(SimulationRuner.Started)
+                else
+                    simulationRunner.setState(SimulationRuner.Paused)
+            }
             shortcut: "Alt+P"
         }
         MenuItem {
             id: stop
             text: qsTr("Stop")
-            onTriggered: simulationRunner.stop()
+            onTriggered: simulationRunner.setState(SimulationRuner.Stopped)
             shortcut: "Alt+S"
         }
     }
