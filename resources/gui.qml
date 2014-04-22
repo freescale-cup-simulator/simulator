@@ -46,8 +46,8 @@ ApplicationWindow {
                         camera = userCamera;
                         ogreEngine = ogreEngineInstance;
                         keyboardArea.forceActiveFocus();
-                        guiController.onCameraSimulatorCreated.connect(loadCamSimulatorViewport);
-                        guiController.onCameraSimulatorDestroyed.connect(hideCamSimulatorViewport);
+//                        guiController.onCameraSimulatorCreated.connect(loadCamSimulatorViewport);
+//                        guiController.onCameraSimulatorDestroyed.connect(hideCamSimulatorViewport);
                         //camView.ogreEngine = ogreEngineInstance
                     }
                     function loadCamSimulatorViewport(cam) {

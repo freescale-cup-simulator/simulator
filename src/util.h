@@ -18,6 +18,11 @@ inline QVector3D dv2qv (const dReal * dv)
     return QVector3D (dv[0], dv[1], dv[2]);
 }
 
+inline Ogre::Vector3 dv2ov (const dReal * dv)
+{
+    return Ogre::Vector3 (dv[0], dv[1], dv[2]);
+}
+
 inline QQuaternion dq2qq(const dReal * q)
 {
     return QQuaternion (q[0], q[1], q[2], q[3]);

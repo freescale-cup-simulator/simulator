@@ -61,6 +61,8 @@ void Vehicle::create(Ogre::Vector3 pos, Ogre::Quaternion rot)
         return dCreateSphere(space, radius);
     };
 
+    Ogre::Vector3 axis2 = rot * Ogre::Vector3(1, 0, 0);
+
     for (int i = 0; i < nwheels; i++)
     {
         auto v = skeleton->getBone(wn[i])->_getDerivedPosition();
@@ -83,8 +85,9 @@ void Vehicle::create(Ogre::Vector3 pos, Ogre::Quaternion rot)
         dJointAttach(jid, chasis->body, w->body);
         dJointSetHinge2Anchor(jid, v.x, v.y, v.z);
         dJointSetHinge2Axis1(jid, 0, 1, 0);
-        dJointSetHinge2Axis2(jid, -pos.x, 0, -pos.z);
+        dJointSetHinge2Axis2(jid, -axis2.x, 0, -axis2.z);
         dJointSetHinge2Param(jid, dParamVel2, 200);
+
         if (i >= 2)
         {
             dJointSetHinge2Param(jid, dParamLoStop, -1e-3);
@@ -118,6 +121,9 @@ void Vehicle::process(DataSet & ds)
         dJointSetHinge2Param(m_joints[i], dParamLoStop1, rad_angle * 1.0 - 1e-3);
         dJointSetHinge2Param(m_joints[i], dParamHiStop1, rad_angle * 1.0 + 1e-3);
     }
+
+    ds.camera.position = util::dv2ov(dBodyGetPosition(m_parts[PART_CAMERA]->body));
+    ds.camera.rotation = util::dq2oq(dBodyGetQuaternion(m_parts[PART_CAMERA]->body));
 }
 
 void Vehicle::startMoved(Ogre::Vector3 pos, Ogre::Quaternion rot)

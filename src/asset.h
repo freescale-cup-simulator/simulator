@@ -8,6 +8,8 @@
 #include <OgreEntity.h>
 #include <ode/ode.h>
 
+#include <util.h>
+
 class Asset
 {
 public:

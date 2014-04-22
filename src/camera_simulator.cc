@@ -18,19 +18,19 @@ CameraSimulator::CameraSimulator(GlobalRenderer * renderer, QObject *parent)
     m_camera_object=new Camera(m_camera,this);
 
     m_frame=new quint8[CAMERA_FRAME_LEN];
-    memset(m_frame,0,CAMERA_FRAME_LEN);
+    memset(m_frame, 0, CAMERA_FRAME_LEN);
     // Qt::DirectConnection will run CameraSimulator::onUpdate in QML Rendering Thread
-    connect(renderer->rootWindow(),&QQuickWindow::beforeRendering,this,&CameraSimulator::onUpdate,Qt::DirectConnection);
-    //connect(this,&CameraSimulator::created,renderer->getGuiController(),&GuiController::cameraSimulatorCreated);
-    //connect(this,&CameraSimulator::destroyed,renderer->getGuiController(),&GuiController::cameraSimulatorDestroyed);
-    renderer->rootContext()->setContextProperty("carCamera",m_camera_object);
+    connect(renderer->rootWindow(), &QQuickWindow::beforeRendering, this,
+            &CameraSimulator::onUpdate, Qt::DirectConnection);
+    renderer->rootContext()->setContextProperty("carCamera", m_camera_object);
     emit created(m_camera_object);
 }
 
 CameraSimulator::~CameraSimulator()
 {
     QMutexLocker locker(&m_safe_destruct);
-    disconnect(m_renderer->rootWindow(),&QQuickWindow::beforeRendering,this,&CameraSimulator::onUpdate);
+    disconnect(m_renderer->rootWindow(), &QQuickWindow::beforeRendering, this,
+               &CameraSimulator::onUpdate);
     emit destroyed();
     qDebug()<<"Camera destructor";
     delete[] m_frame;
@@ -41,15 +41,12 @@ void CameraSimulator::process(DataSet & data)
 {
     // this code is executed in SimulationRunner thread
     Q_ASSERT(m_camera);
-//    m_camera->setPosition(data.camera.p.x(), data.camera.p.y(),
-//                          data.camera.p.z());
+    m_camera->setPosition(data.camera.position);
 
-//    Ogre::Quaternion q(data.camera.q.scalar(), data.camera.q.x(),
-//                       data.camera.q.y(), data.camera.q.z());
-//    Ogre::Quaternion ry(Ogre::Radian(M_PI), Ogre::Vector3::UNIT_Y);
-//    Ogre::Quaternion rx(Ogre::Radian(Ogre::Degree(-45)), Ogre::Vector3::UNIT_X);
+    Ogre::Quaternion ry(Ogre::Radian(M_PI), Ogre::Vector3::UNIT_Y);
+    Ogre::Quaternion rx(Ogre::Radian(Ogre::Degree(-45)), Ogre::Vector3::UNIT_X);
 
-//    m_camera->setOrientation(q*ry*rx);
+    m_camera->setOrientation(data.camera.rotation * ry * rx);
     m_frame_locker.lock();
     memcpy(data.camera_pixels,m_frame,CAMERA_FRAME_LEN);
     m_frame_locker.unlock();
@@ -69,16 +66,16 @@ void CameraSimulator::onUpdate()
     Ogre::TexturePtr m_rttTexture;
     int samples = m_engine->ogreContext()->format().samples();
     m_rttTexture = Ogre::TextureManager::getSingleton()
-                .createManual(
-                    m_camera->getName(),
-                    Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-                    Ogre::TEX_TYPE_2D,
-                    CAMERA_FRAME_LEN,
-                    CAMERA_FRAME_LEN,
-                    0,
-                    Ogre::PF_R8G8B8A8,
+            .createManual(
+                m_camera->getName(),
+                Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+                Ogre::TEX_TYPE_2D,
+                CAMERA_FRAME_LEN,
+                CAMERA_FRAME_LEN,
+                0,
+                Ogre::PF_R8G8B8A8,
                     Ogre::TU_RENDERTARGET, 0, false,
-                    samples
+                samples
                 );
 
     m_renderTarget = m_rttTexture->getBuffer()->getRenderTarget();

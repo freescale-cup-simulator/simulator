@@ -69,7 +69,10 @@ void Asset::setPosition(dReal x, dReal y, dReal z)
         dGeomSetPosition(geometry, x, y, z);
 
     if(node3d)
+    {
         node3d->setPosition(x, y, z);
+        node3d->_updateBounds();
+    }
 }
 
 void Asset::setPosition(const Ogre::Vector3 &v)
@@ -109,6 +112,8 @@ void Asset::bodyMoved()
     {
         const dReal * p = dBodyGetPosition(body);
         node3d->setPosition(p[0], p[1], p[2]);
+        node3d->rotate(util::dq2oq(dBodyGetQuaternion(body)));
+        node3d->_updateBounds();
     }
 
     if (geometry && dGeomGetClass(geometry) == dTriMeshClass)

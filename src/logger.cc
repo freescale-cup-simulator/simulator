@@ -25,7 +25,7 @@ bool Logger::beginWrite()
     {
         m_mode=Logger::Write;
         m_stream.setDevice(m_file);
-        m_stream<<DATASET_VERSION;
+//        m_stream<<DATASET_VERSION;
         return true;
     }
     else
