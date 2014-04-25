@@ -108,8 +108,8 @@ ApplicationWindow {
                     }
                 }
             }
-
-            SettingsPanel {}
         }
+
+        SettingsPanel {}
     }
 }
