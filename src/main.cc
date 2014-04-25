@@ -68,7 +68,7 @@ int main(int argc, char * argv[])
 
     view.create();
 
-    GlobalRenderer::RenderingObjects rendering_objects(&view);
+    RenderingObjects rendering_objects(&view);
     Q_ASSERT(rendering_objects.gl_context->create());
 
     auto cam = rendering_objects.scene_manager->createCamera("linescanCamera");

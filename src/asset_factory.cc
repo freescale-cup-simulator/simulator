@@ -16,7 +16,7 @@ Asset *AssetFactory::createAsset(Flags flags, const QString & mesh_name,
     dBodyID bid = nullptr;
     Ogre::SceneNode * node3d = nullptr;
 
-    auto sm = m_rendering_instances->scene_manager;
+    auto sm = m_rendering_objects->scene_manager;
 
     if (flags.testFlag(MeshGeometry))
     {
@@ -38,7 +38,7 @@ Asset *AssetFactory::createAsset(Flags flags, const QString & mesh_name,
 
     if (flags.testFlag(Body3D))
     {
-        m_rendering_instances->gl_context->makeCurrent(m_rendering_instances->window);
+        m_rendering_objects->gl_context->makeCurrent(m_rendering_objects->window);
 
         if (flags.testFlag(SceneNode))
         {
@@ -51,7 +51,7 @@ Asset *AssetFactory::createAsset(Flags flags, const QString & mesh_name,
             Ogre::Entity* ent = sm->createEntity(mesh_name.toStdString().c_str());
             node3d->attachObject(ent);
         }
-        m_rendering_instances->gl_context->doneCurrent();
+        m_rendering_objects->gl_context->doneCurrent();
     }
     return new Asset(node3d, bid, gid);
 }

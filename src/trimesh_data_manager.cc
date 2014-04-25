@@ -34,14 +34,14 @@ const dTriMeshDataID &TrimeshDataManager::operator[](const QString &key)
 
 dTriMeshDataID & TrimeshDataManager::append(const QString &key)
 {
-    Q_ASSERT(m_rendering_instances);
+    Q_ASSERT(m_rendering_objects);
 
     dTriMeshDataID tid;
     if (!m_mesh_man)
         qFatal("Null reference to ogre mesh manager.");
     glPopAttrib();
     glPopClientAttrib();
-    m_rendering_instances->gl_context->makeCurrent(m_rendering_instances->window);
+    m_rendering_objects->gl_context->makeCurrent(m_rendering_objects->window);
     /*auto it=m_mesh_man;
     while(it.hasMoreElements())
     {
@@ -64,7 +64,7 @@ dTriMeshDataID & TrimeshDataManager::append(const QString &key)
                                 indices, index_count, sizeof(int) * 3);
     m_allocated_memory.append({vertices, indices});
 
-    m_rendering_instances->gl_context->doneCurrent();
+    m_rendering_objects->gl_context->doneCurrent();
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
 

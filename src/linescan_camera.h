@@ -17,7 +17,7 @@
 
 class GlobalRenderer;
 
-class LineScanCamera : public Camera
+class LineScanCamera : public Camera, public RenderingObjectsUser
 {
     Q_OBJECT
 public:
@@ -25,9 +25,9 @@ public:
     ~LineScanCamera();
     void process(DataSet & data);
 
-    inline void setRenderingObjects(GlobalRenderer::RenderingObjects * ro)
+    inline void setRenderingObjects(RenderingObjects *ro)
     {
-        m_rendering_objects = ro;
+        RenderingObjectsUser::setRenderingObjects(ro);
         connect(ro->window, &QQuickWindow::beforeRendering, this,
                 &LineScanCamera::update, Qt::DirectConnection);
     }
@@ -40,7 +40,6 @@ private:
     Ogre::TexturePtr m_texture;
     quint8 m_current_frame[CAMERA_FRAME_LEN];
     QMutex m_frame_locker;
-    GlobalRenderer::RenderingObjects * m_rendering_objects;
 };
 
 #endif // LINESCAN_CAMERA_H

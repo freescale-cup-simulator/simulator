@@ -28,25 +28,6 @@ public:
     inline QQuickWindow * rootWindow(){return m_root_window;}
     inline Camera * userCamera() { return m_user_camera; }
 
-    class RenderingObjects
-    {
-    public:
-        RenderingObjects(GlobalRenderer * renderer)
-        {
-            engine = renderer->m_ogre_engine;
-            gl_context = new QOpenGLContext();
-            gl_context->setShareContext(engine->ogreContext());
-
-            window = renderer->m_root_window;
-            scene_manager = engine->sceneManager();
-        }
-
-        OgreEngine * engine;
-        QOpenGLContext * gl_context;
-        QQuickWindow * window;
-        Ogre::SceneManager * scene_manager;
-    };
-
 signals:
     void ogreInitialized();
     void contextObjectsSet();
@@ -61,6 +42,37 @@ private:
     OgreEngine * m_ogre_engine;
     QQuickWindow * m_root_window;
     Camera * m_user_camera;
+};
+
+class RenderingObjects
+{
+public:
+    RenderingObjects(GlobalRenderer * renderer)
+    {
+        engine = renderer->ogreEngine();
+        gl_context = new QOpenGLContext();
+        gl_context->setShareContext(engine->ogreContext());
+
+        window = renderer->rootWindow();
+        scene_manager = engine->sceneManager();
+    }
+
+    OgreEngine * engine;
+    QOpenGLContext * gl_context;
+    QQuickWindow * window;
+    Ogre::SceneManager * scene_manager;
+};
+
+class RenderingObjectsUser
+{
+public:
+    virtual inline void setRenderingObjects(RenderingObjects * ro)
+    {
+        m_rendering_objects = ro;
+    }
+
+protected:
+    RenderingObjects * m_rendering_objects;
 };
 
 #endif

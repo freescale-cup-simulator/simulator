@@ -24,7 +24,7 @@
 #include <trimesh_data_manager.h>
 #include <asset.h>
 
-class AssetFactory
+class AssetFactory : public RenderingObjectsUser
 {
 public:
     enum Flags_
@@ -43,18 +43,11 @@ public:
     Asset * createAsset(Flags flags, const QString & mesh_name = QString(),
                         GeomFunction geometry_func = nullptr);
 
-    inline void setRenderingObjects(GlobalRenderer::RenderingObjects * i)
-    {
-        m_rendering_instances = i;
-    }
-
 private:
 
     dWorldID m_world;
     dSpaceID m_space;
     TrimeshDataManager * m_trimesh_manager;
-
-    GlobalRenderer::RenderingObjects * m_rendering_instances;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(AssetFactory::Flags)

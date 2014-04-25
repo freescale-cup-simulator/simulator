@@ -7,9 +7,8 @@
 
 #include <global_renderer.h>
 
-class TrimeshDataManager
+class TrimeshDataManager : public RenderingObjectsUser
 {
-
 public:
     TrimeshDataManager();
     ~TrimeshDataManager();
@@ -17,9 +16,9 @@ public:
     const dTriMeshDataID & value(const QString & key);
     const dTriMeshDataID & operator[](const QString & key);
 
-    inline void setRenderingObjects(GlobalRenderer::RenderingObjects * i)
+    inline void setRenderingObjects(RenderingObjects * ro)
     {
-        m_rendering_instances = i;
+        RenderingObjectsUser::setRenderingObjects(ro);
         // get MeshManager at this point because this method is called after
         // rendering has been initialised
         m_mesh_man = Ogre::MeshManager::getSingletonPtr();
@@ -35,8 +34,6 @@ private:
     QVector<QPair<float *, unsigned int *>> m_allocated_memory;
     Ogre::MeshManager * m_mesh_man;
     QHash<QString,dTriMeshDataID>  m_container;
-
-    GlobalRenderer::RenderingObjects * m_rendering_instances;
 };
 
 #endif // TRIMESH_DATA_MANAGER_H
