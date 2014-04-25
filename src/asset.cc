@@ -53,7 +53,7 @@ void Asset::rotate(const dQuaternion &rot)
         dGeomSetQuaternion(geometry,rot);
 
     if(node3d)
-        node3d->rotate(Ogre::Quaternion(rot[0], rot[1], rot[2], rot[3]));
+        node3d->setOrientation(Ogre::Quaternion(rot[0], rot[1], rot[2], rot[3]));
 }
 
 void Asset::rotate(const Ogre::Quaternion &rot)
@@ -112,7 +112,7 @@ void Asset::bodyMoved()
     {
         const dReal * p = dBodyGetPosition(body);
         node3d->setPosition(p[0], p[1], p[2]);
-        node3d->rotate(util::dq2oq(dBodyGetQuaternion(body)));
+        node3d->setOrientation(util::dq2oq(dBodyGetQuaternion(body)));
         node3d->_updateBounds();
     }
 

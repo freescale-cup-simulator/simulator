@@ -17,7 +17,7 @@ public:
     const dTriMeshDataID & value(const QString & key);
     const dTriMeshDataID & operator[](const QString & key);
 
-    inline void setRenderingInstances(GlobalRenderer::RenderingInstances * i)
+    inline void setRenderingObjects(GlobalRenderer::RenderingObjects * i)
     {
         m_rendering_instances = i;
         // get MeshManager at this point because this method is called after
@@ -36,7 +36,7 @@ private:
     Ogre::MeshManager * m_mesh_man;
     QHash<QString,dTriMeshDataID>  m_container;
 
-    GlobalRenderer::RenderingInstances * m_rendering_instances;
+    GlobalRenderer::RenderingObjects * m_rendering_instances;
 };
 
 #endif // TRIMESH_DATA_MANAGER_H

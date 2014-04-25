@@ -10,7 +10,7 @@ set(project_sources
     physics_simulation.cc
     simulation_runner.cc
     control_algorithm.cc
-    camera_simulator.cc
+    linescan_camera.cc
     global_renderer.cc
     logger.cc
     vehicle.cc
@@ -28,7 +28,7 @@ set(project_headers
     simulation_runner.h
     control_algorithm.h
     common.h
-    camera_simulator.h
+    linescan_camera.h
     global_renderer.h
     logger.h
     vehicle.h

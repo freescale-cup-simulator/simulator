@@ -21,9 +21,8 @@ SimulationRunner::SimulationRunner(QObject *parent)
     : QObject(parent)
     , m_state(SimulationRunner::Stopped)
     , m_control_interval(0.001)
-    , m_physics_timestep(0.00001)
+    , m_physics_timestep(0.0001)
 {
-    setAutoDelete(false);
 }
 
 bool SimulationRunner::loadAlgorithmFile(const QUrl &file)
@@ -66,12 +65,10 @@ void SimulationRunner::run()
     }
     Q_ASSERT(m_renderer);
     Q_ASSERT(m_vehicle);
+    Q_ASSERT(m_linescan_camera);
 
     m_state = SimulationRunner::Started;
     emit simulationStateChanged();
-
-    m_camera_simulator
-            = QSharedPointer<CameraSimulator>(new CameraSimulator(m_renderer));
 
     DataSet dataset;
     float physics_runtime;
@@ -96,13 +93,13 @@ void SimulationRunner::run()
         physics_runtime = 0;
         while (physics_runtime < m_control_interval)
         {
-//            m_vehicle_model->process(dataset);
             m_physics_simulation->process(dataset);
             m_vehicle->process(dataset);
             physics_runtime += m_physics_timestep;
         }
-        m_camera_simulator->process(dataset);
+        m_linescan_camera->process(dataset);
         m_control_algorithm->process(dataset);
+
     }
 
     m_logger.endWrite();
@@ -111,5 +108,4 @@ void SimulationRunner::run()
     emit simulationStateChanged();
 
     qDebug("Simulation done!");
-    m_camera_simulator.clear();
 }

@@ -43,7 +43,7 @@ public:
     Asset * createAsset(Flags flags, const QString & mesh_name = QString(),
                         GeomFunction geometry_func = nullptr);
 
-    inline void setRenderingInstances(GlobalRenderer::RenderingInstances * i)
+    inline void setRenderingObjects(GlobalRenderer::RenderingObjects * i)
     {
         m_rendering_instances = i;
     }
@@ -54,7 +54,7 @@ private:
     dSpaceID m_space;
     TrimeshDataManager * m_trimesh_manager;
 
-    GlobalRenderer::RenderingInstances * m_rendering_instances;
+    GlobalRenderer::RenderingObjects * m_rendering_instances;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(AssetFactory::Flags)

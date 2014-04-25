@@ -41,7 +41,7 @@ dTriMeshDataID & TrimeshDataManager::append(const QString &key)
         qFatal("Null reference to ogre mesh manager.");
     glPopAttrib();
     glPopClientAttrib();
-    m_rendering_instances->gl_context->makeCurrent(m_rendering_instances->surface);
+    m_rendering_instances->gl_context->makeCurrent(m_rendering_instances->window);
     /*auto it=m_mesh_man;
     while(it.hasMoreElements())
     {

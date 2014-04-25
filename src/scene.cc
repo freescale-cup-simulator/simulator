@@ -58,14 +58,15 @@ bool Scene::loadTrack(const QUrl &file)
 
         x = -tile.x() + 0.5;
         z = tile.y() + 0.5;
-        q = Ogre::Quaternion(Ogre::Degree(tile.rotation()),
+        q = Ogre::Quaternion(Ogre::Degree(-tile.rotation() - 180),
                              Ogre::Vector3::UNIT_Y);
 
         if (tile.type() == track_library::Tile::Start)
-            emit startMoved({x, 0, z}, q);
+            emit startMoved({x, 0, z}, Ogre::Quaternion(Ogre::Degree(tile.rotation()),
+                                                        Ogre::Vector3::UNIT_Y));
 
         t->setPosition(x, 0, z);
-        t->rotate(q *  Ogre::Quaternion(Ogre::Radian(M_PI), Ogre::Vector3(0, 1, 0)));
+        t->rotate(q);
         t->setVisible(true);
 
         dGeomSetCategoryBits(t->geometry, (1 << 0)); // cat 0

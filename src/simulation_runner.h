@@ -11,7 +11,7 @@
 #include <global_renderer.h>
 #include <control_algorithm.h>
 #include <physics_simulation.h>
-#include <camera_simulator.h>
+#include <linescan_camera.h>
 #include <vehicle_model.h>
 #include <vehicle.h>
 #include <logger.h>
@@ -19,7 +19,7 @@
 #include <config.h>
 
 class GlobalRenderer;
-class CameraSimulator;
+class LineScanCamera;
 class Vehicle;
 
 class ResumeWaitCondition : public QObject
@@ -78,6 +78,8 @@ public:
         m_physics_simulation = ps;
     }
 
+    inline void setCameraSimulator(LineScanCamera * cm) { m_linescan_camera = cm; }
+
     Q_INVOKABLE void startThread()
     {
         QThreadPool::globalInstance()->start(this);
@@ -98,7 +100,7 @@ private:
     float m_physics_timestep;
 
     track_library::TrackModel m_track_model;
-    QSharedPointer<CameraSimulator> m_camera_simulator;
+    LineScanCamera * m_linescan_camera;
     QSharedPointer<ControlAlgorithm> m_control_algorithm;
 
     Vehicle * m_vehicle;

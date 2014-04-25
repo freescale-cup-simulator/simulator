@@ -45,6 +45,7 @@ void Vehicle::create(Ogre::Vector3 pos, Ogre::Quaternion rot)
 
     Asset * camera = m_asset_factory->createAsset(AssetFactory::PhyBody);
     camera->setPosition((rot * cp) + pos);
+    camera->rotate(rot);
     {
         auto jid = dJointCreateFixed(world, 0);
         dJointAttach(jid, chasis->body, camera->body);
@@ -55,7 +56,7 @@ void Vehicle::create(Ogre::Vector3 pos, Ogre::Quaternion rot)
     constexpr int nwheels = 4;
     const char * wn[nwheels] = {"wheel_hl", "wheel_hr", "wheel_rl", "wheel_rr"};
 
-    AssetFactory::GeomFunction wheel_f =  [](dWorldID, dSpaceID space) -> dGeomID
+    AssetFactory::GeomFunction wheel_f = [](dWorldID, dSpaceID space) -> dGeomID
     {
         constexpr float radius = 0.025;
         return dCreateSphere(space, radius);
@@ -78,6 +79,7 @@ void Vehicle::create(Ogre::Vector3 pos, Ogre::Quaternion rot)
 
         w->setMass(0.5);
         w->setPosition(v);
+        w->rotate(rot);
 
 //        dBodySetFiniteRotationMode(w->body, 1);
 
@@ -115,7 +117,7 @@ void Vehicle::process(DataSet & ds)
     dJointSetHinge2Param(m_joints[PART_WHEEL_RL], dParamFMax2, 1);//ds.wheel_power_l);
     dJointSetHinge2Param(m_joints[PART_WHEEL_RR], dParamFMax2, 1);//ds.wheel_power_r);
 
-    const float rad_angle = 0;//(ds.current_wheel_angle / 180.0) * M_PI;
+    const float rad_angle = (ds.current_wheel_angle / 180.0) * M_PI;
     for (int i = PART_WHEEL_FL; i <= PART_WHEEL_FR; i++)
     {
         dJointSetHinge2Param(m_joints[i], dParamLoStop1, rad_angle * 1.0 - 1e-3);

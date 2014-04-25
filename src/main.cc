@@ -30,6 +30,7 @@ void register_types()
     qmlRegisterType<CameraGrabber>("OgreTypes", 1, 0, "CameraGrabber");
     qmlRegisterType<GlobalRenderer>("OgreTypes", 1, 0, "GlobalRenderer");
     qmlRegisterType<OgreEngine>("OgreTypes", 1, 0, "OgreEngine");
+
     qmlRegisterType<SimulationRunner>("Simulator", 1, 0, "SimulationRuner");
     qmlRegisterType<PhysicsSimulation>("Simulator", 1, 0, "PhysicsSimulation");
     qmlRegisterType<Vehicle>("Simulator", 1, 0, "Vehicle");
@@ -67,17 +68,33 @@ int main(int argc, char * argv[])
 
     view.create();
 
-    GlobalRenderer::RenderingInstances rendering_instances(&view);
-    Q_ASSERT(rendering_instances.gl_context->create());
+    GlobalRenderer::RenderingObjects rendering_objects(&view);
+    Q_ASSERT(rendering_objects.gl_context->create());
+
+    auto cam = rendering_objects.scene_manager->createCamera("linescanCamera");
+    LineScanCamera linescan_camera(cam);
 
     simulation_runner.setRenderer(&view);
-    trimesh_manager.setRenderingInstances(&rendering_instances);
-    asset_factory.setRenderingInstances(&rendering_instances);
+
+    trimesh_manager.setRenderingObjects(&rendering_objects);
+    asset_factory.setRenderingObjects(&rendering_objects);
+    linescan_camera.setRenderingObjects(&rendering_objects);
 
     vehicle.setAssetFactory(&asset_factory);
 
     simulation_runner.setVehicle(&vehicle);
     simulation_runner.setPhysicsSimulation(&physics);
+    simulation_runner.setCameraSimulator(&linescan_camera);
+
+    CameraGrabber * cg;
+
+    cg = view.rootWindow()->findChild<CameraGrabber *>("freeCamera");
+    cg->setOgreEngine(view.ogreEngine());
+    cg->setCamera(view.userCamera());
+
+    cg = view.rootWindow()->findChild<CameraGrabber *>("linescanCamera");
+    cg->setOgreEngine(view.ogreEngine());
+    cg->setCamera(&linescan_camera);
 
     QObject::connect(&scene, &Scene::startMoved, &vehicle, &Vehicle::startMoved);
     QObject::connect(&simulation_runner, &SimulationRunner::simulationStopped,

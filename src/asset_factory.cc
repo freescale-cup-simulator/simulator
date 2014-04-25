@@ -38,7 +38,7 @@ Asset *AssetFactory::createAsset(Flags flags, const QString & mesh_name,
 
     if (flags.testFlag(Body3D))
     {
-        m_rendering_instances->gl_context->makeCurrent(m_rendering_instances->surface);
+        m_rendering_instances->gl_context->makeCurrent(m_rendering_instances->window);
 
         if (flags.testFlag(SceneNode))
         {

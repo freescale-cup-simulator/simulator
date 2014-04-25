@@ -5,7 +5,6 @@
 #include <OgreQuaternion.h>
 #include <OgreVector3.h>
 
-
 constexpr int CAMERA_FRAME_LEN = 128;
 constexpr int DATASET_VERSION = 1;
 

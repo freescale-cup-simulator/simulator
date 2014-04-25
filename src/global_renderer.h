@@ -26,22 +26,24 @@ public:
 
     inline OgreEngine * ogreEngine(){return m_ogre_engine;}
     inline QQuickWindow * rootWindow(){return m_root_window;}
+    inline Camera * userCamera() { return m_user_camera; }
 
-    class RenderingInstances
+    class RenderingObjects
     {
     public:
-        RenderingInstances(GlobalRenderer * renderer)
+        RenderingObjects(GlobalRenderer * renderer)
         {
-            OgreEngine * engine = renderer->m_ogre_engine;
+            engine = renderer->m_ogre_engine;
             gl_context = new QOpenGLContext();
             gl_context->setShareContext(engine->ogreContext());
 
-            surface = renderer->m_root_window;
+            window = renderer->m_root_window;
             scene_manager = engine->sceneManager();
         }
 
+        OgreEngine * engine;
         QOpenGLContext * gl_context;
-        QSurface * surface;
+        QQuickWindow * window;
         Ogre::SceneManager * scene_manager;
     };
 
