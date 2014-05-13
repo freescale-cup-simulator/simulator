@@ -169,13 +169,13 @@ void Vehicle::updateContact()
         Ogre::Quaternion wheel;
 
         dReal wheel_a = dJointGetHinge2Param(m_joints[i], dParamLoStop1);
-        wheel.FromAngleAxis(Ogre::Radian(-wheel_a), Ogre::Vector3(0, 1, 0));
+        wheel.FromAngleAxis(Ogre::Radian(wheel_a), Ogre::Vector3(0, 1, 0));
 
         Ogre::Vector3 fdir1 = (body * wheel) * Ogre::Vector3(1, 0, 0);
         fdir1.normalise();
 
         a->contact.surface.mode = dContactSoftCFM | dContactSoftERP
-                | dContactSlip1 | dContactSlip2// | dContactFDir1
+                | dContactSlip1 | dContactSlip2 | dContactFDir1
                 | dContactApprox1 | dContactRolling;
         a->contact.surface.mu = m_mu;
         a->contact.surface.soft_cfm = m_surfaceCFM;
@@ -183,9 +183,9 @@ void Vehicle::updateContact()
         a->contact.surface.rho = m_rho;
         a->contact.surface.rho2 = m_rho;
         a->contact.surface.rhoN = m_rho;
-//        a->contact.fdir1[0] = fdir1.x;
-//        a->contact.fdir1[1] = 0;
-//        a->contact.fdir1[2] = fdir1.z;
+        a->contact.fdir1[0] = fdir1.x;
+        a->contact.fdir1[1] = 0;
+        a->contact.fdir1[2] = fdir1.z;
         a->contact.surface.slip1 = m_slip1 * m_vehicleVelocity;
         a->contact.surface.slip2 = m_slip2 * m_vehicleVelocity;
 

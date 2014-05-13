@@ -21,7 +21,7 @@ SimulationRunner::SimulationRunner(QObject *parent)
     : QObject(parent)
     , m_state(SimulationRunner::Stopped)
     , m_control_interval(0.001)
-    , m_physics_timestep(0.0001)
+    , m_physics_timestep(0.00005)
 {
 }
 
