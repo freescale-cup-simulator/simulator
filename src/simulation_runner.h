@@ -12,7 +12,6 @@
 #include <control_algorithm.h>
 #include <physics_simulation.h>
 #include <linescan_camera.h>
-#include <vehicle_model.h>
 #include <vehicle.h>
 #include <logger.h>
 #include <track_io.h>
