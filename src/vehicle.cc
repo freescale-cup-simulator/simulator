@@ -114,6 +114,10 @@ void Vehicle::process(DataSet & ds)
         vehicleVelocityChanged();
     updateContact();
 
+    // this sets actual wheel angle based on what the algotithm wants and how
+    // fast the servo would turn
+    simulateServo(ds);
+
     dJointSetHinge2Param(m_joints[PART_WHEEL_RL], dParamFMax2, 1);//ds.wheel_power_l);
     dJointSetHinge2Param(m_joints[PART_WHEEL_RR], dParamFMax2, 1);//ds.wheel_power_r);
 
@@ -190,6 +194,25 @@ void Vehicle::updateContact()
         a->contact.surface.slip2 = m_slip2 * m_vehicleVelocity;
 
         a->has_contact = true;
+    }
+}
+
+void Vehicle::simulateServo(DataSet &d)
+{
+    const float dps = DEGREES_PER_SECOND * d.physics_timestep;
+
+    // servo will reach desired angle during current step
+    if (std::abs(d.desired_wheel_angle - d.current_wheel_angle) < dps)
+    {
+        d.current_wheel_angle = d.desired_wheel_angle;
+    }
+    else if (d.desired_wheel_angle < d.current_wheel_angle)
+    {
+        d.current_wheel_angle -= dps;
+    }
+    else
+    {
+        d.current_wheel_angle += dps;
     }
 }
 

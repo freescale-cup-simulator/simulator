@@ -92,6 +92,7 @@ private:
     void create(Ogre::Vector3 pos, Ogre::Quaternion rot);
     void updateERPandCFM(const DataSet &d);
     void updateContact();
+    void simulateServo(DataSet &d);
     void destroy();
 
     QHash<int, Asset *> m_parts;
@@ -112,6 +113,9 @@ private:
     qreal m_tire_damping;
 
     Ogre::Quaternion m_start_rotation;
+
+    // for Futaba FUTM0032 servo
+    static constexpr float DEGREES_PER_SECOND = 60.0 / 0.2;
 };
 
 #endif // VEHICLE_H
