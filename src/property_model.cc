@@ -79,6 +79,9 @@ double PropertyModel::getPropertyValue(const QString & propName)
     for (int i = 0; i < m_props.count(); i++)
         if (m_props.at(i).name() == propName)
             return m_props.at(i).value();
+
+    qWarning("PropertyModel: invalid proeprty name requested");
+    return 0;
 }
 
 void PropertyModel::valueChanged(double value, int row)

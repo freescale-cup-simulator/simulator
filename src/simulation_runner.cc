@@ -21,8 +21,9 @@ SimulationRunner::SimulationRunner(QObject *parent)
     : QObject(parent)
     , m_state(SimulationRunner::Stopped)
     , m_control_interval(0.001)
-    , m_physics_timestep(0.00005)
+    , m_physics_timestep(0.0005)
 {
+    setAutoDelete(false);
 }
 
 bool SimulationRunner::loadAlgorithmFile(const QUrl &file)
@@ -42,6 +43,7 @@ bool SimulationRunner::loadAlgorithmFile(const QUrl &file)
                          + QDateTime::currentDateTime().toString("hhmmssddMMyyyy")
                          + ".dat");
 
+    m_control_algorithm_path = file;
     m_control_algorithm = QSharedPointer<ControlAlgorithm>(ca);
     return true;
 }
@@ -49,26 +51,28 @@ bool SimulationRunner::loadAlgorithmFile(const QUrl &file)
 void SimulationRunner::setState(SimulationRunner::SimulationState state)
 {
     m_state = state;
-    if (state != SimulationState::Paused)
+    if (state == Started || state == Stopped)
         ResumeWaitCondition::instance()->wake();
-    if (state == SimulationState::Stopped)
-        emit simulationStopped();
+
     emit simulationStateChanged();
 }
 
 void SimulationRunner::run()
 {
+    if (m_control_algorithm_path.isValid())
+        loadAlgorithmFile(m_control_algorithm_path);
+
     if (!m_control_algorithm)
     {
         qWarning("Control algorithm not loaded, will not run");
         return;
     }
+
     Q_ASSERT(m_renderer);
     Q_ASSERT(m_vehicle);
     Q_ASSERT(m_linescan_camera);
 
-    m_state = SimulationRunner::Started;
-    emit simulationStateChanged();
+    setState(Started);
 
     DataSet dataset;
     float physics_runtime;
@@ -79,16 +83,19 @@ void SimulationRunner::run()
     dataset.control_interval = m_control_interval;
     dataset.line_position=64;
 
-    Q_ASSERT(m_logger.beginWrite());
+//    Q_ASSERT(m_logger.beginWrite());
 
     m_vehicle->process(dataset);
 
     while (m_state != SimulationRunner::Stopped)
     {
-        m_logger << dataset;
+//        m_logger << dataset;
 
         if (m_state==SimulationRunner::Paused)
+        {
             ResumeWaitCondition::instance()->wait();
+            continue;
+        }
 
         physics_runtime = 0;
         while (physics_runtime < m_control_interval)
@@ -99,13 +106,13 @@ void SimulationRunner::run()
         }
         m_linescan_camera->process(dataset);
         m_control_algorithm->process(dataset);
-
     }
 
-    m_logger.endWrite();
+//    m_logger.endWrite();
 
-    m_state = SimulationState::Stopped;
-    emit simulationStateChanged();
+    emit simulationStopped();
+    m_control_algorithm.clear();
+
 
     qDebug("Simulation done!");
 }

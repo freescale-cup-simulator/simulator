@@ -1,10 +1,9 @@
 <track width="8" height="8">
-    <tile type="1" x="0" y="7" rotation="0"/>
-    <tile type="1" x="0" y="6" rotation="0"/>
-    <tile type="1" x="0" y="5" rotation="0"/>
-    <tile type="3" x="0" y="4" rotation="0"/>
-    <tile type="1" x="0" y="3" rotation="0"/>
-    <tile type="1" x="0" y="2" rotation="0"/>
-    <tile type="1" x="0" y="1" rotation="0"/>
-    <tile type="0" x="0" y="0" rotation="0"/>
+    <tile type="1" x="2" y="7" rotation="90"/>
+    <tile type="1" x="2" y="6" rotation="90"/>
+    <tile type="1" x="2" y="5" rotation="90"/>
+    <tile type="1" x="2" y="4" rotation="90"/>
+    <tile type="1" x="2" y="3" rotation="0"/>
+    <tile type="1" x="2" y="2" rotation="0"/>
+    <tile type="0" x="2" y="1" rotation="0"/>
 </track>

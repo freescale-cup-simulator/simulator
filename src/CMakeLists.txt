@@ -42,9 +42,7 @@ set(project_headers
     util.h
 )
 
-set(qrc
-    ${CMAKE_SOURCE_DIR}/../resources/resources.qrc
-)
+set(qrc ${CMAKE_SOURCE_DIR}/../resources/resources.qrc)
 
 find_package(Qt5Quick REQUIRED Qt5Quick5.2.1)
 find_package(Qt5Widgets REQUIRED)
@@ -78,7 +76,7 @@ include_directories(SYSTEM
                     ${INSTALL_DIR}/include
 )
 
-link_directories(${INSTALL_DIR}/lib/)
+link_directories(${INSTALL_DIR}/lib/ ${CMAKE_SOURCE_DIR}/../resources/owlcpp/)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug CACHE STRING
@@ -107,7 +105,7 @@ endif()
 
 find_package(OGRE REQUIRED)
 find_package(OIS REQUIRED)
-find_package(Boost COMPONENTS system thread date_time REQUIRED)
+find_package(Boost COMPONENTS system filesystem thread date_time REQUIRED)
 
 include_directories(SYSTEM
         ${Boost_INCLUDE_DIR}
@@ -142,12 +140,12 @@ add_executable(freescale_simulator
                ${RC_SRCS}
 )
 
-
 set_target_properties(freescale_simulator PROPERTIES AUTOMOC TRUE)
 target_link_libraries(freescale_simulator
                       track
                       qmlogre
                       ode
+
                       ${LUA_LIBRARIES}
                       ${OGRE_LIBRARIES}
                       ${OIS_LIBRARIES}

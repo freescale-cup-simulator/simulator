@@ -19,7 +19,6 @@
 
 class GlobalRenderer;
 class LineScanCamera;
-class Vehicle;
 
 class ResumeWaitCondition : public QObject
 {
@@ -67,7 +66,11 @@ public:
         physicsTimeStepChanged();
     }
 
-    inline void setVehicle(Vehicle * v) { m_vehicle = v; }
+    inline void setVehicle(Vehicle * v)
+    {
+        m_vehicle = v;
+    }
+
     inline void setRenderer(GlobalRenderer * renderer) { m_renderer = renderer; }
 
     inline SimulationState getState() { return m_state; }
@@ -81,6 +84,12 @@ public:
 
     Q_INVOKABLE void startThread()
     {
+        /*
+         * we can only create the vehicle here (and not in run()) because all assets
+         * are created on the main (GUI) thread, and run() is executed in a different
+         * thread; startThread(), however, is called from GUI
+         */
+        m_vehicle->create();
         QThreadPool::globalInstance()->start(this);
     }
 
@@ -101,6 +110,7 @@ private:
     track_library::TrackModel m_track_model;
     LineScanCamera * m_linescan_camera;
     QSharedPointer<ControlAlgorithm> m_control_algorithm;
+    QUrl m_control_algorithm_path;
 
     Vehicle * m_vehicle;
     PhysicsSimulation * m_physics_simulation;

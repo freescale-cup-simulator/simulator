@@ -98,7 +98,7 @@ int main(int argc, char * argv[])
 
     QObject::connect(&scene, &Scene::startMoved, &vehicle, &Vehicle::startMoved);
     QObject::connect(&simulation_runner, &SimulationRunner::simulationStopped,
-                     &vehicle, &Vehicle::simulationStopped);
+                     &vehicle, &Vehicle::destroy, Qt::QueuedConnection);
 
     return application.exec();
 }

@@ -9,7 +9,6 @@
 #include <ode/ode.h>
 
 #include <asset_factory.h>
-#include <simulation_runner.h>
 #include <common.h>
 #include <util.h>
 
@@ -48,9 +47,11 @@ public:
     qreal tire_damping() const { return m_tire_damping; }
     qreal mu() const { return m_mu; }
 
+    void create();
+
 public slots:
     void startMoved(Ogre::Vector3 pos, Ogre::Quaternion rot);
-    void simulationStopped();
+    void destroy();
 
     void setSlip1(qreal arg) { m_slip1 = arg; emit slip1Changed(); }
     void setSlip2(qreal arg) { m_slip2 = arg; emit slip2Changed(); }
@@ -89,11 +90,9 @@ private:
         PART_WHEEL_RR
     };
 
-    void create(Ogre::Vector3 pos, Ogre::Quaternion rot);
     void updateERPandCFM(const DataSet &d);
     void updateContact();
     void simulateServo(DataSet &d);
-    void destroy();
 
     QHash<int, Asset *> m_parts;
     QHash<int, dJointID> m_joints;
@@ -113,6 +112,7 @@ private:
     qreal m_tire_damping;
 
     Ogre::Quaternion m_start_rotation;
+    Ogre::Vector3 m_start_position;
 
     // for Futaba FUTM0032 servo
     static constexpr float DEGREES_PER_SECOND = 60.0 / 0.2;

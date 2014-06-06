@@ -58,8 +58,18 @@ TabView {
 
                     ColumnLayout {
                         anchors.fill: parent
-                        PhysicsSetting { name: "Direction 1"; value: vehicle.slip1 }
-                        PhysicsSetting { name: "Direction 2"; value: vehicle.slip2 }
+                        PhysicsSetting {
+                            name: "Direction 1";
+                            value: vehicle.slip1
+                            onChanged: vehicle.slip1 = value
+                            decimals: 8
+                        }
+                        PhysicsSetting {
+                            name: "Direction 2";
+                            value: vehicle.slip2
+                            onChanged: vehicle.slip2 = value
+                            decimals: 8
+                        }
                     }
                 }
 
@@ -69,7 +79,11 @@ TabView {
 
                     ColumnLayout {
                         anchors.fill: parent
-                        PhysicsSetting { name: "Contact (μ)"; value: vehicle.mu }
+                        PhysicsSetting {
+                            name: "Contact (μ)";
+                            value: vehicle.mu
+                            onChanged: vehicle.mu = value
+                        }
                         PhysicsSetting { name: "Rolling (ρ)"; value: vehicle.rho }
                     }
                 }
@@ -83,10 +97,12 @@ TabView {
                         PhysicsSetting {
                             name: "Coefficient "
                             value: vehicle.suspension_k
+                            onChanged: vehicle.suspension_k = value
                         }
                         PhysicsSetting {
                             name: "Damping "
                             value: vehicle.suspension_damping
+                            onChanged: vehicle.suspension_damping = value
                         }
                     }
                 }
@@ -99,10 +115,12 @@ TabView {
                         PhysicsSetting {
                             name: "Coefficient "
                             value: vehicle.tire_k
+                            onChanged: vehicle.tire_k = value
                         }
                         PhysicsSetting {
                             name: "Damping "
                             value: vehicle.tire_damping
+                            onChanged: vehicle.tire_damping = value
                         }
                     }
                 }

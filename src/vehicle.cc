@@ -4,13 +4,13 @@ Vehicle::Vehicle(QObject * parent)
     : QObject(parent)
     , m_vehicleVelocity(0)
     , m_slip1(0.00001)
-    , m_slip2(0.0002)
-    , m_mu(1000)
+    , m_slip2(0.0075)
+    , m_mu(75)
     , m_rho(0.01)
-    , m_suspension_k(150000)
-    , m_suspension_damping(200)
-    , m_tire_k(30000)
-    , m_tire_damping(400)
+    , m_suspension_k(3000)
+    , m_suspension_damping(450)
+    , m_tire_k(16000)
+    , m_tire_damping(450)
 {}
 
 Vehicle::~Vehicle()
@@ -18,10 +18,13 @@ Vehicle::~Vehicle()
     destroy();
 }
 
-void Vehicle::create(Ogre::Vector3 pos, Ogre::Quaternion rot)
+void Vehicle::create()
 {
-    constexpr dReal mass = 2;
-    constexpr qreal spawn_height = 0.1;
+    Ogre::Vector3 pos = m_start_position;
+    Ogre::Quaternion rot = m_start_rotation;
+
+    constexpr dReal mass = 0.75;
+    constexpr qreal spawn_height = 0.15;
 
     pos += {0, spawn_height, 0};
 
@@ -77,7 +80,7 @@ void Vehicle::create(Ogre::Vector3 pos, Ogre::Quaternion rot)
 
         v = (rot * v) + pos;
 
-        w->setMass(0.5);
+        w->setMass(0.2);
         w->setPosition(v);
         w->rotate(rot);
 
@@ -94,6 +97,7 @@ void Vehicle::create(Ogre::Vector3 pos, Ogre::Quaternion rot)
         {
             dJointSetHinge2Param(jid, dParamLoStop, -1e-3);
             dJointSetHinge2Param(jid, dParamHiStop, 1e-3);
+            w->setMass(0.8);
         }
 
         dGeomSetCategoryBits(w->geometry, (1 << 2)); // cat 2
@@ -118,10 +122,10 @@ void Vehicle::process(DataSet & ds)
     // fast the servo would turn
     simulateServo(ds);
 
-    dJointSetHinge2Param(m_joints[PART_WHEEL_RL], dParamFMax2, 1);//ds.wheel_power_l);
-    dJointSetHinge2Param(m_joints[PART_WHEEL_RR], dParamFMax2, 1);//ds.wheel_power_r);
+    dJointSetHinge2Param(m_joints[PART_WHEEL_RL], dParamFMax2, 0.3 * ds.wheel_power_l);
+    dJointSetHinge2Param(m_joints[PART_WHEEL_RR], dParamFMax2, 0.3 * ds.wheel_power_r);
 
-    const float rad_angle = (ds.current_wheel_angle / 180.0) * M_PI;
+    const float rad_angle = (ds.current_wheel_angle / 180.0) * M_PI; // M_PI_4 - 0.1;//
     for (int i = PART_WHEEL_FL; i <= PART_WHEEL_FR; i++)
     {
         dJointSetHinge2Param(m_joints[i], dParamLoStop1, rad_angle * 1.0 - 1e-3);
@@ -134,25 +138,19 @@ void Vehicle::process(DataSet & ds)
 
 void Vehicle::startMoved(Ogre::Vector3 pos, Ogre::Quaternion rot)
 {
-    destroy();
-    create(pos, rot);
     m_start_rotation = rot;
-}
-
-void Vehicle::simulationStopped()
-{
-    m_parts[PART_CHASIS]->setVisible(false);
+    m_start_position = pos;
 }
 
 void Vehicle::updateERPandCFM(const DataSet &d)
 {
     const double dt = d.physics_timestep;
 
-    m_surfaceERP = dt * m_suspension_k / (dt * m_suspension_k + m_suspension_damping);
-    m_surfaceCFM = 1.0 / (dt * m_suspension_k + m_suspension_damping);
+    dReal wERP = dt * m_suspension_k / (dt * m_suspension_k + m_suspension_damping);
+    dReal wCFM = 1.0 / (dt * m_suspension_k + m_suspension_damping);
 
-    dReal wERP = dt * m_tire_k / (dt * m_tire_k + m_tire_damping);
-    dReal wCFM = 1.0 / (dt * m_tire_k + m_tire_damping);
+    m_surfaceERP = dt * m_tire_k / (dt * m_tire_k + m_tire_damping);
+    m_surfaceCFM = 1.0 / (dt * m_tire_k + m_tire_damping);
 
     for (auto j : m_joints)
     {
@@ -179,7 +177,7 @@ void Vehicle::updateContact()
         fdir1.normalise();
 
         a->contact.surface.mode = dContactSoftCFM | dContactSoftERP
-                | dContactSlip1 | dContactSlip2 | dContactFDir1
+                | dContactSlip2 | dContactFDir1
                 | dContactApprox1 | dContactRolling;
         a->contact.surface.mu = m_mu;
         a->contact.surface.soft_cfm = m_surfaceCFM;
