@@ -12,6 +12,13 @@
 #include <common.h>
 #include <util.h>
 
+/*!
+ * \brief Creates and simulates the vehicle
+ *
+ * This class is responsible for constructing the vehicle in the simulation
+ * environmtent. It also computes and sets some physics parameters, for tires
+ * and suspension
+ */
 class Vehicle : public QObject
 {
     Q_OBJECT
@@ -33,6 +40,9 @@ public:
     Vehicle(QObject * parent = nullptr);
     ~Vehicle();
 
+    /*!
+     * \brief Called every simulation step, updates calculations when needed
+     */
     void process(DataSet & dataset);
 
     inline void setAssetFactory(AssetFactory * af) { m_asset_factory = af; }
@@ -47,6 +57,9 @@ public:
     qreal tire_damping() const { return m_tire_damping; }
     qreal mu() const { return m_mu; }
 
+    /*!
+     * \brief Creates the vehicle in the simulation environment
+     */
     void create();
 
 public slots:

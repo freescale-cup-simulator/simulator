@@ -7,6 +7,10 @@
 
 #include <property.h>
 
+/*!
+ * \brief Contains all user-defined properties and exposes them
+ *        to QML as a table model
+ */
 class PropertyModel : public QAbstractTableModel
 {
     Q_OBJECT

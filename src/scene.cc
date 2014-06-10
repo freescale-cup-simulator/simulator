@@ -14,6 +14,7 @@ Scene::~Scene()
 bool Scene::loadTrack(const QUrl &file)
 {
     using track_library::Tile;
+    using track_library::io::populateTrackFromFile;
 
     QString file_path = file.toLocalFile();
     static const QHash<Tile::Type, QString> mesh_mapping =
@@ -32,7 +33,7 @@ bool Scene::loadTrack(const QUrl &file)
 
     cleanup();
 
-    if (!tlio::populateTrackFromFile(m_track, file_path.toStdString()))
+    if (!populateTrackFromFile(m_track, file_path.toStdString()))
     {
         qWarning("Failed to populate track from %s, aborting",
                  file_path.toLocal8Bit().data());

@@ -10,6 +10,12 @@
 
 #include "common.h"
 
+
+/*!
+ * \brief Saves simulation data for further analysis
+ */
+
+//FIXME: currently broken; rewrite with HDF?
 class Logger
 {
 

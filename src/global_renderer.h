@@ -12,8 +12,9 @@
 #include <camera.h>
 #include <config.h>
 
-// Loads GUI and OgreEngine
-// Sets QML context property ogreEngineInstance
+/*!
+ * \brief Loads the GUI and initiates 3D rendering
+ */
 class GlobalRenderer : public QQmlApplicationEngine
 {
     Q_OBJECT
@@ -22,6 +23,9 @@ public:
 
     explicit GlobalRenderer(QWindow *parent = 0);
 
+    /*!
+     * \brief Actual GUI loading and OGRE init happen here
+     */
     void create();
 
     inline OgreEngine * ogreEngine(){return m_ogre_engine;}
@@ -44,6 +48,9 @@ private:
     Camera * m_user_camera;
 };
 
+/*!
+ * \brief Provides access to different rendering-related object instances
+ */
 class RenderingObjects
 {
 public:
@@ -63,6 +70,10 @@ public:
     Ogre::SceneManager * scene_manager;
 };
 
+/*!
+ * \brief Subclassed when an instance of RenderingObjects is needed, such as
+ *        AssetFactory (for SceneNode creation)
+ */
 class RenderingObjectsUser
 {
 public:

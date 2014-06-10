@@ -17,6 +17,12 @@
 
 class GlobalRenderer;
 
+/*!
+ * \brief Simulates a line scan camera
+ *
+ * This class places an independent Ogre camera where the car's line scan camera
+ * should be and provides a 128x1 frame to be passed to the control algorithm
+ */
 class LineScanCamera : public Camera, public RenderingObjectsUser
 {
     Q_OBJECT

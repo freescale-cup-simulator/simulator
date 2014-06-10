@@ -7,6 +7,14 @@
 
 #include <global_renderer.h>
 
+/*!
+ * \brief Manages ODE TriMeshData to prevent duplication and unnecessary re-loading
+ *
+ * When a dTriMeshDataID is requested via value() or operator[], it is either created
+ * from an Ogre Mesh or stored, or a previously stored dTriMeshDataID is returned.
+ * This avoids duplication of dTriMeshDataIDs in case when there are multiple objects
+ * with the same geometry/mesh (track tiles, for example)
+ */
 class TrimeshDataManager : public RenderingObjectsUser
 {
 public:

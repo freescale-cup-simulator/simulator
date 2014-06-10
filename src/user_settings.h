@@ -6,7 +6,9 @@
 class QString;
 class QVariant;
 
-// a simple QSettings wrapper to be made visible to QML
+/*!
+ * \brief A simple QSettings wrapper to be made visible to QML
+ */
 class UserSettings : public QObject
 {
     Q_OBJECT

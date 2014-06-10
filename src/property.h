@@ -4,6 +4,9 @@
 #include <QString>
 #include <QObject>
 
+/*!
+ * \brief Represents a single user-defined property
+ */
 class Property
 {
 public:

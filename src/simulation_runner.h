@@ -33,6 +33,18 @@ private:
     QWaitCondition m_condition;
 };
 
+
+/*!
+ * \brief Manages the simulation process
+ *
+ * The simulation has two main parameters: controlInterval and PhysicsTimeStep.
+ * physicsTimeStep is time, in seconds, by which PhysicsSimulation advances the
+ * state of the physical world; if an object is moving at 1 m/s and
+ * physicsTimeStep = 1 then the object will move by 1 meter per simulation step.
+ * Lower physicsTimeStep allows for more precision but results in slower simulation.
+ *
+ * controlInterval is the amount of time between calls to the control algorithm.
+ */
 class SimulationRunner : public QObject, public QRunnable
 {
     Q_OBJECT
@@ -49,6 +61,9 @@ public:
     enum SimulationState {Stopped, Paused, Started};
     explicit SimulationRunner(QObject * parent = nullptr);
 
+    /*!
+     * \brief Loads a control algorithm file, see ControlAlgorithm::loadFile()
+     */
     Q_INVOKABLE bool loadAlgorithmFile(const QUrl & file);
 
     inline float controlInterval() { return m_control_interval; }
@@ -82,6 +97,9 @@ public:
 
     inline void setCameraSimulator(LineScanCamera * cm) { m_linescan_camera = cm; }
 
+    /*!
+     * \brief starts the simulation thread
+     */
     Q_INVOKABLE void startThread()
     {
         /*
@@ -93,9 +111,14 @@ public:
         QThreadPool::globalInstance()->start(this);
     }
 
+    /*!
+     * \brief Overloaded from QRunnable; this method is executed in the
+     *        simulation thread
+     */
+    void run();
+
 public slots:
     void setState(SimulationState state);
-    void run();
 signals:
     void controlIntervalChanged();
     void physicsTimeStepChanged();

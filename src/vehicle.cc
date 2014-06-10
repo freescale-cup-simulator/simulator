@@ -59,6 +59,7 @@ void Vehicle::create()
     constexpr int nwheels = 4;
     const char * wn[nwheels] = {"wheel_hl", "wheel_hr", "wheel_rl", "wheel_rr"};
 
+    // wheels are actually simulated as spheres
     AssetFactory::GeomFunction wheel_f = [](dWorldID, dSpaceID space) -> dGeomID
     {
         constexpr float radius = 0.025;
@@ -110,12 +111,18 @@ void Vehicle::create()
 
 void Vehicle::process(DataSet & ds)
 {
+    // update suspension parameters
     updateERPandCFM(ds);
-    auto v = util::dv2qv(dBodyGetLinearVel(m_parts[PART_CHASIS]->body)).length();
-    auto v_ = m_vehicleVelocity;
-    m_vehicleVelocity = v;
-    if (v != v_)
-        vehicleVelocityChanged();
+
+    // recalculate vehicle velocity
+    {
+        auto v = util::dv2qv(dBodyGetLinearVel(m_parts[PART_CHASIS]->body)).length();
+        auto v_ = m_vehicleVelocity;
+        m_vehicleVelocity = v;
+        if (v != v_)
+            vehicleVelocityChanged();
+    }
+
     updateContact();
 
     // this sets actual wheel angle based on what the algotithm wants and how

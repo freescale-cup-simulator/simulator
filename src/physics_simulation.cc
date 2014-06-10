@@ -50,6 +50,8 @@ void PhysicsSimulation::nearCallback(void *, dGeomID ga, dGeomID gb)
     if (((cat1 & col2) == 0) && ((cat2 & col1) == 0))
         return;
 
+    // default surface parameters for when an Asset is colliding
+    // but doesn't have it's own
     static dSurfaceParameters default_surface =
     {
         dContactSoftCFM | dContactSoftERP, // mode

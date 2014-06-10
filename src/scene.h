@@ -14,8 +14,9 @@
 #include <track_io.h>
 #include <track_model.h>
 
-namespace tlio = track_library::io;
-
+/*!
+ * \brief Manages the 3D scene, currently only the track
+ */
 class Scene : public QObject
 {
     Q_OBJECT
@@ -23,6 +24,11 @@ public:
     Scene(AssetFactory * asset_factory, QObject * parent = nullptr);
     ~Scene();
 public slots:
+    /*!
+     * \brief loads a track description and places it in the simulation
+     * \param file path to the track files
+     * \return true on success, false otherwise
+     */
     bool loadTrack(const QUrl &file);
 signals:
     void startMoved(Ogre::Vector3 pos, Ogre::Quaternion rot);

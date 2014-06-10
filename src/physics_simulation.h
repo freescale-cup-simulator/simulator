@@ -9,6 +9,9 @@
 #include <common.h>
 #include <asset.h>
 
+/*!
+ * \brief Performs step-by-step simulation of physical interaction of assets
+ */
 class PhysicsSimulation : public QObject
 {
     Q_OBJECT

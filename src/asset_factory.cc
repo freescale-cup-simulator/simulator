@@ -36,22 +36,20 @@ Asset *AssetFactory::createAsset(Flags flags, const QString & mesh_name,
     if (gid)
         dGeomSetBody(gid, bid);
 
-    if (flags.testFlag(Body3D))
+    if (flags.testFlag(SceneNode))
     {
         m_rendering_objects->gl_context->makeCurrent(m_rendering_objects->window);
 
-        if (flags.testFlag(SceneNode))
-        {
-            node3d = sm->getRootSceneNode()->createChildSceneNode();
-            node3d->setVisible(false, true);
-        }
+        node3d = sm->getRootSceneNode()->createChildSceneNode();
+        node3d->setVisible(false, true);
 
-        if (flags.testFlag(SceneNode) && flags.testFlag(Body3D))
+        if (flags.testFlag(Body3D))
         {
-            Ogre::Entity* ent = sm->createEntity(mesh_name.toStdString().c_str());
+            Ogre::Entity * ent = sm->createEntity(mesh_name.toStdString().c_str());
             node3d->attachObject(ent);
         }
         m_rendering_objects->gl_context->doneCurrent();
     }
+
     return new Asset(node3d, bid, gid);
 }
