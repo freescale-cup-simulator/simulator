@@ -15,8 +15,6 @@
 #include <ogre_engine.h>
 #include <common.h>
 
-class GlobalRenderer;
-
 /*!
  * \brief Simulates a line scan camera
  *
