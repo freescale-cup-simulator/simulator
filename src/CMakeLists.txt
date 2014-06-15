@@ -51,8 +51,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Quick_EXECUTABLE_COMPILE_FLAGS}")
 include(ExternalProject)
 ExternalProject_Add(
   ODE
-  URL ${CMAKE_CURRENT_SOURCE_DIR}/deps/ode-0.13.tar.bz2
-  URL_MD5 04b32c9645c147e18caff7a597a19f84
+  URL ${CMAKE_CURRENT_SOURCE_DIR}/deps/ode-0.13.1.tar.gz
+  URL_MD5 00f6613b3d8e5249be60e3a513d6aebd
   BUILD_IN_SOURCE 1
   BUILD_COMMAND make
   CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR> --enable-static
