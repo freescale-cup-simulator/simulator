@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="12.2">
+  <help_text>// Uncomment the following line to change the fontsize and font:
+fontsize=12
+fontfamily=Monospaced //possible: SansSerif,Serif,Monospaced
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Welcome to UMLet!
+//
+// Double-click on elements to add them to the diagram, or to copy them
+// Edit elements by modifying the text in this panel
+// Hold Ctrl to select multiple elements
+// Use Ctrl+mouse to select via lasso
+//
+// Use +/- or Ctrl+mouse wheel to zoom
+// Drag a whole relation at its central square icon
+//
+// Press Ctrl+C to copy the whole diagram to the system clipboard (then just paste it to, eg, Word)
+// Edit the files in the "palettes" directory to create your own element palettes
+//
+// Select "Custom Elements &gt; New..." to create new element types
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// This text will be stored with each diagram;  use it for notes.</help_text>
+  <zoom_level>14</zoom_level>
+  <element>
+    <type>com.umlet.element.Actor</type>
+    <coordinates>
+      <x>210</x>
+      <y>168</y>
+      <w>112</w>
+      <h>168</h>
+    </coordinates>
+    <panel_attributes>User</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.UseCase</type>
+    <coordinates>
+      <x>490</x>
+      <y>14</y>
+      <w>168</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes>Load Track</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.UseCase</type>
+    <coordinates>
+      <x>490</x>
+      <y>98</y>
+      <w>168</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes>Load Algorithm
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.UseCase</type>
+    <coordinates>
+      <x>490</x>
+      <y>196</y>
+      <w>168</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes>Quick Start
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>616</x>
+      <y>0</y>
+      <w>258</w>
+      <h>252</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;extends&gt;&gt;</panel_attributes>
+    <additional_attributes>42;224;168;224;168;42;42;42</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>602</x>
+      <y>84</y>
+      <w>216</w>
+      <h>154</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;extends&gt;&gt;</panel_attributes>
+    <additional_attributes>42;126;126;126;126;42;56;42</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.UseCase</type>
+    <coordinates>
+      <x>490</x>
+      <y>266</y>
+      <w>168</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes>Move Camera</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.UseCase</type>
+    <coordinates>
+      <x>490</x>
+      <y>350</y>
+      <w>182</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes>Start Simulation</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.UseCase</type>
+    <coordinates>
+      <x>490</x>
+      <y>504</y>
+      <w>182</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes>Stop Simulation</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.UseCase</type>
+    <coordinates>
+      <x>490</x>
+      <y>434</y>
+      <w>182</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes>Pause Simulation</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>280</x>
+      <y>0</y>
+      <w>238</w>
+      <h>224</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>210;42;42;196</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>280</x>
+      <y>84</y>
+      <w>238</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>210;42;42;112</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>280</x>
+      <y>154</y>
+      <w>238</w>
+      <h>98</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>210;70;42;42</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>280</x>
+      <y>154</y>
+      <w>238</w>
+      <h>168</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>210;140;42;42</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>280</x>
+      <y>154</y>
+      <w>238</w>
+      <h>252</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>210;224;42;42</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>280</x>
+      <y>154</y>
+      <w>238</w>
+      <h>336</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>210;308;42;42</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>280</x>
+      <y>154</y>
+      <w>238</w>
+      <h>406</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes>210;378;42;42</additional_attributes>
+  </element>
+</diagram>
