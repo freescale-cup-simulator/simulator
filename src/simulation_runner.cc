@@ -43,7 +43,6 @@ bool SimulationRunner::loadAlgorithmFile(const QUrl &file)
                          + QDateTime::currentDateTime().toString("hhmmssddMMyyyy")
                          + ".dat");
 
-    m_control_algorithm_path = file;
     m_control_algorithm = QSharedPointer<ControlAlgorithm>(ca);
     return true;
 }
@@ -59,9 +58,6 @@ void SimulationRunner::setState(SimulationRunner::SimulationState state)
 
 void SimulationRunner::run()
 {
-    if (m_control_algorithm_path.isValid())
-        loadAlgorithmFile(m_control_algorithm_path);
-
     if (!m_control_algorithm)
     {
         qWarning("Control algorithm not loaded, will not run");

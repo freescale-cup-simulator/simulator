@@ -130,10 +130,8 @@ private:
     float m_control_interval;
     float m_physics_timestep;
 
-    track_library::TrackModel m_track_model;
     LineScanCamera * m_linescan_camera;
     QSharedPointer<ControlAlgorithm> m_control_algorithm;
-    QUrl m_control_algorithm_path;
 
     Vehicle * m_vehicle;
     PhysicsSimulation * m_physics_simulation;
