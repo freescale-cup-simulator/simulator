@@ -27,7 +27,7 @@ class LineScanCamera : public Camera, public RenderingObjectsUser
 public:
     explicit LineScanCamera(Ogre::Camera * camera, QObject *parent = nullptr);
     ~LineScanCamera();
-    void process(DataSet & data);
+    void process(QPair<Ogre::Vector3, Ogre::Quaternion> state, quint8 line[]);
 
     inline void setRenderingObjects(RenderingObjects *ro)
     {

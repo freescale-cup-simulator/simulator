@@ -15,16 +15,16 @@ LineScanCamera::~LineScanCamera()
 {
 }
 
-void LineScanCamera::process(DataSet & data)
+void LineScanCamera::process(QPair<Ogre::Vector3, Ogre::Quaternion> state, quint8 line[])
 {
-    m_camera->setPosition(data.camera.position);
+    m_camera->setPosition(state.first);
 
     Ogre::Quaternion ry(Ogre::Radian(M_PI), Ogre::Vector3::UNIT_Y);
     Ogre::Quaternion rx(Ogre::Radian(Ogre::Degree(-45)), Ogre::Vector3::UNIT_X);
-    m_camera->setOrientation(data.camera.rotation * ry * rx);
+    m_camera->setOrientation(state.second * ry * rx);
 
     m_frame_locker.lock();
-    memcpy(data.camera_pixels, m_current_frame, CAMERA_FRAME_LEN);
+    memcpy(line, m_current_frame, CAMERA_FRAME_LEN);
     m_frame_locker.unlock();
 }
 

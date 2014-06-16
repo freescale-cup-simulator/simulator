@@ -7,6 +7,7 @@
 #include <QThreadPool>
 #include <QWaitCondition>
 #include <QDateTime>
+#include <QPair>
 
 #include <global_renderer.h>
 #include <control_algorithm.h>
@@ -48,12 +49,6 @@ private:
 class SimulationRunner : public QObject, public QRunnable
 {
     Q_OBJECT
-    Q_PROPERTY(float controlInterval READ controlInterval
-               WRITE setControlInterval
-               NOTIFY controlIntervalChanged)
-    Q_PROPERTY(float physicsTimeStep READ physicsTimeStep
-               WRITE setPhysicsTimeStep
-               NOTIFY physicsTimeStepChanged)
     Q_PROPERTY(SimulationState simulationState READ getState
                NOTIFY simulationStateChanged)
     Q_ENUMS(SimulationState)
@@ -65,21 +60,6 @@ public:
      * \brief Loads a control algorithm file, see ControlAlgorithm::loadFile()
      */
     Q_INVOKABLE bool loadAlgorithmFile(const QUrl & file);
-
-    inline float controlInterval() { return m_control_interval; }
-    inline float physicsTimeStep() { return m_physics_timestep; }
-
-    inline void setControlInterval(float v)
-    {
-        m_control_interval = v;
-        controlIntervalChanged();
-    }
-
-    inline void setPhysicsTimeStep(float v)
-    {
-        m_physics_timestep = v;
-        physicsTimeStepChanged();
-    }
 
     inline void setVehicle(Vehicle * v)
     {
@@ -120,15 +100,10 @@ public:
 public slots:
     void setState(SimulationState state);
 signals:
-    void controlIntervalChanged();
-    void physicsTimeStepChanged();
     void simulationStateChanged();
     void simulationStopped();
 private:
     SimulationState m_state;
-
-    float m_control_interval;
-    float m_physics_timestep;
 
     LineScanCamera * m_linescan_camera;
     QSharedPointer<ControlAlgorithm> m_control_algorithm;

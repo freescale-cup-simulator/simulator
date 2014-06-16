@@ -45,8 +45,10 @@ QString ControlAlgorithm::getId()
     return m_current_file;
 }
 
-void ControlAlgorithm::process(DataSet & d)
+void ControlAlgorithm::process(DataSet & d, quint8 frame[])
 {
+    using namespace DataSetValues;
+
     Q_ASSERT(m_lua_loaded);
 
     // important: make a copy of the loaded function, pcall will pop it
@@ -56,7 +58,7 @@ void ControlAlgorithm::process(DataSet & d)
     for (int i = 0; i < CAMERA_FRAME_LEN; i++)
     {
         lua_pushnumber(m_lua_state, i + 1);
-        lua_pushnumber(m_lua_state, static_cast<unsigned char>(d.camera_pixels[i]));
+        lua_pushnumber(m_lua_state, static_cast<unsigned char>(frame[i]));
         lua_settable(m_lua_state, -3);
     }
     lua_setglobal(m_lua_state, "g_camera_frame");
@@ -65,19 +67,19 @@ void ControlAlgorithm::process(DataSet & d)
         qFatal("Lua error: %s", lua_tostring(m_lua_state, -1));
 
     lua_getfield(m_lua_state, -1, "angle");
-    d.desired_wheel_angle = lua_tonumber(m_lua_state, -1);
+    d[DESIRED_WHEEL_ANGLE] = lua_tonumber(m_lua_state, -1);
     lua_pop(m_lua_state, 1);
 
     lua_getfield(m_lua_state, -1, "lspeed");
-    d.wheel_power_r = lua_tonumber(m_lua_state, -1);
+    d[WHEEL_POWER_R] = lua_tonumber(m_lua_state, -1);
     lua_pop(m_lua_state, 1);
 
     lua_getfield(m_lua_state, -1, "rspeed");
-    d.wheel_power_l = lua_tonumber(m_lua_state, -1);
+    d[WHEEL_POWER_L] = lua_tonumber(m_lua_state, -1);
     lua_pop(m_lua_state, 1);
 
     lua_getfield(m_lua_state, -1, "linepos");
-    d.line_position = lua_tonumber(m_lua_state, -1);
+    d[LINE_POSITION] = lua_tonumber(m_lua_state, -1);
     lua_pop(m_lua_state, 1);
 
     lua_pop(m_lua_state, 1);

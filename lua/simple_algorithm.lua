@@ -99,7 +99,10 @@ function run()
 
 	local signals = {}
 	signals["angle"] = angle
-	signals["lspeed"] = (1 - (math.abs(angle) / 45)) * 10
+	signals["lspeed"] = 0.35 -- (0.45 - (math.abs(angle) / 45))
+	
+--	print("speed " .. signals["lspeed"]) 
+	
 	signals["rspeed"] = signals["lspeed"]
 	signals["linepos"] = center
 	return signals

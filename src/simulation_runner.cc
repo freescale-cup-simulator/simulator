@@ -20,8 +20,6 @@ void ResumeWaitCondition::wake()
 SimulationRunner::SimulationRunner(QObject *parent)
     : QObject(parent)
     , m_state(SimulationRunner::Stopped)
-    , m_control_interval(0.001)
-    , m_physics_timestep(0.0005)
 {
     setAutoDelete(false);
 }
@@ -38,10 +36,6 @@ bool SimulationRunner::loadAlgorithmFile(const QUrl &file)
         delete ca;
         return false;
     }
-
-    m_logger.setFileName(ca->getId() + "_"
-                         + QDateTime::currentDateTime().toString("hhmmssddMMyyyy")
-                         + ".dat");
 
     m_control_algorithm = QSharedPointer<ControlAlgorithm>(ca);
     return true;
@@ -72,21 +66,16 @@ void SimulationRunner::run()
 
     DataSet dataset;
     float physics_runtime;
+    QPair<Ogre::Vector3, Ogre::Quaternion> camera_state;
+    quint8 scanned_line[CAMERA_FRAME_LEN];
 
-    dataset.current_wheel_angle = 0;
-    dataset.wheel_power_l = dataset.wheel_power_r = 0;
-    dataset.physics_timestep = m_physics_timestep;
-    dataset.control_interval = m_control_interval;
-    dataset.line_position=64;
+    std::memset(&dataset, 0, sizeof(DataSet));
+    dataset[DataSetValues::LINE_POSITION] = 64;
 
-//    Q_ASSERT(m_logger.beginWrite());
-
-    m_vehicle->process(dataset);
+    m_vehicle->process(dataset, camera_state);
 
     while (m_state != SimulationRunner::Stopped)
     {
-//        m_logger << dataset;
-
         if (m_state==SimulationRunner::Paused)
         {
             ResumeWaitCondition::instance()->wait();
@@ -94,21 +83,31 @@ void SimulationRunner::run()
         }
 
         physics_runtime = 0;
-        while (physics_runtime < m_control_interval)
+        while (physics_runtime < CONTROL_INTERVAL)
         {
-            m_physics_simulation->process(dataset);
-            m_vehicle->process(dataset);
-            physics_runtime += m_physics_timestep;
+            m_physics_simulation->process();
+            m_vehicle->process(dataset, camera_state);
+            physics_runtime += PHYSICS_TIMESTEP;
         }
-        m_linescan_camera->process(dataset);
-        m_control_algorithm->process(dataset);
+
+        m_linescan_camera->process(camera_state, scanned_line);
+        m_control_algorithm->process(dataset, scanned_line);
+
+        dataset[DataSetValues::TIMESTAMP] += CONTROL_INTERVAL;
+        m_logger.appendDataset(dataset);
     }
 
-//    m_logger.endWrite();
+    QString fn = m_control_algorithm->getId() + "_"
+            + QDateTime::currentDateTime().toString("hhmmssddMMyyyy")
+            + ".hdf";
+
+    if (!m_logger.saveToFile(fn))
+    {
+        qWarning("SimulationRunner: failed to save log file");
+    }
 
     emit simulationStopped();
     m_control_algorithm.clear();
-
 
     qDebug("Simulation done!");
 }

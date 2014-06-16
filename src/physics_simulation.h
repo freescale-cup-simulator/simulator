@@ -21,7 +21,7 @@ public:
 
     inline dWorldID world() { return m_world; }
     inline dSpaceID space() { return m_space; }
-    void process(DataSet & data);
+    void process();
 private:
     void nearCallback(void *, dGeomID a, dGeomID b);
     static void nearCallbackWrapper(void * i, dGeomID a, dGeomID b);

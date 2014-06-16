@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QHash>
+#include <QPair>
 
 #include <OgreQuaternion.h>
 
@@ -43,7 +44,7 @@ public:
     /*!
      * \brief Called every simulation step, updates calculations when needed
      */
-    void process(DataSet & dataset);
+    void process(DataSet & dataset, QPair<Ogre::Vector3, Ogre::Quaternion> & camera);
 
     inline void setAssetFactory(AssetFactory * af) { m_asset_factory = af; }
 
@@ -103,7 +104,7 @@ private:
         PART_WHEEL_RR
     };
 
-    void updateERPandCFM(const DataSet &d);
+    void updateERPandCFM();
     void updateContact();
     void simulateServo(DataSet &d);
 

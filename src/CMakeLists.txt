@@ -106,6 +106,8 @@ endif()
 find_package(OGRE REQUIRED)
 find_package(OIS REQUIRED)
 find_package(Boost COMPONENTS system filesystem thread date_time REQUIRED)
+find_package(HDF5 REQUIRED CXX)
+
 
 include_directories(SYSTEM
         ${Boost_INCLUDE_DIR}
@@ -113,6 +115,7 @@ include_directories(SYSTEM
         ${OGRE_SAMPLES_INCLUDEPATH}
         ${OIS_INCLUDE_DIRS}
         ${CMAKE_BINARY_DIR}
+        ${HDF5_INCLUDE_DIRS}
 )
 
 add_subdirectory(libtrack EXCLUDE_FROM_ALL)
@@ -152,4 +155,5 @@ target_link_libraries(freescale_simulator
                       ${Boost_LIBRARIES}
                       ${Qt5Quick_LIBRARIES}
                       ${Qt5Widgets_LIBRARIES}
+                      ${HDF5_LIBRARIES}
 )

@@ -34,8 +34,9 @@ public:
      * \brief Pass the DataSet to Lua and recieve control signals
      * \param data the DataSet to process; returned control signals from Lua
      *        are placed here as well
+     * \param frame line scan camera frame
      */
-    void process(DataSet & data);
+    void process(DataSet & data, quint8 frame[]);
 private:
     /*!
      * \brief Utility: add a directory to Lua search path, so user scripts can

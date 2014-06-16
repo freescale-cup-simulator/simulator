@@ -109,10 +109,13 @@ void Vehicle::create()
     }
 }
 
-void Vehicle::process(DataSet & ds)
+void Vehicle::process(DataSet & ds,
+                      QPair<Ogre::Vector3, Ogre::Quaternion> & camera)
 {
+    using namespace DataSetValues;
+
     // update suspension parameters
-    updateERPandCFM(ds);
+    updateERPandCFM();
 
     // recalculate vehicle velocity
     {
@@ -129,18 +132,18 @@ void Vehicle::process(DataSet & ds)
     // fast the servo would turn
     simulateServo(ds);
 
-    dJointSetHinge2Param(m_joints[PART_WHEEL_RL], dParamFMax2, 0.3 * ds.wheel_power_l);
-    dJointSetHinge2Param(m_joints[PART_WHEEL_RR], dParamFMax2, 0.3 * ds.wheel_power_r);
+    dJointSetHinge2Param(m_joints[PART_WHEEL_RL], dParamFMax2, ds[WHEEL_POWER_L]);
+    dJointSetHinge2Param(m_joints[PART_WHEEL_RR], dParamFMax2, ds[WHEEL_POWER_R]);
 
-    const float rad_angle = (ds.current_wheel_angle / 180.0) * M_PI; // M_PI_4 - 0.1;//
+    const float rad_angle = (ds[CURRENT_WHEEL_ANGLE] / 180.0) * M_PI;
     for (int i = PART_WHEEL_FL; i <= PART_WHEEL_FR; i++)
     {
         dJointSetHinge2Param(m_joints[i], dParamLoStop1, rad_angle * 1.0 - 1e-3);
         dJointSetHinge2Param(m_joints[i], dParamHiStop1, rad_angle * 1.0 + 1e-3);
     }
 
-    ds.camera.position = util::dv2ov(dBodyGetPosition(m_parts[PART_CAMERA]->body));
-    ds.camera.rotation = util::dq2oq(dBodyGetQuaternion(m_parts[PART_CAMERA]->body));
+    camera.first = util::dv2ov(dBodyGetPosition(m_parts[PART_CAMERA]->body));
+    camera.second = util::dq2oq(dBodyGetQuaternion(m_parts[PART_CAMERA]->body));
 }
 
 void Vehicle::startMoved(Ogre::Vector3 pos, Ogre::Quaternion rot)
@@ -149,9 +152,9 @@ void Vehicle::startMoved(Ogre::Vector3 pos, Ogre::Quaternion rot)
     m_start_position = pos;
 }
 
-void Vehicle::updateERPandCFM(const DataSet &d)
+void Vehicle::updateERPandCFM()
 {
-    const double dt = d.physics_timestep;
+    constexpr float dt = PHYSICS_TIMESTEP;
 
     dReal wERP = dt * m_suspension_k / (dt * m_suspension_k + m_suspension_damping);
     dReal wCFM = 1.0 / (dt * m_suspension_k + m_suspension_damping);
@@ -204,20 +207,22 @@ void Vehicle::updateContact()
 
 void Vehicle::simulateServo(DataSet &d)
 {
-    const float dps = DEGREES_PER_SECOND * d.physics_timestep;
+    using namespace DataSetValues;
+
+    const float dps = DEGREES_PER_SECOND * PHYSICS_TIMESTEP;
 
     // servo will reach desired angle during current step
-    if (std::abs(d.desired_wheel_angle - d.current_wheel_angle) < dps)
+    if (std::abs(d[DESIRED_WHEEL_ANGLE] - d[CURRENT_WHEEL_ANGLE]) < dps)
     {
-        d.current_wheel_angle = d.desired_wheel_angle;
+        d[CURRENT_WHEEL_ANGLE] = d[DESIRED_WHEEL_ANGLE];
     }
-    else if (d.desired_wheel_angle < d.current_wheel_angle)
+    else if (d[DESIRED_WHEEL_ANGLE] < d[CURRENT_WHEEL_ANGLE])
     {
-        d.current_wheel_angle -= dps;
+        d[CURRENT_WHEEL_ANGLE] -= dps;
     }
     else
     {
-        d.current_wheel_angle += dps;
+        d[CURRENT_WHEEL_ANGLE] += dps;
     }
 }
 

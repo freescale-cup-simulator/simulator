@@ -23,7 +23,7 @@ Q_DECLARE_METATYPE(Ogre::Quaternion)
 
 void register_types()
 {
-    qRegisterMetaType<DataSet>();
+//    qRegisterMetaType<DataSet>();
     qRegisterMetaType<Property>();
     qRegisterMetaType<Ogre::Vector3>();
     qRegisterMetaType<Ogre::Quaternion>();

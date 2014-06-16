@@ -26,10 +26,10 @@ PhysicsSimulation::~PhysicsSimulation()
     dCloseODE();
 }
 
-void PhysicsSimulation::process(DataSet & data)
+void PhysicsSimulation::process()
 {
     dSpaceCollide(m_space, this, &PhysicsSimulation::nearCallbackWrapper);
-    dWorldStep(m_world, data.physics_timestep);
+    dWorldStep(m_world, PHYSICS_TIMESTEP);
     dJointGroupEmpty(m_contact_group);
 }
 

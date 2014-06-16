@@ -1,56 +1,39 @@
 #ifndef LOGER_H
 #define LOGER_H
 
-#include <QFile>
-#include <QDataStream>
-#include <QVector>
 #include <QString>
+#include <QVector>
+#include <QSharedPointer>
 #include <QDebug>
-#include <exception>
 
-#include "common.h"
+#include <H5Cpp.h>
+
+#include <common.h>
 
 
 /*!
  * \brief Saves simulation data for further analysis
  */
 
-//FIXME: currently broken; rewrite with HDF?
 class Logger
 {
-
 public:
+    void appendDataset(const DataSet & ds);
+    bool saveToFile(const QString & fileName, bool clearAfter = true);
 
-    enum Mode{Closed,Read,Write};
+    int currentLogSize() { return m_dataset_vector.size(); }
 
-    Logger();
+    void clear()
+    {
+        qDeleteAll(m_dataset_vector);
+        m_dataset_vector.clear();
+    }
 
-    void setFileName(const QString &filename);
-
-    bool beginWrite();
-    quint64 endWrite();
-    bool canWrite();
-
-    bool beginRead();
-    quint64 endRead();
-    bool canRead();
-
-
-    Mode mode() {return m_mode;}
-
-    Logger & operator <<(DataSet & dataset);
-    Logger & operator >> (DataSet & dataset);
-
-    ~Logger();
-
-    class CorruptedStructureException {};
 private:
+    typedef QVector<float *> DatasetVector;
+    static constexpr int HDF_DATASET_RANK = 2;
 
-    QFile * m_file;
-    QDataStream m_stream;
-    Mode m_mode;
-    quint64 m_written;
-    void log(QString text);
-
+    DatasetVector m_dataset_vector;
+    QString m_logname;
 };
 #endif // LOGER_H

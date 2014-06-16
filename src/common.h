@@ -6,27 +6,26 @@
 #include <OgreVector3.h>
 
 constexpr int CAMERA_FRAME_LEN = 128;
-constexpr int DATASET_VERSION = 1;
+constexpr float CONTROL_INTERVAL = 0.001;
+constexpr float PHYSICS_TIMESTEP = 0.00005;
 
-typedef struct
+namespace DataSetValues
 {
-    quint8 camera_pixels[CAMERA_FRAME_LEN];
 
-    struct
-    {
-        Ogre::Vector3 position;
-        Ogre::Quaternion rotation;
-    } camera;
+enum
+{
+    CURRENT_WHEEL_ANGLE = 0,
+    DESIRED_WHEEL_ANGLE,
+    WHEEL_POWER_R,
+    WHEEL_POWER_L,
+    LINE_POSITION,
+    TIMESTAMP,
 
-    float current_wheel_angle;
-    float desired_wheel_angle;
-    float wheel_power_r;
-    float wheel_power_l;
-    float physics_timestep;
-    float control_interval;
-    qint32 line_position;
-} DataSet;
+    VALUE_MAX
+};
 
-Q_DECLARE_METATYPE(DataSet)
+}
+
+typedef float DataSet[DataSetValues::VALUE_MAX];
 
 #endif // COMMON_H
