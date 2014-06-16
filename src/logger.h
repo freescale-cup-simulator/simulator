@@ -34,6 +34,5 @@ private:
     static constexpr int HDF_DATASET_RANK = 2;
 
     DatasetVector m_dataset_vector;
-    QString m_logname;
 };
 #endif // LOGER_H
